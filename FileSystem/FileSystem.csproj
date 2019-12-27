@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <RootNamespace>SharpGrip.FileSystem</RootNamespace>
+        <Nullable>enable</Nullable>
+        <AssemblyName>FileSystem</AssemblyName>
+        <PackageVersion>1.0.0-alpha1</PackageVersion>
+        <Company>SharpGrip</Company>
+        <PackageId>SharpGrip.FileSystem</PackageId>
+        <Authors>SharpGrip</Authors>
+        <Title>SharpGrip FileSystem</Title>
+        <Description>A file system abstraction supporting multiple adapters.</Description>
+        <Summary>A file system abstraction supporting multiple adapters.</Summary>
+        <Copyright>SharpGrip</Copyright>
+        <License>MIT</License>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/SharpGrip/FileSystem</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+</Project>
