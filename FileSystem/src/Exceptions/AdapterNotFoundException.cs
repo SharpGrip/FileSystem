@@ -6,7 +6,6 @@ namespace SharpGrip.FileSystem.Exceptions
     {
         public AdapterNotFoundException(string message) : base(message)
         {
-            
         }
     }
 }

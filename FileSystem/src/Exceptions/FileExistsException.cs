@@ -6,7 +6,6 @@ namespace SharpGrip.FileSystem.Exceptions
     {
         public FileExistsException(string message) : base(message)
         {
-            
         }
     }
 }

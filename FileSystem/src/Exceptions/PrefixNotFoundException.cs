@@ -6,7 +6,6 @@ namespace SharpGrip.FileSystem.Exceptions
     {
         public PrefixNotFoundException(string message) : base(message)
         {
-            
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using SharpGrip.FileSystem;
 using SharpGrip.FileSystem.Adapters;
 using SharpGrip.FileSystem.Exceptions;
 
@@ -11,15 +10,14 @@ namespace SharpGrip.FileSystem
 {
     public class FileSystem : IFileSystem
     {
-        public readonly IList<IAdapter> Adapters;
+        public IList<IAdapter> Adapters { get; set; } = new List<IAdapter>();
+
+        public FileSystem()
+        {
+        }
 
         public FileSystem(IList<IAdapter> adapters)
         {
-            if (adapters.Count == 0)
-            {
-                throw new AdaptersEmptyException("The provided list of adapters cannot be empty.");
-            }
-
             Adapters = adapters;
         }
 
@@ -110,7 +108,7 @@ namespace SharpGrip.FileSystem
 
             return await GetAdapter(prefix).ReadFile(path);
         }
-        
+
         public async Task<string> ReadTextFile(string path)
         {
             var prefix = GetPrefix(path);
@@ -131,17 +129,17 @@ namespace SharpGrip.FileSystem
 
             await destinationAdapter.WriteFile(destinationPath, await sourceAdapter.ReadFile(sourcePath), overwrite);
         }
-        
+
         public async Task MoveFile(string sourcePath, string destinationPath, bool overwrite = false)
         {
             var sourcePrefix = GetPrefix(sourcePath);
             sourcePath = GetPath(sourcePath);
             var sourceAdapter = GetAdapter(sourcePrefix);
-            
+
             var destinationPrefix = GetPrefix(destinationPath);
             destinationPath = GetPath(destinationPath);
             var destinationAdapter = GetAdapter(destinationPrefix);
-            
+
             await destinationAdapter.WriteFile(destinationPath, await sourceAdapter.ReadFile(sourcePath), overwrite);
             await sourceAdapter.DeleteFile(sourcePath);
         }
@@ -153,7 +151,7 @@ namespace SharpGrip.FileSystem
 
             GetAdapter(prefix).WriteFile(path, contents, overwrite);
         }
-        
+
         public void WriteFile(string path, string contents, bool overwrite = false)
         {
             var prefix = GetPrefix(path);
@@ -169,7 +167,7 @@ namespace SharpGrip.FileSystem
 
             GetAdapter(prefix).AppendFile(path, contents);
         }
-        
+
         public void AppendFile(string path, string contents)
         {
             var prefix = GetPrefix(path);
@@ -180,6 +178,16 @@ namespace SharpGrip.FileSystem
 
         private IAdapter GetAdapter(string prefix)
         {
+            if (Adapters == null)
+            {
+                throw new AdaptersNullException("No adapters registered with the file system.");
+            }
+
+            if (Adapters.Count == 0)
+            {
+                throw new AdaptersEmptyException("The provided list of adapters cannot be empty.");
+            }
+
             if (Adapters.All(adapter => adapter.Prefix != prefix))
             {
                 var adapters = string.Join(", ", Adapters.Select(adapter => adapter.Prefix).ToArray());

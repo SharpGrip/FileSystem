@@ -4,24 +4,18 @@ namespace SharpGrip.FileSystem.Adapters
 {
     public abstract class Adapter
     {
-        private readonly string _rootPath;
-
         public string Prefix { get; }
+        public string RootPath { get; }
 
         protected Adapter(string prefix, string rootPath)
         {
-            if (!Directory.Exists(rootPath))
-            {
-                throw new DirectoryNotFoundException($"Directory '{rootPath}' not found.");
-            }
-
             Prefix = prefix;
-            _rootPath = rootPath;
+            RootPath = rootPath;
         }
 
         protected string PrependRootPath(string path)
         {
-            return Path.Combine(_rootPath, path);
+            return Path.Combine(RootPath, path);
         }
     }
 }

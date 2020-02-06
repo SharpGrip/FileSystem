@@ -6,7 +6,6 @@ namespace SharpGrip.FileSystem.Exceptions
     {
         public AdaptersEmptyException(string message) : base(message)
         {
-            
         }
     }
 }

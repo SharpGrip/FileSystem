@@ -11,9 +11,9 @@ var adapters = new List<IAdapter>
     new LocalAdapter("archive", Path.Combine("Path", "to", "archive", "file", "system")),
 };
 
-var filesystem = new FileSystem(adapters);
+var fileSystem = new FileSystem(adapters);
 
-await filesystem.CopyFile("uploads://foo.txt", "archive://bar.txt", true);
+await fileSystem.CopyFile("uploads://foo.txt", "archive://bar.txt", true);
 ```
 
 ## Supported adapters
