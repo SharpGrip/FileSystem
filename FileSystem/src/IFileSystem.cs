@@ -1,24 +1,30 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using SharpGrip.FileSystem.Adapters;
+using SharpGrip.FileSystem.Models;
 
 namespace SharpGrip.FileSystem
 {
     public interface IFileSystem
     {
-        public FileInfo GetFile(string path);
+        public IList<IAdapter> Adapters { get; set; }
 
-        public DirectoryInfo GetDirectory(string path);
+        public IAdapter GetAdapter(string prefix);
 
-        public IEnumerable<FileInfo> GetFiles(string path = "");
+        public IFile GetFile(string path);
 
-        public IEnumerable<DirectoryInfo> GetDirectories(string path = "");
+        public IDirectory GetDirectory(string path);
+
+        public IEnumerable<IFile> GetFiles(string path = "");
+
+        public IEnumerable<IDirectory> GetDirectories(string path = "");
 
         public bool FileExists(string path);
 
         public bool DirectoryExists(string path);
 
-        public FileStream CreateFile(string path);
+        public Stream CreateFile(string path);
 
         public DirectoryInfo CreateDirectory(string path);
 

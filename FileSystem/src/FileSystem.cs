@@ -5,10 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using SharpGrip.FileSystem.Adapters;
 using SharpGrip.FileSystem.Exceptions;
+using SharpGrip.FileSystem.Models;
 
 namespace SharpGrip.FileSystem
 {
-    public class FileSystem : IFileSystem
+    public class FileSystem : IFileSystem, IDisposable
     {
         public IList<IAdapter> Adapters { get; set; } = new List<IAdapter>();
 
@@ -21,60 +22,82 @@ namespace SharpGrip.FileSystem
             Adapters = adapters;
         }
 
-        public FileInfo GetFile(string path)
+        public void Dispose()
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
-
-            return GetAdapter(prefix).GetFile(path);
+            foreach (var adapter in Adapters)
+            {
+                adapter.Dispose();
+            }
         }
 
-        public DirectoryInfo GetDirectory(string path)
+        public IFile GetFile(string path)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
+            var adapter = GetAdapter(prefix);
+            adapter.Connect();
 
-            return GetAdapter(prefix).GetDirectory(path);
+            return adapter.GetFile(path);
         }
 
-        public IEnumerable<FileInfo> GetFiles(string path = "")
+        public IDirectory GetDirectory(string path)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
+            var adapter = GetAdapter(prefix);
+            adapter.Connect();
 
-            return GetAdapter(prefix).GetFiles(path);
+            return adapter.GetDirectory(path);
         }
 
-        public IEnumerable<DirectoryInfo> GetDirectories(string path = "")
+        public IEnumerable<IFile> GetFiles(string path = "")
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
+            var adapter = GetAdapter(prefix);
+            adapter.Connect();
 
-            return GetAdapter(prefix).GetDirectories(path);
+            return adapter.GetFiles(path);
+        }
+
+        public IEnumerable<IDirectory> GetDirectories(string path = "")
+        {
+            var prefix = GetPrefix(path);
+            path = GetPath(path);
+            var adapter = GetAdapter(prefix);
+            adapter.Connect();
+
+            return adapter.GetDirectories(path);
         }
 
         public bool FileExists(string path)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
+            var adapter = GetAdapter(prefix);
+            adapter.Connect();
 
-            return GetAdapter(prefix).FileExists(path);
+            return adapter.FileExists(path);
         }
 
         public bool DirectoryExists(string path)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
+            var adapter = GetAdapter(prefix);
+            adapter.Connect();
 
-            return GetAdapter(prefix).DirectoryExists(path);
+            return adapter.DirectoryExists(path);
         }
 
-        public FileStream CreateFile(string path)
+        public Stream CreateFile(string path)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
+            var adapter = GetAdapter(prefix);
+            adapter.Connect();
 
-            return GetAdapter(prefix).CreateFile(path);
+            return adapter.CreateFile(path);
         }
 
         public DirectoryInfo CreateDirectory(string path)
@@ -176,7 +199,7 @@ namespace SharpGrip.FileSystem
             GetAdapter(prefix).AppendFile(path, contents);
         }
 
-        private IAdapter GetAdapter(string prefix)
+        public IAdapter GetAdapter(string prefix)
         {
             if (Adapters == null)
             {

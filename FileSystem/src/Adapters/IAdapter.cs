@@ -1,19 +1,23 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using SharpGrip.FileSystem.Models;
 
 namespace SharpGrip.FileSystem.Adapters
 {
-    public interface IAdapter
+    public interface IAdapter : IDisposable
     {
+        public void Connect();
         string Prefix { get; }
-        FileInfo GetFile(string path);
-        DirectoryInfo GetDirectory(string path);
-        IEnumerable<FileInfo> GetFiles(string path = "");
-        IEnumerable<DirectoryInfo> GetDirectories(string path = "");
+        string RootPath { get; }
+        IFile GetFile(string path);
+        IDirectory GetDirectory(string path);
+        IEnumerable<IFile> GetFiles(string path = "");
+        IEnumerable<IDirectory> GetDirectories(string path = "");
         bool FileExists(string path);
         bool DirectoryExists(string path);
-        FileStream CreateFile(string path);
+        Stream CreateFile(string path);
         DirectoryInfo CreateDirectory(string path);
         Task DeleteDirectory(string path, bool recursive);
         Task DeleteFile(string path);

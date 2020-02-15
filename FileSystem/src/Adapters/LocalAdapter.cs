@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using SharpGrip.FileSystem.Models;
 
 namespace SharpGrip.FileSystem.Adapters
 {
@@ -10,24 +12,60 @@ namespace SharpGrip.FileSystem.Adapters
         {
         }
 
-        public FileInfo GetFile(string path)
+        public void Dispose()
         {
-            return new FileInfo(PrependRootPath(path));
         }
 
-        public DirectoryInfo GetDirectory(string path)
+        public void Connect()
         {
-            return new DirectoryInfo(PrependRootPath(path));
         }
 
-        public IEnumerable<FileInfo> GetFiles(string path = "")
+        public IFile GetFile(string path)
         {
-            return GetDirectory(PrependRootPath(path)).GetFiles();
+            var file = new FileInfo(PrependRootPath(path));
+
+            if (!file.Exists)
+            {
+                throw new FileNotFoundException();
+            }
+
+            return new FileModel(file);
         }
 
-        public IEnumerable<DirectoryInfo> GetDirectories(string path = "")
+        public IDirectory GetDirectory(string path)
         {
-            return GetDirectory(PrependRootPath(path)).GetDirectories();
+            var directory = new DirectoryInfo(PrependRootPath(path));
+
+            if (!directory.Exists)
+            {
+                throw new DirectoryNotFoundException();
+            }
+
+            return new DirectoryModel(directory);
+        }
+
+        public IEnumerable<IFile> GetFiles(string path = "")
+        {
+            var directory = new DirectoryInfo(PrependRootPath(path));
+
+            if (!directory.Exists)
+            {
+                throw new DirectoryNotFoundException();
+            }
+
+            return directory.GetFiles().Select(item => GetFile(item.FullName)).ToList();
+        }
+
+        public IEnumerable<IDirectory> GetDirectories(string path = "")
+        {
+            var directory = new DirectoryInfo(PrependRootPath(path));
+
+            if (!directory.Exists)
+            {
+                throw new DirectoryNotFoundException();
+            }
+
+            return directory.GetDirectories().Select(item => GetDirectory(item.FullName)).ToList();
         }
 
         public bool FileExists(string path)
@@ -40,7 +78,7 @@ namespace SharpGrip.FileSystem.Adapters
             return Directory.Exists(PrependRootPath(path));
         }
 
-        public FileStream CreateFile(string path)
+        public Stream CreateFile(string path)
         {
             return File.Create(PrependRootPath(path));
         }
@@ -72,15 +110,15 @@ namespace SharpGrip.FileSystem.Adapters
 
         public async Task<string> ReadTextFile(string path)
         {
-            using var streamReader = new StreamReader(PrependRootPath(path)); 
-            
+            using var streamReader = new StreamReader(PrependRootPath(path));
+
             return await streamReader.ReadToEndAsync();
         }
 
         public async Task WriteFile(string path, byte[] contents, bool overwrite = false)
         {
             await using var fileStream = new FileStream(PrependRootPath(path), overwrite ? FileMode.Create : FileMode.CreateNew);
-            
+
             await fileStream.WriteAsync(contents);
         }
 
@@ -98,7 +136,7 @@ namespace SharpGrip.FileSystem.Adapters
 
             await fileStream.WriteAsync(contents);
         }
-        
+
         public async Task AppendFile(string path, string contents)
         {
             await using var fileStream = new FileStream(PrependRootPath(path), FileMode.Append);
