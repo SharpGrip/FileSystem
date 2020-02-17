@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <RootNamespace>SharpGrip.FileSystem.Adapters.Sftp</RootNamespace>
+        <Nullable>enable</Nullable>
+        <AssemblyName>FileSystem</AssemblyName>
+        <PackageVersion>1.0.0-alpha2</PackageVersion>
+        <Company>SharpGrip</Company>
+        <PackageId>SharpGrip.FileSystem.Adapters.Sftp</PackageId>
+        <Authors>SharpGrip</Authors>
+        <Title>SharpGrip FileSystem SFTP adapter</Title>
+        <Description>The SharpGrip FileSystem SFTP adapter.</Description>
+        <Summary>The SharpGrip FileSystem SFTP adapter.</Summary>
+        <Copyright>SharpGrip</Copyright>
+        <License>MIT</License>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/SharpGrip/FileSystem</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="SharpGrip.FileSystem" Version="1.0.0-alpha2" />
+        <PackageReference Include="SSH.NET" Version="2016.1.0" />
+    </ItemGroup>
+
+</Project>
