@@ -21,8 +21,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="SharpGrip.FileSystem" Version="1.0.0-alpha2" />
         <PackageReference Include="SSH.NET" Version="2016.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
+    </ItemGroup>
 </Project>
