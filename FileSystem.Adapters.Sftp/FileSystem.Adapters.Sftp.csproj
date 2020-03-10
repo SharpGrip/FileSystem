@@ -5,7 +5,7 @@
         <RootNamespace>SharpGrip.FileSystem.Adapters.Sftp</RootNamespace>
         <Nullable>enable</Nullable>
         <AssemblyName>SharpGrip.FileSystem.Adapters.Sftp</AssemblyName>
-        <PackageVersion>1.0.0-alpha2</PackageVersion>
+        <PackageVersion>1.0.0-alpha3</PackageVersion>
         <Company>SharpGrip</Company>
         <PackageId>SharpGrip.FileSystem.Adapters.Sftp</PackageId>
         <Authors>SharpGrip</Authors>
