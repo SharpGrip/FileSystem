@@ -8,9 +8,9 @@ namespace SharpGrip.FileSystem.Adapters
 {
     public interface IAdapter : IDisposable
     {
-        public void Connect();
         string Prefix { get; }
         string RootPath { get; }
+        public void Connect();
         IFile GetFile(string path);
         IDirectory GetDirectory(string path);
         IEnumerable<IFile> GetFiles(string path = "");
@@ -18,9 +18,9 @@ namespace SharpGrip.FileSystem.Adapters
         bool FileExists(string path);
         bool DirectoryExists(string path);
         Stream CreateFile(string path);
-        DirectoryInfo CreateDirectory(string path);
-        Task DeleteDirectory(string path, bool recursive);
-        Task DeleteFile(string path);
+        void CreateDirectory(string path);
+        void DeleteDirectory(string path);
+        void DeleteFile(string path);
         Task<byte[]> ReadFile(string path);
         Task<string> ReadTextFile(string path);
         Task WriteFile(string path, byte[] contents, bool overwrite = false);

@@ -1,8 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Models;
+using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
+using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
 
 namespace SharpGrip.FileSystem.Adapters
 {
@@ -22,35 +26,54 @@ namespace SharpGrip.FileSystem.Adapters
 
         public IFile GetFile(string path)
         {
-            var file = new FileInfo(PrependRootPath(path));
+            path = PrependRootPath(path);
 
-            if (!file.Exists)
+            try
             {
-                throw new FileNotFoundException();
-            }
+                var file = new FileInfo(path);
 
-            return new FileModel(file);
+                if (!file.Exists)
+                {
+                    throw new FileNotFoundException(path, Prefix);
+                }
+
+                return new FileModel(file);
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
         public IDirectory GetDirectory(string path)
         {
-            var directory = new DirectoryInfo(PrependRootPath(path));
+            path = PrependRootPath(path);
 
-            if (!directory.Exists)
+            try
             {
-                throw new DirectoryNotFoundException();
-            }
+                var directory = new DirectoryInfo(path);
 
-            return new DirectoryModel(directory);
+                if (!directory.Exists)
+                {
+                    throw new DirectoryNotFoundException(path, Prefix);
+                }
+
+                return new DirectoryModel(directory);
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
         public IEnumerable<IFile> GetFiles(string path = "")
         {
-            var directory = new DirectoryInfo(PrependRootPath(path));
+            path = PrependRootPath(path);
+            var directory = new DirectoryInfo(path);
 
             if (!directory.Exists)
             {
-                throw new DirectoryNotFoundException();
+                throw new DirectoryNotFoundException(path, Prefix);
             }
 
             return directory.GetFiles().Select(item => GetFile(item.FullName)).ToList();
@@ -58,11 +81,12 @@ namespace SharpGrip.FileSystem.Adapters
 
         public IEnumerable<IDirectory> GetDirectories(string path = "")
         {
-            var directory = new DirectoryInfo(PrependRootPath(path));
+            path = PrependRootPath(path);
+            var directory = new DirectoryInfo(path);
 
             if (!directory.Exists)
             {
-                throw new DirectoryNotFoundException();
+                throw new DirectoryNotFoundException(path, Prefix);
             }
 
             return directory.GetDirectories().Select(item => GetDirectory(item.FullName)).ToList();
@@ -83,19 +107,19 @@ namespace SharpGrip.FileSystem.Adapters
             return File.Create(PrependRootPath(path));
         }
 
-        public DirectoryInfo CreateDirectory(string path)
+        public void CreateDirectory(string path)
         {
-            return Directory.CreateDirectory(PrependRootPath(path));
+            Directory.CreateDirectory(PrependRootPath(path));
         }
 
-        public Task DeleteFile(string path)
+        public void DeleteFile(string path)
         {
-            return Task.Factory.StartNew(() => File.Delete(PrependRootPath(path)));
+            File.Delete(PrependRootPath(path));
         }
 
-        public Task DeleteDirectory(string path, bool recursive = false)
+        public void DeleteDirectory(string path)
         {
-            return Task.Factory.StartNew(() => Directory.Delete(PrependRootPath(path), recursive));
+            Directory.Delete(PrependRootPath(path), true);
         }
 
         public async Task<byte[]> ReadFile(string path)
@@ -117,13 +141,23 @@ namespace SharpGrip.FileSystem.Adapters
 
         public async Task WriteFile(string path, byte[] contents, bool overwrite = false)
         {
-            await using var fileStream = new FileStream(PrependRootPath(path), overwrite ? FileMode.Create : FileMode.CreateNew);
+            if (!overwrite && FileExists(path))
+            {
+                throw new FileExistsException(PrependRootPath(path), Prefix);
+            }
+
+            await using var fileStream = new FileStream(path, FileMode.Create);
 
             await fileStream.WriteAsync(contents);
         }
 
         public async Task WriteFile(string path, string contents, bool overwrite = false)
         {
+            if (!overwrite && FileExists(path))
+            {
+                throw new FileExistsException(path, Prefix);
+            }
+
             await using var fileStream = new FileStream(PrependRootPath(path), overwrite ? FileMode.Create : FileMode.CreateNew);
             await using var streamWriter = new StreamWriter(fileStream);
 
