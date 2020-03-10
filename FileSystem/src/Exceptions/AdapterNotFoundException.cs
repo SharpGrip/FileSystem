@@ -1,11 +1,14 @@
-using System;
-
 namespace SharpGrip.FileSystem.Exceptions
 {
-    public class AdapterNotFoundException : Exception
+    public class AdapterNotFoundException : FileSystemException
     {
-        public AdapterNotFoundException(string message) : base(message)
+        public AdapterNotFoundException(string prefix, string adapters) : base(GetMessage(prefix, adapters))
         {
+        }
+
+        private static string GetMessage(string prefix, string adapters)
+        {
+            return $"No adapter found with prefix '{prefix}'. Registered adapters are: {adapters}.";
         }
     }
 }
