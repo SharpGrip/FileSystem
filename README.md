@@ -1,4 +1,4 @@
-# SharpGrip FileSystem
+# SharpGrip FileSystem [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)
 
 ## Introduction
 SharpGrip FileSystem is a file system abstraction supporting multiple adapters.
@@ -33,5 +33,5 @@ await fileSystem.CopyFile("uploads://foo.txt", "backups://bar.txt", true);
 ```
 
 ## Supported adapters
-- Local
-- SFTP (NuGet: https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Sftp)
+- Local (included in the `SharpGrip.FileSystem` package) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)
+- SFTP (`SharpGrip.FileSystem.Adapters.Sftp`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Sftp)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Sftp)
