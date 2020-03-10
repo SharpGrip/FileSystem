@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Renci.SshNet;
 using Renci.SshNet.Common;
+using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Models;
+using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
+using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
 
 namespace SharpGrip.FileSystem.Adapters.Sftp
 {
@@ -25,34 +29,69 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
         public void Connect()
         {
-            if (!client.IsConnected)
+            if (client.IsConnected)
+            {
+                return;
+            }
+
+            try
             {
                 client.Connect();
+            }
+            catch (Exception exception)
+            {
+                throw new ConnectionException(exception);
             }
         }
 
         public IFile GetFile(string path)
         {
-            var file = client.Get(PrependRootPath(path));
+            path = PrependRootPath(path);
 
-            if (file.IsDirectory)
+            try
             {
-                throw new FileNotFoundException();
-            }
+                var file = client.Get(path);
 
-            return ModelFactory.CreateFile(file);
+                if (file.IsDirectory)
+                {
+                    throw new FileNotFoundException(path, Prefix);
+                }
+
+                return ModelFactory.CreateFile(file);
+            }
+            catch (SftpPathNotFoundException)
+            {
+                throw new FileNotFoundException(path, Prefix);
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
         public IDirectory GetDirectory(string path)
         {
-            var directory = client.Get(PrependRootPath(path));
+            path = PrependRootPath(path);
 
-            if (!directory.IsDirectory)
+            try
             {
-                throw new DirectoryNotFoundException();
-            }
+                var directory = client.Get(path);
 
-            return ModelFactory.CreateDirectory(directory);
+                if (!directory.IsDirectory)
+                {
+                    throw new DirectoryNotFoundException(path, Prefix);
+                }
+
+                return ModelFactory.CreateDirectory(directory);
+            }
+            catch (SftpPathNotFoundException)
+            {
+                throw new FileNotFoundException(path, Prefix);
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
         public IEnumerable<IFile> GetFiles(string path = "")
@@ -62,7 +101,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
             if (!directory.IsDirectory)
             {
-                throw new DirectoryNotFoundException();
+                throw new DirectoryNotFoundException(path, Prefix);
             }
 
             return client.ListDirectory(path).Where(item => !item.IsDirectory).Select(ModelFactory.CreateFile).ToList();
@@ -75,7 +114,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
             if (!directory.IsDirectory)
             {
-                throw new DirectoryNotFoundException();
+                throw new DirectoryNotFoundException(path, Prefix);
             }
 
             return client.ListDirectory(path).Where(item => item.IsDirectory).Select(ModelFactory.CreateDirectory).ToList();
@@ -122,49 +161,68 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             return client.Create(PrependRootPath(path));
         }
 
-        public DirectoryInfo CreateDirectory(string path)
+        public void CreateDirectory(string path)
         {
-            throw new NotImplementedException();
+            client.CreateDirectory(PrependRootPath(path));
         }
 
-        public Task DeleteFile(string path)
+        public void DeleteFile(string path)
         {
-            throw new NotImplementedException();
+            client.DeleteFile(PrependRootPath(path));
         }
 
-        public Task DeleteDirectory(string path, bool recursive)
+        public void DeleteDirectory(string path)
         {
-            throw new NotImplementedException();
+            client.DeleteDirectory(PrependRootPath(path));
         }
 
-        public Task<byte[]> ReadFile(string path)
+        public async Task<byte[]> ReadFile(string path)
         {
-            throw new NotImplementedException();
+            await using var fileStream = client.OpenRead(PrependRootPath(path));
+            var fileContents = new byte[fileStream.Length];
+
+            await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length);
+
+            return fileContents;
         }
 
-        public Task<string> ReadTextFile(string path)
+        public async Task<string> ReadTextFile(string path)
         {
-            throw new NotImplementedException();
+            using var streamReader = new StreamReader(client.OpenRead(PrependRootPath(path)));
+
+            return await streamReader.ReadToEndAsync();
         }
 
-        public Task WriteFile(string path, byte[] contents, bool overwrite = false)
+        public async Task WriteFile(string path, byte[] contents, bool overwrite = false)
         {
-            throw new NotImplementedException();
+            if (!overwrite && FileExists(path))
+            {
+                throw new FileExistsException(PrependRootPath(path), Prefix);
+            }
+
+            await Task.Factory.StartNew(() => client.WriteAllBytes(PrependRootPath(path), contents));
         }
 
-        public Task WriteFile(string path, string contents, bool overwrite = false)
+        public async Task WriteFile(string path, string contents, bool overwrite = false)
         {
-            throw new NotImplementedException();
+            if (!overwrite && FileExists(path))
+            {
+                throw new FileExistsException(PrependRootPath(path), Prefix);
+            }
+
+            await Task.Factory.StartNew(() => client.WriteAllText(PrependRootPath(path), contents));
         }
 
-        public Task AppendFile(string sourcePath, byte[] contents)
+        public async Task AppendFile(string sourcePath, byte[] contents)
         {
-            throw new NotImplementedException();
+            var stringContents = Encoding.UTF8.GetString(contents, 0, contents.Length);
+
+            await Task.Factory.StartNew(() => client.AppendAllText(PrependRootPath(sourcePath), stringContents));
         }
 
-        public Task AppendFile(string sourcePath, string contents)
+        public async Task AppendFile(string sourcePath, string contents)
         {
-            throw new NotImplementedException();
+            await Task.Factory.StartNew(() => client.AppendAllText(PrependRootPath(sourcePath), contents));
         }
     }
 }
