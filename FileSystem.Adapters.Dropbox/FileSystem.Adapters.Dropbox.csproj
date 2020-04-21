@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <RootNamespace>SharpGrip.FileSystem.Adapters.Dropbox</RootNamespace>
+        <Nullable>enable</Nullable>
+        <AssemblyName>SharpGrip.FileSystem.Adapters.Dropbox</AssemblyName>
+        <PackageVersion>1.0.0-alpha1</PackageVersion>
+        <Company>SharpGrip</Company>
+        <PackageId>SharpGrip.FileSystem.Adapters.Dropbox</PackageId>
+        <Authors>SharpGrip</Authors>
+        <Title>SharpGrip FileSystem Dropbox adapter</Title>
+        <Description>The SharpGrip FileSystem Dropbox adapter.</Description>
+        <Summary>The SharpGrip FileSystem Dropbox adapter.</Summary>
+        <Copyright>SharpGrip</Copyright>
+        <License>MIT</License>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
+        <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Dropbox.Api" Version="4.9.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
+    </ItemGroup>
+
+</Project>
