@@ -17,8 +17,8 @@ namespace SharpGrip.FileSystem.Adapters
         bool FileExists(string path);
         bool DirectoryExists(string path);
         void CreateDirectory(string path);
-        void DeleteDirectory(string path);
         void DeleteFile(string path);
+        void DeleteDirectory(string path);
         byte[] ReadFile(string path);
         Task<byte[]> ReadFileAsync(string path);
         string ReadTextFile(string path);
