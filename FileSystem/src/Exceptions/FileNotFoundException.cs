@@ -1,8 +1,6 @@
-using System;
-
 namespace SharpGrip.FileSystem.Exceptions
 {
-    public class FileNotFoundException : Exception
+    public class FileNotFoundException : FileSystemException
     {
         public FileNotFoundException(string path, string prefix) : base(GetMessage(path, prefix))
         {
@@ -10,7 +8,7 @@ namespace SharpGrip.FileSystem.Exceptions
 
         private static string GetMessage(string path, string prefix)
         {
-            return $"File '{path}' not found in adapter with '{prefix}'.";
+            return $"File '{path}' not found in adapter with prefix '{prefix}'.";
         }
     }
 }
