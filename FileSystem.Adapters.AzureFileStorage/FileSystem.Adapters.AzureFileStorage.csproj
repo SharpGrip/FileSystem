@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <RootNamespace>SharpGrip.FileSystem.Adapters.AzureFileStorage</RootNamespace>
+        <Nullable>enable</Nullable>
+        <AssemblyName>SharpGrip.FileSystem.Adapters.AzureFileStorage</AssemblyName>
+        <PackageVersion>1.0.0-alpha1</PackageVersion>
+        <Company>SharpGrip</Company>
+        <PackageId>SharpGrip.FileSystem.Adapters.AzureFileStorage</PackageId>
+        <Authors>SharpGrip</Authors>
+        <Title>SharpGrip FileSystem AzureFileStorage adapter</Title>
+        <Description>The SharpGrip FileSystem AzureFileStorage adapter.</Description>
+        <Summary>The SharpGrip FileSystem AzureFileStorage adapter.</Summary>
+        <Copyright>SharpGrip</Copyright>
+        <License>MIT</License>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
+        <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Azure.Storage.Files.Shares" Version="12.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
+    </ItemGroup>
+
+</Project>
