@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem", "FileSystem\FileSystem.csproj", "{6D6C08D0-EDC4-4D41-9F87-4DD9DE865F8F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.AzureFileStorage", "FileSystem.Adapters.AzureFileStorage\FileSystem.Adapters.AzureFileStorage.csproj", "{226327A0-97CF-4885-8C42-434DC79AB077}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.Dropbox", "FileSystem.Adapters.Dropbox\FileSystem.Adapters.Dropbox.csproj", "{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.Sftp", "FileSystem.Adapters.Sftp\FileSystem.Adapters.Sftp.csproj", "{DFDEAACC-CCFA-4A78-8E7D-AC61FB1A002D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{F18C90D8-F1A2-419E-B3CD-C9B7965583A3}"
@@ -20,6 +24,14 @@ Global
 		{6D6C08D0-EDC4-4D41-9F87-4DD9DE865F8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D6C08D0-EDC4-4D41-9F87-4DD9DE865F8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D6C08D0-EDC4-4D41-9F87-4DD9DE865F8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{226327A0-97CF-4885-8C42-434DC79AB077}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{226327A0-97CF-4885-8C42-434DC79AB077}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{226327A0-97CF-4885-8C42-434DC79AB077}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{226327A0-97CF-4885-8C42-434DC79AB077}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DFDEAACC-CCFA-4A78-8E7D-AC61FB1A002D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DFDEAACC-CCFA-4A78-8E7D-AC61FB1A002D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFDEAACC-CCFA-4A78-8E7D-AC61FB1A002D}.Release|Any CPU.ActiveCfg = Release|Any CPU
