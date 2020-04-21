@@ -20,6 +20,7 @@ namespace SharpGrip.FileSystem
         /// <returns>The adapter.</returns>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public IAdapter GetAdapter(string prefix);
 
         /// <summary>
@@ -30,7 +31,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
-        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public IFile GetFile(string path);
 
         /// <summary>
@@ -40,7 +43,10 @@ namespace SharpGrip.FileSystem
         /// <returns>The directory.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
-        /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public IDirectory GetDirectory(string path);
 
         /// <summary>
@@ -50,6 +56,10 @@ namespace SharpGrip.FileSystem
         /// <returns>The files present at the provided path.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public IEnumerable<IFile> GetFiles(string path = "");
 
         /// <summary>
@@ -59,6 +69,10 @@ namespace SharpGrip.FileSystem
         /// <returns>The directories present at the provided path.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public IEnumerable<IDirectory> GetDirectories(string path = "");
 
         /// <summary>
@@ -68,6 +82,9 @@ namespace SharpGrip.FileSystem
         /// <returns>True if the file exists at the provided path, False otherwise.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public bool FileExists(string path);
 
         /// <summary>
@@ -77,6 +94,9 @@ namespace SharpGrip.FileSystem
         /// <returns>True if the directory exists at the provided path, False otherwise.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public bool DirectoryExists(string path);
 
         /// <summary>
@@ -85,6 +105,9 @@ namespace SharpGrip.FileSystem
         /// <param name="path">The path (including prefix) where to create the directory at.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public void CreateDirectory(string path);
 
         /// <summary>
@@ -93,6 +116,10 @@ namespace SharpGrip.FileSystem
         /// <param name="path">The path (including prefix) where to delete the file at.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public void DeleteFile(string path);
 
         /// <summary>
@@ -101,6 +128,10 @@ namespace SharpGrip.FileSystem
         /// <param name="path">The path (including prefix) where to delete the directory at.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public void DeleteDirectory(string path);
 
         /// <summary>
@@ -110,6 +141,10 @@ namespace SharpGrip.FileSystem
         /// <returns>The file contents.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public byte[] ReadFile(string path);
 
         /// <summary>
@@ -119,6 +154,10 @@ namespace SharpGrip.FileSystem
         /// <returns>The file contents.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public Task<byte[]> ReadFileAsync(string path);
 
         /// <summary>
@@ -128,6 +167,10 @@ namespace SharpGrip.FileSystem
         /// <returns>The file contents.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public string ReadTextFile(string path);
 
         /// <summary>
@@ -137,6 +180,10 @@ namespace SharpGrip.FileSystem
         /// <returns>The file contents.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public Task<string> ReadTextFileAsync(string path);
 
         /// <summary>
@@ -147,6 +194,10 @@ namespace SharpGrip.FileSystem
         /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public void CopyFile(string sourcePath, string destinationPath, bool overwrite = false);
 
@@ -158,6 +209,10 @@ namespace SharpGrip.FileSystem
         /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public Task CopyFileAsync(string sourcePath, string destinationPath, bool overwrite = false);
 
@@ -169,6 +224,10 @@ namespace SharpGrip.FileSystem
         /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public void MoveFile(string sourcePath, string destinationPath, bool overwrite = false);
 
@@ -180,6 +239,10 @@ namespace SharpGrip.FileSystem
         /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public Task MoveFileAsync(string sourcePath, string destinationPath, bool overwrite = false);
 
@@ -191,6 +254,9 @@ namespace SharpGrip.FileSystem
         /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public void WriteFile(string path, byte[] contents, bool overwrite = false);
 
@@ -202,6 +268,9 @@ namespace SharpGrip.FileSystem
         /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public Task WriteFileAsync(string path, byte[] contents, bool overwrite = false);
 
@@ -213,6 +282,9 @@ namespace SharpGrip.FileSystem
         /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public void WriteFile(string path, string contents, bool overwrite = false);
 
@@ -224,6 +296,9 @@ namespace SharpGrip.FileSystem
         /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public Task WriteFileAsync(string path, string contents, bool overwrite = false);
 
@@ -234,6 +309,10 @@ namespace SharpGrip.FileSystem
         /// <param name="contents">The file byte array contents.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public void AppendFile(string path, byte[] contents);
 
         /// <summary>
@@ -243,6 +322,10 @@ namespace SharpGrip.FileSystem
         /// <param name="contents">The file byte array contents.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public Task AppendFileAsync(string path, byte[] contents);
 
         /// <summary>
@@ -252,6 +335,10 @@ namespace SharpGrip.FileSystem
         /// <param name="contents">The file string contents.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public void AppendFile(string path, string contents);
 
         /// <summary>
@@ -261,6 +348,10 @@ namespace SharpGrip.FileSystem
         /// <param name="contents">The file string contents.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public Task AppendFileAsync(string path, string contents);
     }
 }
