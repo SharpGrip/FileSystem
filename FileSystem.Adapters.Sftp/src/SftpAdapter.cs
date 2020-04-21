@@ -112,34 +112,77 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
         public override void CreateDirectory(string path)
         {
-            client.CreateDirectory(PrependRootPath(path));
+            try
+            {
+                client.CreateDirectory(PrependRootPath(path));
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
         public override void DeleteFile(string path)
         {
-            client.DeleteFile(PrependRootPath(path));
+            GetFile(path);
+
+            try
+            {
+                client.DeleteFile(PrependRootPath(path));
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
         public override void DeleteDirectory(string path)
         {
-            client.DeleteDirectory(PrependRootPath(path));
+            GetDirectory(path);
+
+            try
+            {
+                client.DeleteDirectory(PrependRootPath(path));
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
         public override async Task<byte[]> ReadFileAsync(string path)
         {
-            await using var fileStream = client.OpenRead(PrependRootPath(path));
-            var fileContents = new byte[fileStream.Length];
+            GetFile(path);
 
-            await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length);
+            try
+            {
+                await using var fileStream = client.OpenRead(PrependRootPath(path));
+                var fileContents = new byte[fileStream.Length];
 
-            return fileContents;
+                await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length);
+
+                return fileContents;
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
         public override async Task<string> ReadTextFileAsync(string path)
         {
-            using var streamReader = new StreamReader(client.OpenRead(PrependRootPath(path)));
+            GetFile(path);
 
-            return await streamReader.ReadToEndAsync();
+            try
+            {
+                using var streamReader = new StreamReader(client.OpenRead(PrependRootPath(path)));
+
+                return await streamReader.ReadToEndAsync();
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
         public override async Task WriteFileAsync(string path, byte[] contents, bool overwrite = false)
@@ -149,19 +192,30 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
                 throw new FileExistsException(PrependRootPath(path), Prefix);
             }
 
-            await Task.Factory.StartNew(() => client.WriteAllBytes(PrependRootPath(path), contents));
+            try
+            {
+                await Task.Factory.StartNew(() => client.WriteAllBytes(PrependRootPath(path), contents));
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
         public override async Task AppendFileAsync(string path, byte[] contents)
         {
-            if (!FileExists(path))
+            GetFile(path);
+
+            try
             {
-                throw new FileExistsException(PrependRootPath(path), Prefix);
+                var stringContents = Encoding.UTF8.GetString(contents, 0, contents.Length);
+
+                await Task.Factory.StartNew(() => client.AppendAllText(PrependRootPath(path), stringContents));
             }
-
-            var stringContents = Encoding.UTF8.GetString(contents, 0, contents.Length);
-
-            await Task.Factory.StartNew(() => client.AppendAllText(PrependRootPath(path), stringContents));
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
     }
 }
