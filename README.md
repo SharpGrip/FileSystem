@@ -96,8 +96,8 @@ var adapters = new List<IAdapter>
     new DropboxAdapter("dropbox", "/Files", dropboxClient)
 };
 
-// Copies a file from the `local1` adapter to the `local2` adapter.
-await fileSystem.CopyFileAsync("local1://foo/bar.txt", "local2://bar/foo.txt");
+// Copies a file from the `local` adapter to the `azure` adapter.
+await fileSystem.CopyFileAsync("local://foo/bar.txt", "azure://bar/foo.txt");
 
 // Moves a file from the `azure` adapter to the `dropbox` adapter.
 await fileSystem.MoveFileAsync("azure://Foo/Bar.txt", "dropbox://Bar/Foo.txt");
