@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using SharpGrip.FileSystem.Adapters;
@@ -149,23 +148,6 @@ namespace SharpGrip.FileSystem
         }
 
         /// <summary>
-        /// Creates a file at the provided path.
-        /// </summary>
-        /// <param name="path">The path (including prefix) where to create the file at.</param>
-        /// <returns>The created file.</returns>
-        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
-        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
-        public Stream CreateFile(string path)
-        {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
-            var adapter = GetAdapter(prefix);
-            adapter.Connect();
-
-            return adapter.CreateFile(path);
-        }
-
-        /// <summary>
         /// Creates a directory at the provided path.
         /// </summary>
         /// <param name="path">The path (including prefix) where to create the directory at.</param>
@@ -220,14 +202,26 @@ namespace SharpGrip.FileSystem
         /// <returns>The file contents.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
-        public async Task<byte[]> ReadFile(string path)
+        public byte[] ReadFile(string path)
+        {
+            return ReadFileAsync(path).Result;
+        }
+
+        /// <summary>
+        /// Reads a file at the provided path.
+        /// </summary>
+        /// <param name="path">The path (including prefix) where to read the file at.</param>
+        /// <returns>The file contents.</returns>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        public async Task<byte[]> ReadFileAsync(string path)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
             var adapter = GetAdapter(prefix);
             adapter.Connect();
 
-            return await adapter.ReadFile(path);
+            return await adapter.ReadFileAsync(path);
         }
 
         /// <summary>
@@ -237,14 +231,26 @@ namespace SharpGrip.FileSystem
         /// <returns>The file contents.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
-        public async Task<string> ReadTextFile(string path)
+        public string ReadTextFile(string path)
+        {
+            return ReadTextFileAsync(path).Result;
+        }
+
+        /// <summary>
+        /// Reads a text file at the provided path.
+        /// </summary>
+        /// <param name="path">The path (including prefix) where to read the file at.</param>
+        /// <returns>The file contents.</returns>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        public async Task<string> ReadTextFileAsync(string path)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
             var adapter = GetAdapter(prefix);
             adapter.Connect();
 
-            return await adapter.ReadTextFile(path);
+            return await adapter.ReadTextFileAsync(path);
         }
 
         /// <summary>
@@ -256,7 +262,21 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
-        public async Task CopyFile(string sourcePath, string destinationPath, bool overwrite = false)
+        public void CopyFile(string sourcePath, string destinationPath, bool overwrite = false)
+        {
+            CopyFileAsync(sourcePath, destinationPath, overwrite).Wait();
+        }
+
+        /// <summary>
+        /// Copies a file from a source path to a destination path.
+        /// </summary>
+        /// <param name="sourcePath">The path (including prefix) where to copy the file from.</param>
+        /// <param name="destinationPath">The path (including prefix) where to copy the file to.</param>
+        /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
+        public async Task CopyFileAsync(string sourcePath, string destinationPath, bool overwrite = false)
         {
             var sourcePrefix = GetPrefix(sourcePath);
             sourcePath = GetPath(sourcePath);
@@ -268,7 +288,7 @@ namespace SharpGrip.FileSystem
             var destinationAdapter = GetAdapter(destinationPrefix);
             destinationAdapter.Connect();
 
-            await destinationAdapter.WriteFile(destinationPath, await sourceAdapter.ReadFile(sourcePath), overwrite);
+            await destinationAdapter.WriteFileAsync(destinationPath, await sourceAdapter.ReadFileAsync(sourcePath), overwrite);
         }
 
         /// <summary>
@@ -280,7 +300,21 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
-        public async Task MoveFile(string sourcePath, string destinationPath, bool overwrite = false)
+        public void MoveFile(string sourcePath, string destinationPath, bool overwrite = false)
+        {
+            MoveFileAsync(sourcePath, destinationPath, overwrite).Wait();
+        }
+
+        /// <summary>
+        /// Moves a file from a source path to a destination path.
+        /// </summary>
+        /// <param name="sourcePath">The path (including prefix) where to move the file from.</param>
+        /// <param name="destinationPath">The path (including prefix) where to move the file to.</param>
+        /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
+        public async Task MoveFileAsync(string sourcePath, string destinationPath, bool overwrite = false)
         {
             var sourcePrefix = GetPrefix(sourcePath);
             sourcePath = GetPath(sourcePath);
@@ -292,7 +326,7 @@ namespace SharpGrip.FileSystem
             var destinationAdapter = GetAdapter(destinationPrefix);
             destinationAdapter.Connect();
 
-            await destinationAdapter.WriteFile(destinationPath, await sourceAdapter.ReadFile(sourcePath), overwrite);
+            await destinationAdapter.WriteFileAsync(destinationPath, await sourceAdapter.ReadFileAsync(sourcePath), overwrite);
             sourceAdapter.DeleteFile(sourcePath);
         }
 
@@ -305,14 +339,28 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
-        public async Task WriteFile(string path, byte[] contents, bool overwrite = false)
+        public void WriteFile(string path, byte[] contents, bool overwrite = false)
+        {
+            WriteFileAsync(path, contents, overwrite).Wait();
+        }
+
+        /// <summary>
+        /// Writes byte array contents to a file at the provided path.
+        /// </summary>
+        /// <param name="path">The path (including prefix) where to write the byte array contents to.</param>
+        /// <param name="contents">The file byte array contents.</param>
+        /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
+        public async Task WriteFileAsync(string path, byte[] contents, bool overwrite = false)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
             var adapter = GetAdapter(prefix);
             adapter.Connect();
 
-            await adapter.WriteFile(path, contents, overwrite);
+            await adapter.WriteFileAsync(path, contents, overwrite);
         }
 
         /// <summary>
@@ -324,14 +372,28 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
-        public async Task WriteFile(string path, string contents, bool overwrite = false)
+        public void WriteFile(string path, string contents, bool overwrite = false)
+        {
+            WriteFileAsync(path, contents, overwrite).Wait();
+        }
+
+        /// <summary>
+        /// Writes string contents to a file at the provided path.
+        /// </summary>
+        /// <param name="path">The path (including prefix) where to write the string contents to.</param>
+        /// <param name="contents">The file string contents.</param>
+        /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
+        public async Task WriteFileAsync(string path, string contents, bool overwrite = false)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
             var adapter = GetAdapter(prefix);
             adapter.Connect();
 
-            await adapter.WriteFile(path, contents, overwrite);
+            await adapter.WriteFileAsync(path, contents, overwrite);
         }
 
         /// <summary>
@@ -341,14 +403,26 @@ namespace SharpGrip.FileSystem
         /// <param name="contents">The file byte array contents.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
-        public async Task AppendFile(string path, byte[] contents)
+        public void AppendFile(string path, byte[] contents)
+        {
+            AppendFileAsync(path, contents).Wait();
+        }
+
+        /// <summary>
+        /// Writes byte array contents to a file at the provided path.
+        /// </summary>
+        /// <param name="path">The path (including prefix) where to write the byte array contents to.</param>
+        /// <param name="contents">The file byte array contents.</param>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        public async Task AppendFileAsync(string path, byte[] contents)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
             var adapter = GetAdapter(prefix);
             adapter.Connect();
 
-            await adapter.AppendFile(path, contents);
+            await adapter.AppendFileAsync(path, contents);
         }
 
         /// <summary>
@@ -358,14 +432,26 @@ namespace SharpGrip.FileSystem
         /// <param name="contents">The file string contents.</param>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
-        public async Task AppendFile(string path, string contents)
+        public void AppendFile(string path, string contents)
+        {
+            AppendFileAsync(path, contents).Wait();
+        }
+
+        /// <summary>
+        /// Writes string contents to a file at the provided path.
+        /// </summary>
+        /// <param name="path">The path (including prefix) where to write the string contents to.</param>
+        /// <param name="contents">The file string contents.</param>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        public async Task AppendFileAsync(string path, string contents)
         {
             var prefix = GetPrefix(path);
             path = GetPath(path);
             var adapter = GetAdapter(prefix);
             adapter.Connect();
 
-            await adapter.AppendFile(path, contents);
+            await adapter.AppendFileAsync(path, contents);
         }
 
         /// <summary>

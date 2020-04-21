@@ -16,7 +16,7 @@
         <License>MIT</License>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/SharpGrip/FileSystem</PackageProjectUrl>
+        <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 

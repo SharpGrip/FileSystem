@@ -11,10 +11,8 @@ namespace SharpGrip.FileSystem.Models
         public DirectoryModel(DirectoryInfo directory)
         {
             Name = directory.Name;
-            FullName = directory.FullName;
-            LastAccessTime = directory.LastAccessTime;
+            Path = directory.FullName;
             LastWriteTime = directory.LastWriteTime;
-            LastAccessTimeUtc = directory.LastAccessTimeUtc;
             LastWriteTimeUtc = directory.LastWriteTimeUtc;
         }
     }

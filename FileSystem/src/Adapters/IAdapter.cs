@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using SharpGrip.FileSystem.Models;
 
@@ -17,15 +16,20 @@ namespace SharpGrip.FileSystem.Adapters
         IEnumerable<IDirectory> GetDirectories(string path = "");
         bool FileExists(string path);
         bool DirectoryExists(string path);
-        Stream CreateFile(string path);
         void CreateDirectory(string path);
         void DeleteDirectory(string path);
         void DeleteFile(string path);
-        Task<byte[]> ReadFile(string path);
-        Task<string> ReadTextFile(string path);
-        Task WriteFile(string path, byte[] contents, bool overwrite = false);
-        Task WriteFile(string path, string contents, bool overwrite = false);
-        Task AppendFile(string sourcePath, byte[] contents);
-        Task AppendFile(string sourcePath, string contents);
+        byte[] ReadFile(string path);
+        Task<byte[]> ReadFileAsync(string path);
+        string ReadTextFile(string path);
+        Task<string> ReadTextFileAsync(string path);
+        void WriteFile(string path, byte[] contents, bool overwrite = false);
+        Task WriteFileAsync(string path, byte[] contents, bool overwrite = false);
+        void WriteFile(string path, string contents, bool overwrite = false);
+        Task WriteFileAsync(string path, string contents, bool overwrite = false);
+        void AppendFile(string path, byte[] contents);
+        Task AppendFileAsync(string path, byte[] contents);
+        void AppendFile(string path, string contents);
+        Task AppendFileAsync(string path, string contents);
     }
 }

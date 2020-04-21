@@ -13,21 +13,21 @@ using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundExcept
 
 namespace SharpGrip.FileSystem.Adapters.Sftp
 {
-    public class SftpAdapter : Adapter, IAdapter
+    public class SftpAdapter : Adapter
     {
         private readonly SftpClient client;
 
-        public SftpAdapter(string prefix, string rootPath, ConnectionInfo connectionInfo) : base(prefix, rootPath)
+        public SftpAdapter(string prefix, string rootPath, SftpClient client) : base(prefix, rootPath)
         {
-            client = new SftpClient(connectionInfo);
+            this.client = client;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             client.Dispose();
         }
 
-        public void Connect()
+        public override void Connect()
         {
             if (client.IsConnected)
             {
@@ -44,7 +44,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public IFile GetFile(string path)
+        public override IFile GetFile(string path)
         {
             path = PrependRootPath(path);
 
@@ -69,7 +69,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public IDirectory GetDirectory(string path)
+        public override IDirectory GetDirectory(string path)
         {
             path = PrependRootPath(path);
 
@@ -94,89 +94,38 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public IEnumerable<IFile> GetFiles(string path = "")
+        public override IEnumerable<IFile> GetFiles(string path = "")
         {
+            GetDirectory(path);
             path = PrependRootPath(path);
-            var directory = client.Get(path);
-
-            if (!directory.IsDirectory)
-            {
-                throw new DirectoryNotFoundException(path, Prefix);
-            }
 
             return client.ListDirectory(path).Where(item => !item.IsDirectory).Select(ModelFactory.CreateFile).ToList();
         }
 
-        public IEnumerable<IDirectory> GetDirectories(string path = "")
+        public override IEnumerable<IDirectory> GetDirectories(string path = "")
         {
+            GetDirectory(path);
             path = PrependRootPath(path);
-            var directory = client.Get(path);
-
-            if (!directory.IsDirectory)
-            {
-                throw new DirectoryNotFoundException(path, Prefix);
-            }
 
             return client.ListDirectory(path).Where(item => item.IsDirectory).Select(ModelFactory.CreateDirectory).ToList();
         }
 
-        public bool FileExists(string path)
-        {
-            try
-            {
-                GetFile(path);
-            }
-            catch (FileNotFoundException)
-            {
-                return false;
-            }
-            catch (SftpPathNotFoundException)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool DirectoryExists(string path)
-        {
-            try
-            {
-                GetDirectory(path);
-            }
-            catch (DirectoryNotFoundException)
-            {
-                return false;
-            }
-            catch (SftpPathNotFoundException)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public Stream CreateFile(string path)
-        {
-            return client.Create(PrependRootPath(path));
-        }
-
-        public void CreateDirectory(string path)
+        public override void CreateDirectory(string path)
         {
             client.CreateDirectory(PrependRootPath(path));
         }
 
-        public void DeleteFile(string path)
+        public override void DeleteFile(string path)
         {
             client.DeleteFile(PrependRootPath(path));
         }
 
-        public void DeleteDirectory(string path)
+        public override void DeleteDirectory(string path)
         {
             client.DeleteDirectory(PrependRootPath(path));
         }
 
-        public async Task<byte[]> ReadFile(string path)
+        public override async Task<byte[]> ReadFileAsync(string path)
         {
             await using var fileStream = client.OpenRead(PrependRootPath(path));
             var fileContents = new byte[fileStream.Length];
@@ -186,14 +135,14 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             return fileContents;
         }
 
-        public async Task<string> ReadTextFile(string path)
+        public override async Task<string> ReadTextFileAsync(string path)
         {
             using var streamReader = new StreamReader(client.OpenRead(PrependRootPath(path)));
 
             return await streamReader.ReadToEndAsync();
         }
 
-        public async Task WriteFile(string path, byte[] contents, bool overwrite = false)
+        public override async Task WriteFileAsync(string path, byte[] contents, bool overwrite = false)
         {
             if (!overwrite && FileExists(path))
             {
@@ -203,26 +152,16 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             await Task.Factory.StartNew(() => client.WriteAllBytes(PrependRootPath(path), contents));
         }
 
-        public async Task WriteFile(string path, string contents, bool overwrite = false)
+        public override async Task AppendFileAsync(string path, byte[] contents)
         {
-            if (!overwrite && FileExists(path))
+            if (!FileExists(path))
             {
                 throw new FileExistsException(PrependRootPath(path), Prefix);
             }
 
-            await Task.Factory.StartNew(() => client.WriteAllText(PrependRootPath(path), contents));
-        }
-
-        public async Task AppendFile(string sourcePath, byte[] contents)
-        {
             var stringContents = Encoding.UTF8.GetString(contents, 0, contents.Length);
 
-            await Task.Factory.StartNew(() => client.AppendAllText(PrependRootPath(sourcePath), stringContents));
-        }
-
-        public async Task AppendFile(string sourcePath, string contents)
-        {
-            await Task.Factory.StartNew(() => client.AppendAllText(PrependRootPath(sourcePath), contents));
+            await Task.Factory.StartNew(() => client.AppendAllText(PrependRootPath(path), stringContents));
         }
     }
 }
