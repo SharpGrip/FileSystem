@@ -110,7 +110,7 @@ var contents = fileSystem.ReadTextFileAsync("dropbox://Foo.txt");
 ```
 
 ## Supported operations
-For a full list of the supported operations please see the [IFileSystem](../blob/master/FileSystem/src/IFileSystem.cs) interface.
+For a full list of the supported operations please see the [IFileSystem](../master/FileSystem/src/IFileSystem.cs) interface.
 
 ## Supported adapters
 - Local (included in the `SharpGrip.FileSystem` package) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)
