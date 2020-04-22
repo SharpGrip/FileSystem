@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshNet;
 using Renci.SshNet.Common;
@@ -44,13 +45,13 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override IFile GetFile(string path)
+        public override async Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default)
         {
             path = PrependRootPath(path);
 
             try
             {
-                var file = client.Get(path);
+                var file = await Task.Run(() => client.Get(path), cancellationToken);
 
                 if (file.IsDirectory)
                 {
@@ -69,13 +70,13 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override IDirectory GetDirectory(string path)
+        public override async Task<IDirectory> GetDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             path = PrependRootPath(path);
 
             try
             {
-                var directory = client.Get(path);
+                var directory = await Task.Run(() => client.Get(path), cancellationToken);
 
                 if (!directory.IsDirectory)
                 {
@@ -94,27 +95,36 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override IEnumerable<IFile> GetFiles(string path = "")
+        public override async Task<IEnumerable<IFile>> GetFilesAsync(string path = "", CancellationToken cancellationToken = default)
         {
-            GetDirectory(path);
+            await GetDirectoryAsync(path, cancellationToken);
             path = PrependRootPath(path);
 
-            return client.ListDirectory(path).Where(item => !item.IsDirectory).Select(ModelFactory.CreateFile).ToList();
+            return await Task.Run(
+                () => client.ListDirectory(path).Where(item => !item.IsDirectory).Select(ModelFactory.CreateFile).ToList(),
+                cancellationToken
+            );
         }
 
-        public override IEnumerable<IDirectory> GetDirectories(string path = "")
+        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(
+            string path = "",
+            CancellationToken cancellationToken = default
+        )
         {
-            GetDirectory(path);
+            await GetDirectoryAsync(path, cancellationToken);
             path = PrependRootPath(path);
 
-            return client.ListDirectory(path).Where(item => item.IsDirectory).Select(ModelFactory.CreateDirectory).ToList();
+            return await Task.Run(
+                () => client.ListDirectory(path).Where(item => item.IsDirectory).Select(ModelFactory.CreateDirectory).ToList(),
+                cancellationToken
+            );
         }
 
-        public override void CreateDirectory(string path)
+        public override async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             try
             {
-                client.CreateDirectory(PrependRootPath(path));
+                await Task.Run(() => client.CreateDirectory(PrependRootPath(path)), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -122,13 +132,13 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override void DeleteFile(string path)
+        public override async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            GetFile(path);
+            await GetFileAsync(path, cancellationToken);
 
             try
             {
-                client.DeleteFile(PrependRootPath(path));
+                await Task.Run(() => client.DeleteFile(PrependRootPath(path)), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -136,13 +146,13 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override void DeleteDirectory(string path)
+        public override async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
-            GetDirectory(path);
+            await GetDirectoryAsync(path, cancellationToken);
 
             try
             {
-                client.DeleteDirectory(PrependRootPath(path));
+                await Task.Run(() => client.DeleteDirectory(PrependRootPath(path)), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -150,16 +160,16 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override async Task<byte[]> ReadFileAsync(string path)
+        public override async Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            GetFile(path);
+            await GetFileAsync(path, cancellationToken);
 
             try
             {
                 await using var fileStream = client.OpenRead(PrependRootPath(path));
                 var fileContents = new byte[fileStream.Length];
 
-                await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length);
+                await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
 
                 return fileContents;
             }
@@ -169,9 +179,9 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override async Task<string> ReadTextFileAsync(string path)
+        public override async Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            GetFile(path);
+            await GetFileAsync(path, cancellationToken);
 
             try
             {
@@ -185,16 +195,21 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override async Task WriteFileAsync(string path, byte[] contents, bool overwrite = false)
+        public override async Task WriteFileAsync(
+            string path,
+            byte[] contents,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default
+        )
         {
-            if (!overwrite && FileExists(path))
+            if (!overwrite && await FileExistsAsync(path, cancellationToken))
             {
                 throw new FileExistsException(PrependRootPath(path), Prefix);
             }
 
             try
             {
-                await Task.Factory.StartNew(() => client.WriteAllBytes(PrependRootPath(path), contents));
+                await Task.Run(() => client.WriteAllBytes(PrependRootPath(path), contents), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -202,15 +217,15 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override async Task AppendFileAsync(string path, byte[] contents)
+        public override async Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default)
         {
-            GetFile(path);
+            await GetFileAsync(path, cancellationToken);
 
             try
             {
                 var stringContents = Encoding.UTF8.GetString(contents, 0, contents.Length);
 
-                await Task.Factory.StartNew(() => client.AppendAllText(PrependRootPath(path), stringContents));
+                await Task.Run(() => client.AppendAllText(PrependRootPath(path), stringContents), cancellationToken);
             }
             catch (Exception exception)
             {

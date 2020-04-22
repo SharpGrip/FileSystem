@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Files.Shares;
@@ -29,7 +30,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
         {
         }
 
-        public override IFile GetFile(string path)
+        public override async Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default)
         {
             path = PrependRootPath(path);
             var pathParts = path.Split('/');
@@ -41,7 +42,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 var directory = client.GetDirectoryClient(directoryPath);
                 var file = directory.GetFileClient(filePath);
 
-                if (!file.Exists())
+                if (!await file.ExistsAsync(cancellationToken))
                 {
                     throw new FileNotFoundException(path, Prefix);
                 }
@@ -58,7 +59,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
-        public override IDirectory GetDirectory(string path)
+        public override async Task<IDirectory> GetDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             path = PrependRootPath(path);
 
@@ -66,7 +67,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             {
                 var directory = client.GetDirectoryClient(path);
 
-                if (!directory.Exists())
+                if (!await directory.ExistsAsync(cancellationToken))
                 {
                     throw new DirectoryNotFoundException(path, Prefix);
                 }
@@ -83,20 +84,27 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
-        public override IEnumerable<IFile> GetFiles(string path = "")
+        public override async Task<IEnumerable<IFile>> GetFilesAsync(string path = "", CancellationToken cancellationToken = default)
         {
-            GetDirectory(path);
+            await GetDirectoryAsync(path, cancellationToken);
             path = PrependRootPath(path);
 
             try
             {
                 var directory = client.GetDirectoryClient(path);
-                var result = directory.GetFilesAndDirectories();
+                var enumerator = directory.GetFilesAndDirectoriesAsync().GetAsyncEnumerator(cancellationToken);
 
-                return result.Where(item => !item.IsDirectory)
-                    .Select(item => ModelFactory.CreateFile(directory.GetFileClient(item.Name)))
-                    .Cast<IFile>()
-                    .ToList();
+                var files = new List<IFile>();
+
+                while (await enumerator.MoveNextAsync())
+                {
+                    if (!enumerator.Current.IsDirectory)
+                    {
+                        files.Add(ModelFactory.CreateFile(directory.GetFileClient(enumerator.Current.Name)));
+                    }
+                }
+
+                return files;
             }
             catch (Exception exception)
             {
@@ -104,20 +112,28 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
-        public override IEnumerable<IDirectory> GetDirectories(string path = "")
+        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string path = "",
+            CancellationToken cancellationToken = default)
         {
-            GetDirectory(path);
+            await GetDirectoryAsync(path, cancellationToken);
             path = PrependRootPath(path);
 
             try
             {
                 var directory = client.GetDirectoryClient(path);
-                var result = directory.GetFilesAndDirectories();
+                var enumerator = directory.GetFilesAndDirectoriesAsync().GetAsyncEnumerator(cancellationToken);
 
-                return result.Where(item => item.IsDirectory)
-                    .Select(item => ModelFactory.CreateDirectory(directory.GetSubdirectoryClient(item.Name)))
-                    .Cast<IDirectory>()
-                    .ToList();
+                var directories = new List<IDirectory>();
+
+                while (await enumerator.MoveNextAsync())
+                {
+                    if (enumerator.Current.IsDirectory)
+                    {
+                        directories.Add(ModelFactory.CreateDirectory(directory.GetSubdirectoryClient(enumerator.Current.Name)));
+                    }
+                }
+
+                return directories;
             }
             catch (Exception exception)
             {
@@ -125,11 +141,11 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
-        public override void CreateDirectory(string path)
+        public override async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             try
             {
-                client.CreateDirectory(PrependRootPath(path));
+                await client.CreateDirectoryAsync(PrependRootPath(path), cancellationToken: cancellationToken);
             }
             catch (Exception exception)
             {
@@ -137,9 +153,9 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
-        public override void DeleteFile(string path)
+        public override async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            GetFile(path);
+            await GetFileAsync(path, cancellationToken);
             path = PrependRootPath(path);
             var pathParts = path.Split('/');
             var filePath = pathParts.Last();
@@ -148,7 +164,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             try
             {
                 var directory = client.GetDirectoryClient(directoryPath);
-                directory.GetFileClient(filePath).Delete();
+                await directory.GetFileClient(filePath).DeleteAsync(cancellationToken);
             }
             catch (Exception exception)
             {
@@ -156,13 +172,13 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
-        public override void DeleteDirectory(string path)
+        public override async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
-            GetDirectory(path);
+            await GetDirectoryAsync(path, cancellationToken);
 
             try
             {
-                client.DeleteDirectory(PrependRootPath(path));
+                await client.DeleteDirectoryAsync(PrependRootPath(path), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -170,9 +186,9 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
-        public override async Task<byte[]> ReadFileAsync(string path)
+        public override async Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            GetFile(path);
+            await GetFileAsync(path, cancellationToken);
             path = PrependRootPath(path);
             var pathParts = path.Split('/');
             var filePath = pathParts.Last();
@@ -181,10 +197,10 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             try
             {
                 var directory = client.GetDirectoryClient(directoryPath);
-                var download = await directory.GetFileClient(filePath).DownloadAsync();
+                var download = await directory.GetFileClient(filePath).DownloadAsync(cancellationToken: cancellationToken);
 
                 await using var memoryStream = new MemoryStream();
-                await download.Value.Content.CopyToAsync(memoryStream);
+                await download.Value.Content.CopyToAsync(memoryStream, cancellationToken);
 
                 return memoryStream.ToArray();
             }
@@ -194,9 +210,9 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
-        public override async Task<string> ReadTextFileAsync(string path)
+        public override async Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            GetFile(path);
+            await GetFileAsync(path, cancellationToken);
             path = PrependRootPath(path);
             var pathParts = path.Split('/');
             var filePath = pathParts.Last();
@@ -206,10 +222,10 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             {
                 var directory = client.GetDirectoryClient(directoryPath);
                 var file = directory.GetFileClient(filePath);
-                var download = await file.DownloadAsync();
+                var download = await file.DownloadAsync(cancellationToken: cancellationToken);
 
                 await using var memoryStream = new MemoryStream();
-                await download.Value.Content.CopyToAsync(memoryStream);
+                await download.Value.Content.CopyToAsync(memoryStream, cancellationToken);
                 using var streamReader = new StreamReader(memoryStream);
                 memoryStream.Position = 0;
 
@@ -221,9 +237,14 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
-        public override async Task WriteFileAsync(string path, byte[] contents, bool overwrite = false)
+        public override async Task WriteFileAsync(
+            string path,
+            byte[] contents,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default
+        )
         {
-            if (!overwrite && FileExists(path))
+            if (!overwrite && await FileExistsAsync(path, cancellationToken))
             {
                 throw new FileExistsException(PrependRootPath(path), Prefix);
             }
@@ -236,12 +257,12 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             try
             {
                 var directory = client.GetDirectoryClient(directoryPath);
-                await directory.CreateIfNotExistsAsync();
+                await directory.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
                 var file = directory.GetFileClient(filePath);
 
                 await using var memoryStream = new MemoryStream(contents);
-                await file.CreateAsync(memoryStream.Length);
-                await file.UploadRangeAsync(new HttpRange(0, memoryStream.Length), memoryStream);
+                await file.CreateAsync(memoryStream.Length, cancellationToken: cancellationToken);
+                await file.UploadRangeAsync(new HttpRange(0, memoryStream.Length), memoryStream, cancellationToken: cancellationToken);
             }
             catch (Exception exception)
             {
@@ -249,10 +270,10 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
-        public override async Task AppendFileAsync(string path, byte[] contents)
+        public override async Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default)
         {
-            GetFile(path);
-            var existingContents = await ReadFileAsync(path);
+            await GetFileAsync(path, cancellationToken);
+            var existingContents = await ReadFileAsync(path, cancellationToken);
             path = PrependRootPath(path);
             var pathParts = path.Split('/');
             var filePath = pathParts.Last();
@@ -266,10 +287,10 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 contents = existingContents.Concat(contents).ToArray();
                 await using var memoryStream = new MemoryStream(contents);
 
-                await file.DeleteAsync();
-                await file.CreateAsync(memoryStream.Length);
+                await file.DeleteAsync(cancellationToken);
+                await file.CreateAsync(memoryStream.Length, cancellationToken: cancellationToken);
 
-                await file.UploadRangeAsync(new HttpRange(0, memoryStream.Length), memoryStream);
+                await file.UploadRangeAsync(new HttpRange(0, memoryStream.Length), memoryStream, cancellationToken: cancellationToken);
             }
             catch (Exception exception)
             {

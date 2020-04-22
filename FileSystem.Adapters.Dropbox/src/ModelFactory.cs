@@ -22,7 +22,7 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             return new DirectoryModel
             {
                 Name = directory.Name,
-                Path = directory.PathDisplay,
+                Path = directory.PathDisplay
             };
         }
     }

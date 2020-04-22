@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Models;
@@ -24,13 +25,13 @@ namespace SharpGrip.FileSystem.Adapters
         {
         }
 
-        public override IFile GetFile(string path)
+        public override async Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default)
         {
             path = PrependRootPath(path);
 
             try
             {
-                var file = new FileInfo(path);
+                var file = await Task.Run(() => new FileInfo(path), cancellationToken);
 
                 if (!file.Exists)
                 {
@@ -39,19 +40,23 @@ namespace SharpGrip.FileSystem.Adapters
 
                 return new FileModel(file);
             }
+            catch (FileSystemException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
                 throw new AdapterRuntimeException(exception);
             }
         }
 
-        public override IDirectory GetDirectory(string path)
+        public override async Task<IDirectory> GetDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             path = PrependRootPath(path);
 
             try
             {
-                var directory = new DirectoryInfo(path);
+                var directory = await Task.Run(() => new DirectoryInfo(path), cancellationToken);
 
                 if (!directory.Exists)
                 {
@@ -60,92 +65,132 @@ namespace SharpGrip.FileSystem.Adapters
 
                 return new DirectoryModel(directory);
             }
+            catch (FileSystemException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
                 throw new AdapterRuntimeException(exception);
             }
         }
 
-        public override IEnumerable<IFile> GetFiles(string path = "")
+        public override async Task<IEnumerable<IFile>> GetFilesAsync(string path = "", CancellationToken cancellationToken = default)
         {
             path = PrependRootPath(path);
-            var directory = new DirectoryInfo(path);
+            var directory = await Task.Run(() => new DirectoryInfo(path), cancellationToken);
 
             if (!directory.Exists)
             {
                 throw new DirectoryNotFoundException(path, Prefix);
             }
 
-            return directory.GetFiles().Select(item => GetFile(item.FullName)).ToList();
+            try
+            {
+                return await Task.Run(() => directory.GetFiles().Select(item => GetFile(item.FullName)).ToList(), cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
-        public override IEnumerable<IDirectory> GetDirectories(string path = "")
+        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(
+            string path = "",
+            CancellationToken cancellationToken = default
+        )
         {
             path = PrependRootPath(path);
-            var directory = new DirectoryInfo(path);
+            var directory = await Task.Run(() => new DirectoryInfo(path), cancellationToken);
 
             if (!directory.Exists)
             {
                 throw new DirectoryNotFoundException(path, Prefix);
             }
 
-            return directory.GetDirectories().Select(item => GetDirectory(item.FullName)).ToList();
+            try
+            {
+                return await Task.Run(
+                    () => directory.GetDirectories().Select(item => GetDirectory(item.FullName)).ToList(),
+                    cancellationToken
+                );
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
-        public override void CreateDirectory(string path)
+        public override async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
-            Directory.CreateDirectory(PrependRootPath(path));
+            try
+            {
+                await Task.Run(() => Directory.CreateDirectory(PrependRootPath(path)), cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw new AdapterRuntimeException(exception);
+            }
         }
 
-        public override void DeleteFile(string path)
+        public override async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            File.Delete(PrependRootPath(path));
+            await GetFileAsync(path, cancellationToken);
+            await Task.Run(() => File.Delete(PrependRootPath(path)), cancellationToken);
         }
 
-        public override void DeleteDirectory(string path)
+        public override async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
-            Directory.Delete(PrependRootPath(path), true);
+            await GetDirectoryAsync(path, cancellationToken);
+            await Task.Run(() => Directory.Delete(PrependRootPath(path), true), cancellationToken);
         }
 
-        public override async Task<byte[]> ReadFileAsync(string path)
+        public override async Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default)
         {
+            await GetFileAsync(path, cancellationToken);
             await using var fileStream = new FileStream(PrependRootPath(path), FileMode.Open);
             var fileContents = new byte[fileStream.Length];
 
-            await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length);
+            await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
 
             return fileContents;
         }
 
-        public override async Task<string> ReadTextFileAsync(string path)
+        public override async Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
         {
+            await GetFileAsync(path, cancellationToken);
             using var streamReader = new StreamReader(PrependRootPath(path));
 
             return await streamReader.ReadToEndAsync();
         }
 
-        public override async Task WriteFileAsync(string path, byte[] contents, bool overwrite = false)
+        public override async Task WriteFileAsync(
+            string path,
+            byte[] contents,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default
+        )
         {
-            if (!overwrite && FileExists(path))
+            if (!overwrite && await FileExistsAsync(path, cancellationToken))
             {
                 throw new FileExistsException(PrependRootPath(path), Prefix);
             }
 
-            await using var fileStream = new FileStream(path, FileMode.Create);
+            await using var fileStream = new FileStream(PrependRootPath(path), FileMode.Create);
 
-            await fileStream.WriteAsync(contents);
+            await fileStream.WriteAsync(contents, cancellationToken);
         }
 
-        public override async Task AppendFileAsync(string path, byte[] contents)
+        public override async Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default)
         {
-            if (!FileExists(path))
+            if (!await FileExistsAsync(path, cancellationToken))
             {
                 throw new FileExistsException(PrependRootPath(path), Prefix);
             }
 
-            await using var fileStream = new FileStream(path, FileMode.Append);
+            await using var fileStream = new FileStream(PrependRootPath(path), FileMode.Append);
 
-            await fileStream.WriteAsync(contents);
+            await fileStream.WriteAsync(contents, cancellationToken);
         }
     }
 }
