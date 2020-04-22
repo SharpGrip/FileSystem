@@ -21,11 +21,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dropbox.Api" Version="4.9.4" />
+        <PackageReference Include="Dropbox.Api" Version="4.9.4"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj"/>
     </ItemGroup>
 
 </Project>
