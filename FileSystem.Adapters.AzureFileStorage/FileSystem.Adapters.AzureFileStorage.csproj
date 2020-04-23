@@ -11,9 +11,7 @@
         <Authors>SharpGrip</Authors>
         <Title>SharpGrip FileSystem AzureFileStorage adapter</Title>
         <Description>The SharpGrip FileSystem AzureFileStorage adapter.</Description>
-        <Summary>The SharpGrip FileSystem AzureFileStorage adapter.</Summary>
         <Copyright>SharpGrip</Copyright>
-        <License>MIT</License>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>

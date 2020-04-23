@@ -11,9 +11,7 @@
         <Authors>SharpGrip</Authors>
         <Title>SharpGrip FileSystem</Title>
         <Description>SharpGrip FileSystem is a file system abstraction supporting multiple adapters.</Description>
-        <Summary>SharpGrip FileSystem is a file system abstraction supporting multiple adapters.</Summary>
         <Copyright>SharpGrip</Copyright>
-        <License>MIT</License>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>

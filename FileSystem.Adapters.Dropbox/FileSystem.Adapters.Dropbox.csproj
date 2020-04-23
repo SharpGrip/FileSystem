@@ -11,9 +11,7 @@
         <Authors>SharpGrip</Authors>
         <Title>SharpGrip FileSystem Dropbox adapter</Title>
         <Description>The SharpGrip FileSystem Dropbox adapter.</Description>
-        <Summary>The SharpGrip FileSystem Dropbox adapter.</Summary>
         <Copyright>SharpGrip</Copyright>
-        <License>MIT</License>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
