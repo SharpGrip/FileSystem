@@ -1,7 +1,8 @@
 .idea/
-.DS_Store
+NuGet/
 [Oo]bj/
 [Bb]in/
 Test/
 TestConsoleApp/
 TestWebApp/
+.DS_Store

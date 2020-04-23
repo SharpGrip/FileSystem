@@ -4,17 +4,24 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <RootNamespace>SharpGrip.FileSystem.Adapters.Sftp</RootNamespace>
         <Nullable>enable</Nullable>
+        <LangVersion>8.0</LangVersion>
+        <PackageOutputPath>../NuGet</PackageOutputPath>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem.Adapters.Sftp</AssemblyName>
-        <PackageVersion>1.0.0-alpha4</PackageVersion>
-        <Company>SharpGrip</Company>
         <PackageId>SharpGrip.FileSystem.Adapters.Sftp</PackageId>
-        <Authors>SharpGrip</Authors>
+        <PackageVersion>1.0.0-alpha4</PackageVersion>
         <Title>SharpGrip FileSystem SFTP adapter</Title>
         <Description>The SharpGrip FileSystem SFTP adapter.</Description>
+        <Company>SharpGrip</Company>
+        <Authors>SharpGrip</Authors>
         <Copyright>SharpGrip</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
