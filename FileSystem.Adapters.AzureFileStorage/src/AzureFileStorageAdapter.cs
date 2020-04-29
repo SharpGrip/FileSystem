@@ -53,6 +53,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             {
                 throw;
             }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
+            }
             catch (Exception exception)
             {
                 throw new AdapterRuntimeException(exception);
@@ -77,6 +86,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             catch (FileSystemException)
             {
                 throw;
+            }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
             }
             catch (Exception exception)
             {
@@ -105,6 +123,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 }
 
                 return files;
+            }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
             }
             catch (Exception exception)
             {
@@ -135,6 +162,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
 
                 return directories;
             }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
+            }
             catch (Exception exception)
             {
                 throw new AdapterRuntimeException(exception);
@@ -146,6 +182,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             try
             {
                 await client.CreateDirectoryAsync(PrependRootPath(path), cancellationToken: cancellationToken);
+            }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
             }
             catch (Exception exception)
             {
@@ -166,6 +211,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 var directory = client.GetDirectoryClient(directoryPath);
                 await directory.GetFileClient(filePath).DeleteAsync(cancellationToken);
             }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
+            }
             catch (Exception exception)
             {
                 throw new AdapterRuntimeException(exception);
@@ -179,6 +233,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             try
             {
                 await client.DeleteDirectoryAsync(PrependRootPath(path), cancellationToken);
+            }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
             }
             catch (Exception exception)
             {
@@ -203,6 +266,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 await download.Value.Content.CopyToAsync(memoryStream, cancellationToken);
 
                 return memoryStream.ToArray();
+            }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
             }
             catch (Exception exception)
             {
@@ -230,6 +302,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 memoryStream.Position = 0;
 
                 return await streamReader.ReadToEndAsync();
+            }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
             }
             catch (Exception exception)
             {
@@ -264,6 +345,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 await file.CreateAsync(memoryStream.Length, cancellationToken: cancellationToken);
                 await file.UploadRangeAsync(new HttpRange(0, memoryStream.Length), memoryStream, cancellationToken: cancellationToken);
             }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
+            }
             catch (Exception exception)
             {
                 throw new AdapterRuntimeException(exception);
@@ -291,6 +381,15 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 await file.CreateAsync(memoryStream.Length, cancellationToken: cancellationToken);
 
                 await file.UploadRangeAsync(new HttpRange(0, memoryStream.Length), memoryStream, cancellationToken: cancellationToken);
+            }
+            catch (RequestFailedException exception)
+            {
+                if (exception.ErrorCode == "AuthenticationFailed")
+                {
+                    throw new ConnectionException(exception);
+                }
+
+                throw new AdapterRuntimeException(exception);
             }
             catch (Exception exception)
             {
