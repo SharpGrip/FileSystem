@@ -46,6 +46,20 @@ var adapters = new List<IAdapter>
 var fileSystem = new FileSystem(adapters);
 ```
 
+### AmazonS3 adapter
+```
+// Amazon connection.
+var amazonClient = new AmazonS3Client("awsAccessKeyId", "awsSecretAccessKey", RegionEndpoint.USEast2);
+
+var adapters = new List<IAdapter>
+{
+    new LocalAdapter("local", "/var/files"),
+    new AmazonS3Adapter("amazon", "/Files", amazonClient, "bucketName")
+};
+
+var fileSystem = new FileSystem(adapters);
+```
+
 ### AzureFileStorage adapter
 ```
 // Azure connection.
