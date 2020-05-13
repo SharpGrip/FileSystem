@@ -8,6 +8,15 @@ Reference NuGet package `SharpGrip.FileSystem` (https://www.nuget.org/packages/S
 
 For adapters other than the local file system (included in the `SharpGrip.FileSystem` package) please see the [Supported adapters](#supported-adapters) section.
 
+## Supported adapters
+- Local (included in the `SharpGrip.FileSystem` package) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)
+- AzureFileStorage (`SharpGrip.FileSystem.Adapters.AzureFileStorage`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureFileStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureFileStorage)
+- Dropbox (`SharpGrip.FileSystem.Adapters.Dropbox`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Dropbox)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Dropbox)
+- SFTP (`SharpGrip.FileSystem.Adapters.Sftp`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Sftp)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Sftp)
+
+## Supported operations
+For a full list of the supported operations please see the [IFileSystem](../master/FileSystem/src/IFileSystem.cs) interface.
+
 ## Usage
 
 ### Instantiation
@@ -108,12 +117,3 @@ await fileSystem.WriteFileAsync("azure://Foo.txt", "Bar!");
 // Read a text file from the `dropbox` adapter.
 var contents = fileSystem.ReadTextFileAsync("dropbox://Foo.txt");
 ```
-
-## Supported operations
-For a full list of the supported operations please see the [IFileSystem](../master/FileSystem/src/IFileSystem.cs) interface.
-
-## Supported adapters
-- Local (included in the `SharpGrip.FileSystem` package) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)
-- AzureFileStorage (`SharpGrip.FileSystem.Adapters.AzureFileStorage`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureFileStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureFileStorage)
-- Dropbox (`SharpGrip.FileSystem.Adapters.Dropbox`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Dropbox)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Dropbox)
-- SFTP (`SharpGrip.FileSystem.Adapters.Sftp`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Sftp)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Sftp)
