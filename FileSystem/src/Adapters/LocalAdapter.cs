@@ -183,13 +183,9 @@ namespace SharpGrip.FileSystem.Adapters
 
         public override async Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default)
         {
-            if (!await FileExistsAsync(path, cancellationToken))
-            {
-                throw new FileExistsException(PrependRootPath(path), Prefix);
-            }
+            await GetFileAsync(path, cancellationToken);
 
             await using var fileStream = new FileStream(PrependRootPath(path), FileMode.Append);
-
             await fileStream.WriteAsync(contents, cancellationToken);
         }
     }

@@ -58,11 +58,16 @@ namespace SharpGrip.FileSystem
                 throw new NoAdaptersRegisteredException();
             }
 
+            var duplicateAdapters = Adapters.GroupBy(adapter => adapter.Prefix).Where(grouping => grouping.Count() > 1).ToList();
+
+            if (duplicateAdapters.Any())
+            {
+                throw new DuplicateAdapterPrefixException(duplicateAdapters, Adapters);
+            }
+
             if (Adapters.All(adapter => adapter.Prefix != prefix))
             {
-                var adapters = string.Join(", ", Adapters.Select(adapter => adapter.Prefix).ToArray());
-
-                throw new AdapterNotFoundException(prefix, adapters);
+                throw new AdapterNotFoundException(prefix, Adapters);
             }
 
             return Adapters.First(adapter => adapter.Prefix == prefix);
