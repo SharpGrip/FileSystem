@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem", "FileSystem\Fi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.AmazonS3", "FileSystem.Adapters.AmazonS3\FileSystem.Adapters.AmazonS3.csproj", "{4A3FBD56-9D73-4F00-851E-682031E87B1D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.AzureBlobStorage", "FileSystem.Adapters.AzureBlobStorage\FileSystem.Adapters.AzureBlobStorage.csproj", "{3D3C3FE7-7CCC-4270-A16F-B4E762648CAF}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.AzureFileStorage", "FileSystem.Adapters.AzureFileStorage\FileSystem.Adapters.AzureFileStorage.csproj", "{226327A0-97CF-4885-8C42-434DC79AB077}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.Dropbox", "FileSystem.Adapters.Dropbox\FileSystem.Adapters.Dropbox.csproj", "{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}"
@@ -13,8 +15,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{F18C90D8-F1A2-419E-B3CD-C9B7965583A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{808D9778-452F-4FF9-B3B0-62BD12CE855F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWebApp", "TestWebApp\TestWebApp.csproj", "{02862E63-1847-4D98-BC33-C1CA73264A77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +30,10 @@ Global
 		{4A3FBD56-9D73-4F00-851E-682031E87B1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A3FBD56-9D73-4F00-851E-682031E87B1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A3FBD56-9D73-4F00-851E-682031E87B1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D3C3FE7-7CCC-4270-A16F-B4E762648CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D3C3FE7-7CCC-4270-A16F-B4E762648CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D3C3FE7-7CCC-4270-A16F-B4E762648CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D3C3FE7-7CCC-4270-A16F-B4E762648CAF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{226327A0-97CF-4885-8C42-434DC79AB077}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{226327A0-97CF-4885-8C42-434DC79AB077}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{226327A0-97CF-4885-8C42-434DC79AB077}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -50,9 +54,5 @@ Global
 		{808D9778-452F-4FF9-B3B0-62BD12CE855F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{808D9778-452F-4FF9-B3B0-62BD12CE855F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{808D9778-452F-4FF9-B3B0-62BD12CE855F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{02862E63-1847-4D98-BC33-C1CA73264A77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{02862E63-1847-4D98-BC33-C1CA73264A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{02862E63-1847-4D98-BC33-C1CA73264A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{02862E63-1847-4D98-BC33-C1CA73264A77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -11,6 +11,7 @@ For adapters other than the local file system (included in the `SharpGrip.FileSy
 ## Supported adapters
 - Local (included in the `SharpGrip.FileSystem` package) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)
 - AmazonS3 (`SharpGrip.FileSystem.Adapters.AmazonS3`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AmazonS3)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AmazonS3)
+- AzureBlobStorage (`SharpGrip.FileSystem.Adapters.AzureBlobStorage`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureBlobStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureBlobStorage)
 - AzureFileStorage (`SharpGrip.FileSystem.Adapters.AzureFileStorage`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureFileStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureFileStorage)
 - Dropbox (`SharpGrip.FileSystem.Adapters.Dropbox`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Dropbox)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Dropbox)
 - SFTP (`SharpGrip.FileSystem.Adapters.Sftp`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Sftp)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Sftp)
@@ -55,6 +56,21 @@ var adapters = new List<IAdapter>
 {
     new LocalAdapter("local", "/var/files"),
     new AmazonS3Adapter("amazon", "/Files", amazonClient, "bucketName")
+};
+
+var fileSystem = new FileSystem(adapters);
+```
+
+### AzureBlobStorage adapter
+```
+// Azure connection.
+var blobServiceClient = new BlobServiceClient("connectionString");
+var azureClient = blobServiceClient.GetBlobContainerClient("blobContainerName");
+
+var adapters = new List<IAdapter>
+{
+    new LocalAdapter("local", "/var/files"),
+    new AzureBlobStorageAdapter("azure", "/Files", azureClient)
 };
 
 var fileSystem = new FileSystem(adapters);
