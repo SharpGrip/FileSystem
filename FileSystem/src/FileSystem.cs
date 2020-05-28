@@ -49,6 +49,7 @@ namespace SharpGrip.FileSystem
         /// <param name="prefix">The adapter's prefix.</param>
         /// <returns>The adapter.</returns>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public IAdapter GetAdapter(string prefix)
@@ -81,6 +82,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -98,6 +100,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -119,6 +122,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
@@ -136,6 +140,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
@@ -157,6 +162,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
@@ -174,6 +180,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
@@ -195,6 +202,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
@@ -212,6 +220,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
@@ -233,6 +242,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public bool FileExists(string path)
@@ -249,6 +259,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public async Task<bool> FileExistsAsync(string path, CancellationToken cancellationToken = default)
@@ -269,6 +280,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public bool DirectoryExists(string path)
@@ -285,6 +297,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public async Task<bool> DirectoryExistsAsync(string path, CancellationToken cancellationToken = default)
@@ -304,8 +317,10 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="DirectoryExistsException">Thrown if the directory exists at the given path.</exception>
         public void CreateDirectory(string path)
         {
             CreateDirectoryAsync(path).Wait();
@@ -319,8 +334,10 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="DirectoryExistsException">Thrown if the directory exists at the given path.</exception>
         public async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             var prefix = GetPrefix(path);
@@ -338,6 +355,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -354,6 +372,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -374,6 +393,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
@@ -390,6 +410,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
@@ -411,6 +432,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -428,6 +450,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -449,6 +472,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -466,6 +490,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -488,6 +513,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -507,6 +533,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -541,6 +568,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -560,6 +588,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -595,6 +624,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
@@ -613,6 +643,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
@@ -640,6 +671,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
@@ -658,6 +690,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
@@ -684,6 +717,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -701,6 +735,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -722,6 +757,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
@@ -739,6 +775,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
         /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>

@@ -13,13 +13,14 @@
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem.Adapters.Dropbox</AssemblyName>
         <PackageId>SharpGrip.FileSystem.Adapters.Dropbox</PackageId>
-        <PackageVersion>1.0.0-alpha1</PackageVersion>
+        <PackageVersion>1.0.0-alpha2</PackageVersion>
         <Title>SharpGrip FileSystem Dropbox adapter</Title>
         <Description>The SharpGrip FileSystem Dropbox adapter.</Description>
         <Company>SharpGrip</Company>
         <Authors>SharpGrip</Authors>
         <Copyright>SharpGrip</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>sharpgrip;file-system;dropbox</PackageTags>
         <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <RepositoryType>git</RepositoryType>

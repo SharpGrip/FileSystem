@@ -50,16 +50,11 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                     throw new FileNotFoundException(path, Prefix);
                 }
 
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -100,27 +95,15 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                 throw new DirectoryNotFoundException(path, Prefix);
             }
-            catch (FileSystemException)
-            {
-                throw;
-            }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
         public override async Task<IEnumerable<IFile>> GetFilesAsync(string path = "", CancellationToken cancellationToken = default)
         {
+            await GetDirectoryAsync(path, cancellationToken);
             path = PrependRootPath(path);
 
             try
@@ -142,18 +125,9 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                 return files;
             }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -162,6 +136,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             CancellationToken cancellationToken = default
         )
         {
+            await GetDirectoryAsync(path, cancellationToken);
             path = PrependRootPath(path);
 
             try
@@ -183,45 +158,30 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                 return directories;
             }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
         public override async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
-            if (!path.EndsWith('/'))
+            if (await DirectoryExistsAsync(path, cancellationToken))
             {
-                path += "/";
+                throw new DirectoryExistsException(PrependRootPath(path), Prefix);
             }
+
+            path = PrependRootPath(path);
+            path = path.EndsWith('/') ? path : path + "/";
 
             try
             {
                 var request = new PutObjectRequest {BucketName = bucketName, Key = path, InputStream = new MemoryStream()};
                 await client.PutObjectAsync(request, cancellationToken);
             }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -229,10 +189,8 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         {
             await GetDirectoryAsync(path, cancellationToken);
 
-            if (!path.EndsWith('/'))
-            {
-                path += "/";
-            }
+            path = PrependRootPath(path);
+            path = path.EndsWith('/') ? path : path + "/";
 
             try
             {
@@ -248,47 +206,31 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                 await client.DeleteObjectsAsync(deleteObjectsRequest, cancellationToken);
             }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
         public override async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(path, cancellationToken);
+            path = PrependRootPath(path);
 
             try
             {
                 await client.DeleteObjectAsync(bucketName, path, cancellationToken);
             }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
         public override async Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(path, cancellationToken);
+            path = PrependRootPath(path);
 
             try
             {
@@ -299,24 +241,16 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                 return memoryStream.ToArray();
             }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
         public override async Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(path, cancellationToken);
+            path = PrependRootPath(path);
 
             try
             {
@@ -330,28 +264,25 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                 return await streamReader.ReadToEndAsync();
             }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
-        public override async Task WriteFileAsync(string path, byte[] contents, bool overwrite = false,
-            CancellationToken cancellationToken = default)
+        public override async Task WriteFileAsync(
+            string path,
+            byte[] contents,
+            bool overwrite = false,
+            CancellationToken cancellationToken = default
+        )
         {
             if (!overwrite && await FileExistsAsync(path, cancellationToken))
             {
                 throw new FileExistsException(PrependRootPath(path), Prefix);
             }
+
+            path = PrependRootPath(path);
 
             try
             {
@@ -365,18 +296,9 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                 await client.PutObjectAsync(request, cancellationToken);
             }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -387,6 +309,8 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             contents = existingContents.Concat(contents).ToArray();
             await DeleteFileAsync(path, cancellationToken);
 
+            path = PrependRootPath(path);
+
             try
             {
                 await using var memoryStream = new MemoryStream(contents);
@@ -399,19 +323,28 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                 await client.PutObjectAsync(request, cancellationToken);
             }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "InvalidAccessKeyId" || exception.ErrorCode == "InvalidSecurity")
-                {
-                    throw new ConnectionException(exception);
-                }
-
-                throw new AdapterRuntimeException(exception);
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
+        }
+        
+        private static Exception Exception(Exception exception)
+        {
+            if (exception is FileSystemException)
+            {
+                return exception;
+            }
+
+            if (exception is AmazonS3Exception amazonS3Exception)
+            {
+                if (amazonS3Exception.ErrorCode == "InvalidAccessKeyId" || amazonS3Exception.ErrorCode == "InvalidSecurity")
+                {
+                    return new ConnectionException(exception);
+                }
+            }
+
+            return new AdapterRuntimeException(exception);
         }
     }
 }

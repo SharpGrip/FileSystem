@@ -13,13 +13,14 @@
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem</AssemblyName>
         <PackageId>SharpGrip.FileSystem</PackageId>
-        <PackageVersion>1.0.0-alpha4</PackageVersion>
+        <PackageVersion>1.0.0-alpha5</PackageVersion>
         <Title>SharpGrip FileSystem</Title>
         <Description>SharpGrip FileSystem is a file system abstraction supporting multiple adapters.</Description>
         <Company>SharpGrip</Company>
         <Authors>SharpGrip</Authors>
         <Copyright>SharpGrip</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>sharpgrip;file-system;amazon-s3;azure-file-storage;dropbox;sftp</PackageTags>
         <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <RepositoryType>git</RepositoryType>

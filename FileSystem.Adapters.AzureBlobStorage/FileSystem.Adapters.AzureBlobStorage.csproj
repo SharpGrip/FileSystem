@@ -27,11 +27,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Storage.Blobs" Version="12.4.2" />
+        <PackageReference Include="Azure.Storage.Blobs" Version="12.4.2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj"/>
     </ItemGroup>
 
 </Project>

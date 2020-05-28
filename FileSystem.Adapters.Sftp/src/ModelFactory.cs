@@ -5,7 +5,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 {
     public static class ModelFactory
     {
-        public static FileModel CreateFile(SftpFile file)
+        public static IFile CreateFile(SftpFile file)
         {
             return new FileModel
             {

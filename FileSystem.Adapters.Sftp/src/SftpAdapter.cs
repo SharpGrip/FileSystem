@@ -41,7 +41,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
             catch (Exception exception)
             {
-                throw new ConnectionException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -66,7 +66,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -87,11 +87,11 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
             catch (SftpPathNotFoundException)
             {
-                throw new FileNotFoundException(path, Prefix);
+                throw new DirectoryNotFoundException(path, Prefix);
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -100,10 +100,17 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             await GetDirectoryAsync(path, cancellationToken);
             path = PrependRootPath(path);
 
-            return await Task.Run(
-                () => client.ListDirectory(path).Where(item => !item.IsDirectory).Select(ModelFactory.CreateFile).ToList(),
-                cancellationToken
-            );
+            try
+            {
+                return await Task.Run(
+                    () => client.ListDirectory(path).Where(item => !item.IsDirectory).Select(ModelFactory.CreateFile).ToList(),
+                    cancellationToken
+                );
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(
@@ -114,21 +121,33 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             await GetDirectoryAsync(path, cancellationToken);
             path = PrependRootPath(path);
 
-            return await Task.Run(
-                () => client.ListDirectory(path).Where(item => item.IsDirectory).Select(ModelFactory.CreateDirectory).ToList(),
-                cancellationToken
-            );
+            try
+            {
+                return await Task.Run(
+                    () => client.ListDirectory(path).Where(item => item.IsDirectory).Select(ModelFactory.CreateDirectory).ToList(),
+                    cancellationToken
+                );
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         public override async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
+            if (await DirectoryExistsAsync(path, cancellationToken))
+            {
+                throw new DirectoryExistsException(PrependRootPath(path), Prefix);
+            }
+
             try
             {
                 await Task.Run(() => client.CreateDirectory(PrependRootPath(path)), cancellationToken);
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -142,7 +161,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -156,7 +175,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -175,7 +194,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -191,7 +210,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -213,7 +232,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -227,10 +246,29 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
                 await Task.Run(() => client.AppendAllText(PrependRootPath(path), stringContents), cancellationToken);
             }
+            catch (SshConnectionException exception)
+            {
+                throw new ConnectionException(exception);
+            }
             catch (Exception exception)
             {
                 throw new AdapterRuntimeException(exception);
             }
+        }
+
+        private static Exception Exception(Exception exception)
+        {
+            if (exception is FileSystemException)
+            {
+                return exception;
+            }
+
+            if (exception is SshConnectionException sshConnectionException)
+            {
+                return new ConnectionException(sshConnectionException);
+            }
+
+            return new AdapterRuntimeException(exception);
         }
     }
 }

@@ -123,6 +123,11 @@ namespace SharpGrip.FileSystem.Adapters
 
         public override async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
+            if (await DirectoryExistsAsync(path, cancellationToken))
+            {
+                throw new DirectoryExistsException(PrependRootPath(path), Prefix);
+            }
+
             try
             {
                 await Task.Run(() => Directory.CreateDirectory(PrependRootPath(path)), cancellationToken);
