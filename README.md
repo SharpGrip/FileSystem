@@ -145,6 +145,6 @@ await fileSystem.MoveFileAsync("azure://Foo/Bar.txt", "dropbox://Bar/Foo.txt");
 // Writes string contents to the `azure` adapter.
 await fileSystem.WriteFileAsync("azure://Foo.txt", "Bar!");
 
-// Read a text file from the `dropbox` adapter.
+// Reads a text file from the `dropbox` adapter.
 var contents = fileSystem.ReadTextFileAsync("dropbox://Foo.txt");
 ```
