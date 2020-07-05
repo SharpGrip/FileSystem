@@ -150,6 +150,20 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
         }
 
+        public override async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        {
+            await GetDirectoryAsync(path, cancellationToken);
+
+            try
+            {
+                await client.DeleteDirectoryAsync(PrependRootPath(path), cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
+        }
+
         public override async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(path, cancellationToken);
@@ -162,20 +176,6 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             {
                 var directory = client.GetDirectoryClient(directoryPath);
                 await directory.GetFileClient(filePath).DeleteAsync(cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        public override async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
-        {
-            await GetDirectoryAsync(path, cancellationToken);
-
-            try
-            {
-                await client.DeleteDirectoryAsync(PrependRootPath(path), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -295,7 +295,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 throw Exception(exception);
             }
         }
-        
+
         private static Exception Exception(Exception exception)
         {
             if (exception is FileSystemException)
