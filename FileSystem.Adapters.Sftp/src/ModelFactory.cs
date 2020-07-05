@@ -12,8 +12,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
                 Name = file.Name,
                 Path = file.FullName,
                 Length = file.Length,
-                LastWriteTime = file.LastWriteTime,
-                LastWriteTimeUtc = file.LastWriteTimeUtc
+                LastModifiedDateTime = file.LastWriteTime
             };
         }
 
@@ -23,8 +22,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             {
                 Name = directory.Name,
                 Path = directory.FullName,
-                LastWriteTime = directory.LastWriteTime,
-                LastWriteTimeUtc = directory.LastWriteTimeUtc
+                LastModifiedDateTime = directory.LastWriteTime
             };
         }
     }

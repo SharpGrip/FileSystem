@@ -12,8 +12,7 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
                 Name = file.Name,
                 Path = file.PathDisplay,
                 Length = (long) file.AsFile.Size,
-                LastWriteTime = file.AsFile.ServerModified,
-                LastWriteTimeUtc = file.AsFile.ServerModified.ToUniversalTime()
+                LastModifiedDateTime = file.AsFile.ServerModified
             };
         }
 

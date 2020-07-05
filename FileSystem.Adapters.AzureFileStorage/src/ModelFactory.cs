@@ -14,8 +14,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 Name = file.Name,
                 Path = file.Path,
                 Length = fileProperties.ContentLength,
-                LastWriteTime = fileProperties.LastModified.DateTime,
-                LastWriteTimeUtc = fileProperties.LastModified.UtcDateTime
+                LastModifiedDateTime = fileProperties.LastModified.DateTime,
             };
         }
 
@@ -27,8 +26,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             {
                 Name = directory.Name,
                 Path = directory.Path,
-                LastWriteTime = directoryProperties.LastModified.DateTime,
-                LastWriteTimeUtc = directoryProperties.LastModified.UtcDateTime
+                LastModifiedDateTime = directoryProperties.LastModified.DateTime
             };
         }
     }

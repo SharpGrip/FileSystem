@@ -6,8 +6,8 @@ namespace SharpGrip.FileSystem.Models
     {
         public string Name { get; set; }
         public string Path { get; set; }
-        public long Length { get; set; }
-        public DateTime LastWriteTime { get; set; }
-        public DateTime LastWriteTimeUtc { get; set; }
+        public long? Length { get; set; }
+        public DateTime? LastModifiedDateTime { get; set; }
+        public DateTime? CreatedDateTime { get; set; }
     }
 }

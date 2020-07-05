@@ -11,9 +11,9 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
             {
                 Name = file.Name,
                 Path = file.Name,
-                Length = (long) file.Properties.ContentLength!,
-                LastWriteTime = file.Properties.LastModified!.Value.DateTime,
-                LastWriteTimeUtc = file.Properties.LastModified.Value.UtcDateTime
+                Length = file.Properties.ContentLength,
+                LastModifiedDateTime = file.Properties.LastModified?.DateTime,
+                CreatedDateTime = file.Properties.CreatedOn?.DateTime
             };
         }
 

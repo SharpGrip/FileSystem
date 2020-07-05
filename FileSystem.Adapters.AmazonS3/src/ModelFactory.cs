@@ -14,8 +14,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 Name = file.Key.Split('/').Last(),
                 Path = file.Key,
                 Length = file.ContentLength,
-                LastWriteTime = file.LastModified,
-                LastWriteTimeUtc = file.LastModified.ToUniversalTime()
+                LastModifiedDateTime = file.LastModified,
             };
         }
 
@@ -26,8 +25,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 Name = file.Key.Split('/').Last(),
                 Path = file.Key,
                 Length = file.Size,
-                LastWriteTime = file.LastModified,
-                LastWriteTimeUtc = file.LastModified.ToUniversalTime()
+                LastModifiedDateTime = file.LastModified
             };
         }
 
@@ -45,8 +43,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             {
                 Name = name.Substring(0, name.Length - 1),
                 Path = directory.Key.Substring(0, name.Length - 1),
-                LastWriteTime = directory.LastModified,
-                LastWriteTimeUtc = directory.LastModified.ToUniversalTime()
+                LastModifiedDateTime = directory.LastModified
             };
         }
     }
