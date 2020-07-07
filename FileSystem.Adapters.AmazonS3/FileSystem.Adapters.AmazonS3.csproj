@@ -13,7 +13,7 @@
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem.Adapters.AmazonS3</AssemblyName>
         <PackageId>SharpGrip.FileSystem.Adapters.AmazonS3</PackageId>
-        <PackageVersion>1.0.0-alpha2</PackageVersion>
+        <PackageVersion>1.0.0-alpha3</PackageVersion>
         <Title>SharpGrip FileSystem AmazonS3 adapter</Title>
         <Description>The SharpGrip FileSystem AmazonS3 adapter.</Description>
         <Company>SharpGrip</Company>

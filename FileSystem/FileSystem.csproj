@@ -13,7 +13,7 @@
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem</AssemblyName>
         <PackageId>SharpGrip.FileSystem</PackageId>
-        <PackageVersion>1.0.0-alpha5</PackageVersion>
+        <PackageVersion>1.0.0-alpha6</PackageVersion>
         <Title>SharpGrip FileSystem</Title>
         <Description>SharpGrip FileSystem is a file system abstraction supporting multiple adapters.</Description>
         <Company>SharpGrip</Company>

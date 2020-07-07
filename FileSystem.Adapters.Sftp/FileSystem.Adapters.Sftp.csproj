@@ -13,7 +13,7 @@
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem.Adapters.Sftp</AssemblyName>
         <PackageId>SharpGrip.FileSystem.Adapters.Sftp</PackageId>
-        <PackageVersion>1.0.0-alpha5</PackageVersion>
+        <PackageVersion>1.0.0-alpha6</PackageVersion>
         <Title>SharpGrip FileSystem SFTP adapter</Title>
         <Description>The SharpGrip FileSystem SFTP adapter.</Description>
         <Company>SharpGrip</Company>
