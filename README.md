@@ -14,6 +14,7 @@ For adapters other than the local file system (included in the `SharpGrip.FileSy
 - AzureBlobStorage (`SharpGrip.FileSystem.Adapters.AzureBlobStorage`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureBlobStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureBlobStorage)
 - AzureFileStorage (`SharpGrip.FileSystem.Adapters.AzureFileStorage`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureFileStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureFileStorage)
 - Dropbox (`SharpGrip.FileSystem.Adapters.Dropbox`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Dropbox)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Dropbox)
+- MicrosoftOneDrive (`SharpGrip.FileSystem.Adapters.MicrosoftOneDrive`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.MicrosoftOneDrive)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.MicrosoftOneDrive)
 - SFTP (`SharpGrip.FileSystem.Adapters.Sftp`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Sftp)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Sftp)
 
 ## Supported operations
@@ -99,6 +100,32 @@ var adapters = new List<IAdapter>
 {
     new LocalAdapter("local", "/var/files"),
     new DropboxAdapter("dropbox", "/Files", dropboxClient)
+};
+
+var fileSystem = new FileSystem(adapters);
+```
+
+### MicrosoftOneDrive adapter
+```
+// MicrosoftOneDrive connection.
+var scopes = new[] {"https://graph.microsoft.com/.default"};
+var tenantId = "tenantId";
+var confidentialClient = ConfidentialClientApplicationBuilder
+    .Create("clientId")
+    .WithAuthority($"https://login.microsoftonline.com/{tenantId}/v2.0")
+    .WithClientSecret("clientSecret")
+    .Build();
+var oneDriveClient = new GraphServiceClient(new DelegateAuthenticationProvider(async requestMessage =>
+    {
+        var authResult = await confidentialClient.AcquireTokenForClient(scopes).ExecuteAsync();
+        requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+    })
+);
+
+var adapters = new List<IAdapter>
+{
+    new LocalAdapter("local", "/var/files"),
+    new MicrosoftOneDriveAdapter("onedrive", "/Files", oneDriveClient, "driveId")
 };
 
 var fileSystem = new FileSystem(adapters);
