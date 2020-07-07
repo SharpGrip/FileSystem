@@ -34,8 +34,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
         public override async Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default)
         {
             path = PrependRootPath(path);
-            var pathParts = path.Split('/');
-            var directoryPath = string.Join('/', pathParts.Take(pathParts.Length - 1));
+            var directoryPath = GetParentPathPart(path);
 
             try
             {
@@ -58,16 +57,16 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
         public override async Task<IDirectory> GetDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             path = PrependRootPath(path);
-            var pathParts = path.Split('/');
-            var directoryPath = string.Join('/', pathParts.Take(pathParts.Length - 1));
+            var directoryPath = GetLastPathPart(path);
+            var parentDirectoryPath = GetLastPathPart(path);
 
             try
             {
-                await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, directoryPath))
+                await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, parentDirectoryPath))
                 {
                     if (item.Name.StartsWith(path))
                     {
-                        return ModelFactory.CreateDirectory(pathParts.Last(), path);
+                        return ModelFactory.CreateDirectory(directoryPath, path);
                     }
                 }
 
@@ -90,8 +89,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
 
                 await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, path))
                 {
-                    var pathParts = item.Name.Split('/');
-                    var directoryPath = string.Join('/', pathParts.Take(pathParts.Length - 1));
+                    var directoryPath = GetParentPathPart(path);
 
                     if (directoryPath == path && item.Name != directoryPath + "/")
                     {
@@ -122,8 +120,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
                 {
                     if (item.IsPrefix)
                     {
-                        var pathParts = item.Prefix.Split('/', StringSplitOptions.RemoveEmptyEntries);
-                        directories.Add(ModelFactory.CreateDirectory(pathParts.Last(), item.Prefix));
+                        directories.Add(ModelFactory.CreateDirectory(GetLastPathPart(item.Prefix), item.Prefix));
                     }
                 }
 

@@ -70,7 +70,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             try
             {
                 var prefix = "";
-                var pathParts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                var pathParts = GetPathParts(path);
 
                 if (pathParts.Length > 1)
                 {
@@ -328,7 +328,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 throw Exception(exception);
             }
         }
-        
+
         private static Exception Exception(Exception exception)
         {
             if (exception is FileSystemException)

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +25,23 @@ namespace SharpGrip.FileSystem.Adapters
         protected string PrependRootPath(string path)
         {
             return Path.Combine(RootPath, path);
+        }
+
+        protected string[] GetPathParts(string path)
+        {
+            return path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        protected string GetLastPathPart(string path)
+        {
+            return GetPathParts(path).Last();
+        }
+
+        protected string GetParentPathPart(string path)
+        {
+            var pathParts = GetPathParts(path);
+
+            return string.Join('/', pathParts.Take(pathParts.Length - 1));
         }
 
         public IFile GetFile(string path)

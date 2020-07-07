@@ -33,9 +33,8 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
         public override async Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default)
         {
             path = PrependRootPath(path);
-            var pathParts = path.Split('/');
-            var filePath = pathParts.Last();
-            var directoryPath = string.Join('/', pathParts.Take(pathParts.Length - 1));
+            var filePath = GetLastPathPart(path);
+            var directoryPath = GetParentPathPart(path);
 
             try
             {
@@ -168,9 +167,8 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
         {
             await GetFileAsync(path, cancellationToken);
             path = PrependRootPath(path);
-            var pathParts = path.Split('/');
-            var filePath = pathParts.Last();
-            var directoryPath = string.Join('/', pathParts.Take(pathParts.Length - 1));
+            var filePath = GetLastPathPart(path);
+            var directoryPath = GetParentPathPart(path);
 
             try
             {
@@ -187,9 +185,8 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
         {
             await GetFileAsync(path, cancellationToken);
             path = PrependRootPath(path);
-            var pathParts = path.Split('/');
-            var filePath = pathParts.Last();
-            var directoryPath = string.Join('/', pathParts.Take(pathParts.Length - 1));
+            var filePath = GetLastPathPart(path);
+            var directoryPath = GetParentPathPart(path);
 
             try
             {
@@ -211,9 +208,8 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
         {
             await GetFileAsync(path, cancellationToken);
             path = PrependRootPath(path);
-            var pathParts = path.Split('/');
-            var filePath = pathParts.Last();
-            var directoryPath = string.Join('/', pathParts.Take(pathParts.Length - 1));
+            var filePath = GetLastPathPart(path);
+            var directoryPath = GetParentPathPart(path);
 
             try
             {
@@ -247,9 +243,8 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             }
 
             path = PrependRootPath(path);
-            var pathParts = path.Split('/');
-            var filePath = pathParts.Last();
-            var directoryPath = string.Join('/', pathParts.Take(pathParts.Length - 1));
+            var filePath = GetLastPathPart(path);
+            var directoryPath = GetParentPathPart(path);
 
             try
             {
@@ -273,9 +268,8 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             var existingContents = await ReadFileAsync(path, cancellationToken);
 
             path = PrependRootPath(path);
-            var pathParts = path.Split('/');
-            var filePath = pathParts.Last();
-            var directoryPath = string.Join('/', pathParts.Take(pathParts.Length - 1));
+            var filePath = GetLastPathPart(path);
+            var directoryPath = GetParentPathPart(path);
 
             try
             {
