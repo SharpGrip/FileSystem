@@ -20,7 +20,7 @@
         <Authors>SharpGrip</Authors>
         <Copyright>SharpGrip</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageTags>sharpgrip;file-system;amazon-s3;azure-file-storage;dropbox;sftp</PackageTags>
+        <PackageTags>sharpgrip;file-system;amazon-s3;azure-blob-storage;azure-file-storage;dropbox;microsoft-onedrive;sftp</PackageTags>
         <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
