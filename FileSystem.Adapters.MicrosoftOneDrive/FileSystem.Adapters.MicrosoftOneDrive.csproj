@@ -20,7 +20,7 @@
         <Authors>SharpGrip</Authors>
         <Copyright>SharpGrip</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageTags>sharpgrip;file-system;microsoft-one-drive</PackageTags>
+        <PackageTags>sharpgrip;file-system;microsoft-onedrive</PackageTags>
         <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
