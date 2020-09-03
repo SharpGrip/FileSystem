@@ -37,7 +37,7 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             path = PrependRootPath(path);
 
             // Ensure that the path does not end with a '/'.
-            if (path.EndsWith('/'))
+            if (path.EndsWith("/"))
             {
                 path = path.Remove(path.Length - 1);
             }
@@ -73,7 +73,7 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             path = PrependRootPath(path);
 
             // Ensure that the path does not end with a '/'.
-            if (path.EndsWith('/'))
+            if (path.EndsWith("/"))
             {
                 path = path.Remove(path.Length - 1);
             }
@@ -110,7 +110,7 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             path = PrependRootPath(path);
 
             // Ensure that the path does not end with a '/'.
-            if (path.EndsWith('/'))
+            if (path.EndsWith("/"))
             {
                 path = path.Remove(path.Length - 1);
             }
@@ -143,7 +143,7 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             path = PrependRootPath(path);
 
             // Ensure that the path does not end with a '/'.
-            if (path.EndsWith('/'))
+            if (path.EndsWith("/"))
             {
                 path = path.Remove(path.Length - 1);
             }
@@ -239,13 +239,22 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
 
             try
             {
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream();
                 var item = await GetItemAsync(path, cancellationToken);
 
                 var stream = await client.Drives[driveId].Items[item.Id].Content.Request().GetAsync(cancellationToken);
                 await stream.CopyToAsync(memoryStream, cancellationToken);
-
                 return memoryStream.ToArray();
+#else
+                using (var memoryStream = new MemoryStream())
+                {
+                    var item = await GetItemAsync(path, cancellationToken);
+                    var stream = await client.Drives[driveId].Items[item.Id].Content.Request().GetAsync(cancellationToken);
+                    await stream.CopyToAsync(memoryStream, 81920, cancellationToken);
+                    return memoryStream.ToArray();
+                }
+#endif                
             }
             catch (Exception exception)
             {
@@ -260,6 +269,7 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
 
             try
             {
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream();
                 var item = await GetItemAsync(path, cancellationToken);
 
@@ -270,6 +280,20 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
                 memoryStream.Position = 0;
 
                 return await streamReader.ReadToEndAsync();
+#else
+                using (var memoryStream = new MemoryStream())
+                {
+                    var item = await GetItemAsync(path, cancellationToken);
+
+                    var stream = await client.Drives[driveId].Items[item.Id].Content.Request().GetAsync(cancellationToken);
+                    await stream.CopyToAsync(memoryStream, 81920, cancellationToken);
+
+                    using var streamReader = new StreamReader(memoryStream);
+                    memoryStream.Position = 0;
+
+                    return await streamReader.ReadToEndAsync();
+                }
+#endif
             }
             catch (Exception exception)
             {
@@ -289,11 +313,11 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
 
             try
             {
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream(contents);
                 var uploadSession = await client.Drives[driveId].Root.ItemWithPath(path).CreateUploadSession().Request()
                     .PostAsync(cancellationToken);
                 var provider = new ChunkedUploadProvider(uploadSession, client, memoryStream);
-
                 var chunkRequests = provider.GetUploadChunkRequests();
                 var exceptionTrackingList = new List<Exception>();
 
@@ -306,6 +330,27 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
                         throw new AdapterRuntimeException(exceptionTrackingList.First());
                     }
                 }
+#else
+                using (var memoryStream = new MemoryStream(contents))
+                {
+                    var uploadSession = await client.Drives[driveId].Root.ItemWithPath(path).CreateUploadSession().Request()
+                        .PostAsync(cancellationToken);
+                    var provider = new ChunkedUploadProvider(uploadSession, client, memoryStream);
+                    var chunkRequests = provider.GetUploadChunkRequests();
+                    var exceptionTrackingList = new List<Exception>();
+
+                    foreach (var request in chunkRequests)
+                    {
+                        var result = await provider.GetChunkRequestResponseAsync(request, exceptionTrackingList);
+
+                        if (!result.UploadSucceeded && exceptionTrackingList.Any())
+                        {
+                            throw new AdapterRuntimeException(exceptionTrackingList.First());
+                        }
+                    }
+                }
+#endif
+
             }
             catch (Exception exception)
             {
@@ -324,6 +369,7 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
 
             try
             {
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream(contents);
                 var uploadSession = await client.Drives[driveId].Root.ItemWithPath(path).CreateUploadSession().Request()
                     .PostAsync(cancellationToken);
@@ -341,6 +387,27 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
                         throw new AdapterRuntimeException(exceptionTrackingList.First());
                     }
                 }
+#else
+                using (var memoryStream = new MemoryStream(contents))
+                {
+                    var uploadSession = await client.Drives[driveId].Root.ItemWithPath(path).CreateUploadSession().Request()
+                        .PostAsync(cancellationToken);
+                    var provider = new ChunkedUploadProvider(uploadSession, client, memoryStream);
+
+                    var chunkRequests = provider.GetUploadChunkRequests();
+                    var exceptionTrackingList = new List<Exception>();
+
+                    foreach (var request in chunkRequests)
+                    {
+                        var result = await provider.GetChunkRequestResponseAsync(request, exceptionTrackingList);
+
+                        if (!result.UploadSucceeded && exceptionTrackingList.Any())
+                        {
+                            throw new AdapterRuntimeException(exceptionTrackingList.First());
+                        }
+                    }
+                }
+#endif
             }
             catch (Exception exception)
             {

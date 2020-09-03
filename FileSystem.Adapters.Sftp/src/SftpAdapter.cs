@@ -185,12 +185,23 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
             try
             {
+#if NETSTANDARD2_1
                 await using var fileStream = client.OpenRead(PrependRootPath(path));
                 var fileContents = new byte[fileStream.Length];
 
                 await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
 
                 return fileContents;
+#else
+                using (var fileStream = client.OpenRead(PrependRootPath(path)))
+                {
+                    var fileContents = new byte[fileStream.Length];
+
+                    await fileStream.ReadAsync(fileContents, 0, (int)fileStream.Length, cancellationToken);
+
+                    return fileContents;
+                }
+#endif
             }
             catch (Exception exception)
             {

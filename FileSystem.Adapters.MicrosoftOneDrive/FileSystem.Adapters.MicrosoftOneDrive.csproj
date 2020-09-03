@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <RootNamespace>SharpGrip.FileSystem.Adapters.MicrosoftOneDrive</RootNamespace>
         <Nullable>enable</Nullable>
         <LangVersion>8.0</LangVersion>
@@ -27,12 +27,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Graph" Version="3.8.0"/>
-        <PackageReference Include="Microsoft.Identity.Client" Version="4.15.0"/>
+        <PackageReference Include="Microsoft.Graph" Version="3.8.0" />
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.15.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FileSystem\FileSystem.csproj"/>
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
     </ItemGroup>
 
 </Project>

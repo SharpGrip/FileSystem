@@ -29,7 +29,7 @@ namespace SharpGrip.FileSystem.Adapters
 
         protected string[] GetPathParts(string path)
         {
-            return path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            return path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         protected string GetLastPathPart(string path)
@@ -41,7 +41,7 @@ namespace SharpGrip.FileSystem.Adapters
         {
             var pathParts = GetPathParts(path);
 
-            return string.Join('/', pathParts.Take(pathParts.Length - 1));
+            return string.Join("/", pathParts.Take(pathParts.Length - 1));
         }
 
         public IFile GetFile(string path)

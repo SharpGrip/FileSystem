@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <RootNamespace>SharpGrip.FileSystem.Adapters.AzureBlobStorage</RootNamespace>
         <Nullable>enable</Nullable>
         <LangVersion>8.0</LangVersion>
@@ -27,11 +27,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Storage.Blobs" Version="12.4.2"/>
+        <PackageReference Include="Azure.Storage.Blobs" Version="12.4.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FileSystem\FileSystem.csproj"/>
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
     </ItemGroup>
 
 </Project>
