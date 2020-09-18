@@ -153,12 +153,19 @@ namespace SharpGrip.FileSystem.Adapters
         public override async Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(path, cancellationToken);
+#if NETSTANDARD2_1
             await using var fileStream = new FileStream(PrependRootPath(path), FileMode.Open);
             var fileContents = new byte[fileStream.Length];
-
             await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
-
             return fileContents;
+#else
+            using (var fileStream = new FileStream(PrependRootPath(path), FileMode.Open))
+            {
+                var fileContents = new byte[fileStream.Length];
+                await fileStream.ReadAsync(fileContents, 0, (int)fileStream.Length, cancellationToken);
+                return fileContents;
+            }
+#endif
         }
 
         public override async Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
@@ -180,18 +187,29 @@ namespace SharpGrip.FileSystem.Adapters
             {
                 throw new FileExistsException(PrependRootPath(path), Prefix);
             }
-
+#if NETSTANDARD2_1
             await using var fileStream = new FileStream(PrependRootPath(path), FileMode.Create);
-
             await fileStream.WriteAsync(contents, cancellationToken);
+#else
+            using (var fileStream = new FileStream(PrependRootPath(path), FileMode.Create))
+            {
+                await fileStream.WriteAsync(contents, 0, contents.Length, cancellationToken);
+            }
+#endif
         }
 
         public override async Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(path, cancellationToken);
-
+#if NETSTANDARD2_1
             await using var fileStream = new FileStream(PrependRootPath(path), FileMode.Append);
             await fileStream.WriteAsync(contents, cancellationToken);
+#else
+            using (var fileStream = new FileStream(PrependRootPath(path), FileMode.Append))
+            {
+                await fileStream.WriteAsync(contents, 0, contents.Length, cancellationToken);
+            }
+#endif
         }
     }
 }

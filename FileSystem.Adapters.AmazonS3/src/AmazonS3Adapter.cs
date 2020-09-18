@@ -62,7 +62,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         {
             path = PrependRootPath(path);
 
-            if (!path.EndsWith('/'))
+            if (!path.EndsWith("/"))
             {
                 path += "/";
             }
@@ -74,7 +74,8 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                 if (pathParts.Length > 1)
                 {
-                    prefix = string.Join('/', pathParts.SkipLast(1)) + "/";
+                    prefix = string.Join("/", pathParts.Take(pathParts.Length-1) ) + "/";
+//                    prefix = string.Join("/", pathParts.SkipLast(1)) + "/";
                 }
 
                 var request = new ListObjectsV2Request {BucketName = bucketName, Prefix = prefix};
@@ -117,7 +118,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 {
                     var itemName = item.Key.Substring(0, item.Key.Length - path.Length);
 
-                    if (!item.Key.EndsWith('/') && !itemName.Contains('/'))
+                    if (!item.Key.EndsWith("/") && !itemName.Contains('/'))
                     {
                         files.Add(ModelFactory.CreateFile(item));
                     }
@@ -150,7 +151,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 {
                     var itemName = item.Key.Substring(0, item.Key.Length - path.Length);
 
-                    if (item.Key.EndsWith('/') && itemName.Count(c => c.Equals('/')) == 1)
+                    if (item.Key.EndsWith("/") && itemName.Count(c => c.Equals('/')) == 1)
                     {
                         directories.Add(ModelFactory.CreateDirectory(item));
                     }
@@ -172,7 +173,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
 
             path = PrependRootPath(path);
-            path = path.EndsWith('/') ? path : path + "/";
+            path = path.EndsWith("/") ? path : path + "/";
 
             try
             {
@@ -190,7 +191,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             await GetDirectoryAsync(path, cancellationToken);
 
             path = PrependRootPath(path);
-            path = path.EndsWith('/') ? path : path + "/";
+            path = path.EndsWith("/") ? path : path + "/";
 
             try
             {
@@ -235,11 +236,17 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             try
             {
                 using var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
-
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream();
                 await response.ResponseStream.CopyToAsync(memoryStream, cancellationToken);
-
                 return memoryStream.ToArray();
+#else
+                using (var memoryStream = new MemoryStream())
+                {
+                    await response.ResponseStream.CopyToAsync(memoryStream, 81920, cancellationToken);
+                    return memoryStream.ToArray();
+                }
+#endif
             }
             catch (Exception exception)
             {
@@ -255,7 +262,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             try
             {
                 using var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
-
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream();
                 await response.ResponseStream.CopyToAsync(memoryStream, cancellationToken);
 
@@ -263,6 +270,17 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 memoryStream.Position = 0;
 
                 return await streamReader.ReadToEndAsync();
+#else
+                using (var memoryStream = new MemoryStream())
+                {
+                    await response.ResponseStream.CopyToAsync(memoryStream, 81920, cancellationToken);
+
+                    using var streamReader = new StreamReader(memoryStream);
+                    memoryStream.Position = 0;
+
+                    return await streamReader.ReadToEndAsync();
+                }
+#endif
             }
             catch (Exception exception)
             {
@@ -286,6 +304,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             try
             {
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream(contents);
                 var request = new PutObjectRequest
                 {
@@ -295,6 +314,18 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 };
 
                 await client.PutObjectAsync(request, cancellationToken);
+#else
+                using (var memoryStream = new MemoryStream(contents))
+                {
+                    var request = new PutObjectRequest
+                    {
+                        InputStream = memoryStream,
+                        BucketName = bucketName,
+                        Key = path
+                    };
+                    await client.PutObjectAsync(request, cancellationToken);
+                }
+#endif
             }
             catch (Exception exception)
             {
@@ -313,6 +344,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             try
             {
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream(contents);
                 var request = new PutObjectRequest
                 {
@@ -322,6 +354,19 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 };
 
                 await client.PutObjectAsync(request, cancellationToken);
+#else
+                using (var memoryStream = new MemoryStream(contents))
+                {
+                    var request = new PutObjectRequest
+                    {
+                        InputStream = memoryStream,
+                        BucketName = bucketName,
+                        Key = path
+                    };
+
+                    await client.PutObjectAsync(request, cancellationToken);
+                }
+#endif
             }
             catch (Exception exception)
             {

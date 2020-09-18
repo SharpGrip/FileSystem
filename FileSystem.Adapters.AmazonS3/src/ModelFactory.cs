@@ -31,7 +31,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
         public static DirectoryModel CreateDirectory(S3Object directory)
         {
-            var pathParts = directory.Key.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var pathParts = directory.Key.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             var name = pathParts.Last();
 
             if (pathParts.Length == 1)

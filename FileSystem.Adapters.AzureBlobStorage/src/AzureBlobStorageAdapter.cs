@@ -114,7 +114,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
             try
             {
                 var directories = new List<IDirectory>();
-                path = path.EndsWith('/') ? path : path + "/";
+                path = path.EndsWith("/") ? path : path + "/";
 
                 await foreach (var item in client.GetBlobsByHierarchyAsync(BlobTraits.None, BlobStates.None, "/", path))
                 {
@@ -140,7 +140,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
             }
 
             path = PrependRootPath(path);
-            path = path.EndsWith('/') ? path : path + "/";
+            path = path.EndsWith("/") ? path : path + "/";
 
             try
             {
@@ -157,7 +157,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
             await GetDirectoryAsync(path, cancellationToken);
 
             path = PrependRootPath(path);
-            path = path.EndsWith('/') ? path : path + "/";
+            path = path.EndsWith("/") ? path : path + "/";
 
             try
             {
@@ -194,10 +194,18 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
 
             try
             {
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream();
                 await client.GetBlobClient(path).DownloadToAsync(memoryStream, cancellationToken);
 
                 return memoryStream.ToArray();
+#else
+                using (var memoryStream = new MemoryStream())
+                {
+                    await client.GetBlobClient(path).DownloadToAsync(memoryStream, cancellationToken);
+                    return memoryStream.ToArray();
+                }
+#endif
             }
             catch (Exception exception)
             {
@@ -212,6 +220,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
 
             try
             {
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream();
                 await client.GetBlobClient(path).DownloadToAsync(memoryStream, cancellationToken);
 
@@ -219,6 +228,17 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
                 memoryStream.Position = 0;
 
                 return await streamReader.ReadToEndAsync();
+#else
+                using (var memoryStream = new MemoryStream())
+                {
+                    await client.GetBlobClient(path).DownloadToAsync(memoryStream, cancellationToken);
+
+                    using var streamReader = new StreamReader(memoryStream);
+                    memoryStream.Position = 0;
+
+                    return await streamReader.ReadToEndAsync();
+                }
+#endif
             }
             catch (Exception exception)
             {
@@ -238,9 +258,16 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
 
             try
             {
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream(contents);
 
                 await client.UploadBlobAsync(path, memoryStream, cancellationToken);
+#else
+                using (var memoryStream = new MemoryStream(contents))
+                {
+                    await client.UploadBlobAsync(path, memoryStream, cancellationToken);
+                }
+#endif
             }
             catch (Exception exception)
             {
@@ -259,9 +286,16 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
 
             try
             {
+#if NETSTANDARD2_1
                 await using var memoryStream = new MemoryStream(contents);
 
                 await client.UploadBlobAsync(path, memoryStream, cancellationToken);
+#else
+                using (var memoryStream = new MemoryStream(contents))
+                {
+                    await client.UploadBlobAsync(path, memoryStream, cancellationToken);
+                }
+#endif
             }
             catch (Exception exception)
             {
