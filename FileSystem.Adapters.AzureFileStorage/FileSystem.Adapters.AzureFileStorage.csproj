@@ -27,11 +27,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Storage.Files.Shares" Version="12.2.1" />
+        <PackageReference Include="Azure.Storage.Files.Shares" Version="12.2.1"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj"/>
     </ItemGroup>
 
 </Project>

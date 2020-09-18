@@ -217,15 +217,9 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
 
             try
             {
-#if NETSTANDARD2_1
-                await using var memoryStream = new MemoryStream(contents);
+                using var memoryStream = new MemoryStream(contents);
+
                 await client.Files.UploadAsync(PrependRootPath(path), WriteMode.Overwrite.Instance, body: memoryStream);
-#else
-                using (var memoryStream = new MemoryStream(contents))
-                {
-                    await client.Files.UploadAsync(PrependRootPath(path), WriteMode.Overwrite.Instance, body: memoryStream);
-                }
-#endif
             }
             catch (Exception exception)
             {
@@ -241,15 +235,9 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
 
             try
             {
-#if NETSTANDARD2_1
-                await using var memoryStream = new MemoryStream(contents);
+                using var memoryStream = new MemoryStream(contents);
+
                 await client.Files.UploadAsync(PrependRootPath(path), WriteMode.Overwrite.Instance, body: memoryStream);
-#else
-                using (var memoryStream = new MemoryStream(contents))
-                {
-                    await client.Files.UploadAsync(PrependRootPath(path), WriteMode.Overwrite.Instance, body: memoryStream);
-                }
-#endif
             }
             catch (Exception exception)
             {

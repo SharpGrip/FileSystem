@@ -192,17 +192,11 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             {
                 var directory = client.GetDirectoryClient(directoryPath);
                 var download = await directory.GetFileClient(filePath).DownloadAsync(cancellationToken: cancellationToken);
-#if NETSTANDARD2_1
-                await using var memoryStream = new MemoryStream();
-                await download.Value.Content.CopyToAsync(memoryStream, cancellationToken);
+
+                using var memoryStream = new MemoryStream();
+                await download.Value.Content.CopyToAsync(memoryStream, 81920, cancellationToken);
+
                 return memoryStream.ToArray();
-#else
-                using (var memoryStream = new MemoryStream())
-                {
-                    await download.Value.Content.CopyToAsync(memoryStream, 81920, cancellationToken);
-                    return memoryStream.ToArray();
-                }
-#endif
             }
             catch (Exception exception)
             {
@@ -222,21 +216,13 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 var directory = client.GetDirectoryClient(directoryPath);
                 var file = directory.GetFileClient(filePath);
                 var download = await file.DownloadAsync(cancellationToken: cancellationToken);
-#if NETSTANDARD2_1
-                await using var memoryStream = new MemoryStream();
-                await download.Value.Content.CopyToAsync(memoryStream, cancellationToken);
+
+                using var memoryStream = new MemoryStream();
+                await download.Value.Content.CopyToAsync(memoryStream, 81920, cancellationToken);
                 using var streamReader = new StreamReader(memoryStream);
                 memoryStream.Position = 0;
+
                 return await streamReader.ReadToEndAsync();
-#else
-                using (var memoryStream = new MemoryStream())
-                {
-                    await download.Value.Content.CopyToAsync(memoryStream, 81920, cancellationToken);
-                    using var streamReader = new StreamReader(memoryStream);
-                    memoryStream.Position = 0;
-                    return await streamReader.ReadToEndAsync();
-                }
-#endif
             }
             catch (Exception exception)
             {
@@ -265,17 +251,11 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 var directory = client.GetDirectoryClient(directoryPath);
                 await directory.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
                 var file = directory.GetFileClient(filePath);
-#if NETSTANDARD2_1
-                await using var memoryStream = new MemoryStream(contents);
+
+                using var memoryStream = new MemoryStream(contents);
                 await file.CreateAsync(memoryStream.Length, cancellationToken: cancellationToken);
+
                 await file.UploadRangeAsync(new HttpRange(0, memoryStream.Length), memoryStream, cancellationToken: cancellationToken);
-#else
-                using (var memoryStream = new MemoryStream(contents))
-                {
-                    await file.CreateAsync(memoryStream.Length, cancellationToken: cancellationToken);
-                    await file.UploadRangeAsync(new HttpRange(0, memoryStream.Length), memoryStream, cancellationToken: cancellationToken);
-                }
-#endif
             }
             catch (Exception exception)
             {
@@ -298,22 +278,13 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
                 var file = directory.GetFileClient(filePath);
 
                 contents = existingContents.Concat(contents).ToArray();
-#if NETSTANDARD2_1
-                await using var memoryStream = new MemoryStream(contents);
+
+                using var memoryStream = new MemoryStream(contents);
 
                 await file.DeleteAsync(cancellationToken);
                 await file.CreateAsync(memoryStream.Length, cancellationToken: cancellationToken);
 
                 await file.UploadRangeAsync(new HttpRange(0, memoryStream.Length), memoryStream, cancellationToken: cancellationToken);
-#else
-                using (var memoryStream = new MemoryStream(contents))
-                {
-                    await file.DeleteAsync(cancellationToken);
-                    await file.CreateAsync(memoryStream.Length, cancellationToken: cancellationToken);
-
-                    await file.UploadRangeAsync(new HttpRange(0, memoryStream.Length), memoryStream, cancellationToken: cancellationToken);
-                }
-#endif
             }
             catch (Exception exception)
             {

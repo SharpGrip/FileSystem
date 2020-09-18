@@ -27,11 +27,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.S3" Version="3.3.110.68" />
+        <PackageReference Include="AWSSDK.S3" Version="3.3.110.68"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj"/>
     </ItemGroup>
 
 </Project>
