@@ -290,21 +290,19 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             try
             {
                 using var memoryStream = new MemoryStream(contents);
-                var uploadSession = await client.Drives[driveId].Root.ItemWithPath(path).CreateUploadSession().Request()
-                    .PostAsync(cancellationToken);
-                var provider = new ChunkedUploadProvider(uploadSession, client, memoryStream);
-                var chunkRequests = provider.GetUploadChunkRequests();
-                var exceptionTrackingList = new List<Exception>();
+                var uploadSession = await client.Drives[driveId].Root.ItemWithPath(path).CreateUploadSession().Request().PostAsync(cancellationToken);
+                var largeFileUploadTask = new LargeFileUploadTask<DriveItem>(uploadSession, memoryStream);
 
-                foreach (var request in chunkRequests)
+                var result = await largeFileUploadTask.UploadAsync();
+
+                if (!result.UploadSucceeded)
                 {
-                    var result = await provider.GetChunkRequestResponseAsync(request, exceptionTrackingList);
-
-                    if (!result.UploadSucceeded && exceptionTrackingList.Any())
-                    {
-                        throw new AdapterRuntimeException(exceptionTrackingList.First());
-                    }
+                    throw new AdapterRuntimeException();
                 }
+            }
+            catch (TaskCanceledException exception) when (exception.InnerException != null)
+            {
+                throw Exception(exception.InnerException);
             }
             catch (Exception exception)
             {
@@ -324,22 +322,19 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             try
             {
                 using var memoryStream = new MemoryStream(contents);
-                var uploadSession = await client.Drives[driveId].Root.ItemWithPath(path).CreateUploadSession().Request()
-                    .PostAsync(cancellationToken);
-                var provider = new ChunkedUploadProvider(uploadSession, client, memoryStream);
+                var uploadSession = await client.Drives[driveId].Root.ItemWithPath(path).CreateUploadSession().Request().PostAsync(cancellationToken);
+                var largeFileUploadTask = new LargeFileUploadTask<DriveItem>(uploadSession, memoryStream);
 
-                var chunkRequests = provider.GetUploadChunkRequests();
-                var exceptionTrackingList = new List<Exception>();
+                var result = await largeFileUploadTask.UploadAsync();
 
-                foreach (var request in chunkRequests)
+                if (!result.UploadSucceeded)
                 {
-                    var result = await provider.GetChunkRequestResponseAsync(request, exceptionTrackingList);
-
-                    if (!result.UploadSucceeded && exceptionTrackingList.Any())
-                    {
-                        throw new AdapterRuntimeException(exceptionTrackingList.First());
-                    }
+                    throw new AdapterRuntimeException();
                 }
+            }
+            catch (TaskCanceledException exception) when (exception.InnerException != null)
+            {
+                throw Exception(exception.InnerException);
             }
             catch (Exception exception)
             {

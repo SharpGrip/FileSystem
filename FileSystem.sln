@@ -16,8 +16,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.Sftp", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{F18C90D8-F1A2-419E-B3CD-C9B7965583A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{808D9778-452F-4FF9-B3B0-62BD12CE855F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,9 +54,5 @@ Global
 		{F18C90D8-F1A2-419E-B3CD-C9B7965583A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F18C90D8-F1A2-419E-B3CD-C9B7965583A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F18C90D8-F1A2-419E-B3CD-C9B7965583A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{808D9778-452F-4FF9-B3B0-62BD12CE855F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{808D9778-452F-4FF9-B3B0-62BD12CE855F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{808D9778-452F-4FF9-B3B0-62BD12CE855F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{808D9778-452F-4FF9-B3B0-62BD12CE855F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

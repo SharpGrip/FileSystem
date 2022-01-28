@@ -4,13 +4,22 @@ namespace SharpGrip.FileSystem.Exceptions
 {
     public class AdapterRuntimeException : FileSystemException
     {
-        public AdapterRuntimeException(Exception innerException) : base(GetMessage(), innerException)
+        public AdapterRuntimeException() : base(GetMessage(null))
         {
         }
 
-        private static string GetMessage()
+        public AdapterRuntimeException(Exception innerException) : base(GetMessage(innerException), innerException)
         {
-            return "An adapter runtime exception occured. See the inner exception for more details.";
+        }
+
+        private static string GetMessage(Exception? innerException)
+        {
+            if (innerException != null)
+            {
+                return "An adapter runtime exception occured. See the inner exception for more details.";
+            }
+
+            return "An adapter runtime exception occured.";
         }
     }
 }

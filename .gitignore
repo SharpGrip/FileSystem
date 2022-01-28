@@ -6,3 +6,4 @@ Test/
 TestConsoleApp/
 TestWebApp/
 .DS_Store
+*.DotSettings.user

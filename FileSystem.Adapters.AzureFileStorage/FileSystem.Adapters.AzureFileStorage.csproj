@@ -27,7 +27,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Storage.Files.Shares" Version="12.2.1"/>
+        <PackageReference Include="Azure.Storage.Files.Shares" Version="12.8.0"/>
     </ItemGroup>
 
     <ItemGroup>
