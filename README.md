@@ -9,13 +9,15 @@ Reference NuGet package `SharpGrip.FileSystem` (https://www.nuget.org/packages/S
 For adapters other than the local file system (included in the `SharpGrip.FileSystem` package) please see the [Supported adapters](#supported-adapters) section.
 
 ## Supported adapters
-- Local (included in the `SharpGrip.FileSystem` package) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)
-- AmazonS3 (`SharpGrip.FileSystem.Adapters.AmazonS3`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AmazonS3)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AmazonS3)
-- AzureBlobStorage (`SharpGrip.FileSystem.Adapters.AzureBlobStorage`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureBlobStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureBlobStorage)
-- AzureFileStorage (`SharpGrip.FileSystem.Adapters.AzureFileStorage`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureFileStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureFileStorage)
-- Dropbox (`SharpGrip.FileSystem.Adapters.Dropbox`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Dropbox)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Dropbox)
-- MicrosoftOneDrive (`SharpGrip.FileSystem.Adapters.MicrosoftOneDrive`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.MicrosoftOneDrive)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.MicrosoftOneDrive)
-- SFTP (`SharpGrip.FileSystem.Adapters.Sftp`) [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Sftp)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Sftp)
+| Adapter                                         | Package                                           | NuGet                                                                                                                                                                      |
+|:------------------------------------------------|:--------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Local adapter](#local-adapter)                 | `SharpGrip.FileSystem`                            | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)                                                       |
+| [AmazonS3](#amazons3-adapter)                   | `SharpGrip.FileSystem.Adapters.AmazonS3`          | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AmazonS3)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AmazonS3)                   |
+| [AzureBlobStorage](#azureblobstorage-adapter)   | `SharpGrip.FileSystem.Adapters.AzureBlobStorage`  | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureBlobStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureBlobStorage)   |
+| [AzureFileStorage](#azurefilestorage-adapter)   | `SharpGrip.FileSystem.Adapters.AzureFileStorage`  | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureFileStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureFileStorage)   |
+| [Dropbox](#dropbox-adapter)                     | `SharpGrip.FileSystem.Adapters.Dropbox`           | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Dropbox)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Dropbox)                     |
+| [MicrosoftOneDrive](#microsoftonedrive-adapter) | `SharpGrip.FileSystem.Adapters.MicrosoftOneDrive` | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.MicrosoftOneDrive)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.MicrosoftOneDrive) |
+| [SFTP](#sftp-adapter)                           | `SharpGrip.FileSystem.Adapters.Sftp`              | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Sftp)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Sftp)                           |
 
 ## Supported operations
 For a full list of the supported operations please see the [IFileSystem](../master/FileSystem/src/IFileSystem.cs) interface.
@@ -107,7 +109,7 @@ var fileSystem = new FileSystem(adapters);
 
 ### MicrosoftOneDrive adapter
 ```
-// MicrosoftOneDrive connection.
+// Microsoft connection.
 var scopes = new[] {"https://graph.microsoft.com/.default"};
 var tenantId = "tenantId";
 var confidentialClient = ConfidentialClientApplicationBuilder
