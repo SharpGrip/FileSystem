@@ -3,7 +3,10 @@
 ## Builds
 [![FileSystem [Build]](https://github.com/SharpGrip/FileSystem/actions/workflows/Build.yaml/badge.svg)](https://github.com/SharpGrip/FileSystem/actions/workflows/Build.yaml)
 
-[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-white.svg)](https://sonarcloud.io/summary/new_code?id=SharpGrip_FileSystem)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=SharpGrip_FileSystem&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=SharpGrip_FileSystem) \
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=SharpGrip_FileSystem&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=SharpGrip_FileSystem) \
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=SharpGrip_FileSystem&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=SharpGrip_FileSystem) \
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=SharpGrip_FileSystem&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=SharpGrip_FileSystem)
 
 ## Introduction
 SharpGrip FileSystem is a file system abstraction supporting multiple adapters.
