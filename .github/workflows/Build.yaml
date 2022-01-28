@@ -48,8 +48,8 @@ jobs:
       - name: Build solution
         run: dotnet build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} /warnaserror
 
-      - name: Test solution
-        run: dotnet test --no-build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --verbosity normal
+#      - name: Test solution
+#        run: dotnet test --no-build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --verbosity normal
 
       - name: Cleanup solution
         run: dotnet clean
