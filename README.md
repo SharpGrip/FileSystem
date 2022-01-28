@@ -1,5 +1,10 @@
 # SharpGrip FileSystem [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)
 
+## Builds
+[![FileSystem [Build]](https://github.com/SharpGrip/FileSystem/actions/workflows/Build.yaml/badge.svg)](https://github.com/SharpGrip/FileSystem/actions/workflows/Build.yaml)
+
+[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-white.svg)](https://sonarcloud.io/summary/new_code?id=SharpGrip_FileSystem)
+
 ## Introduction
 SharpGrip FileSystem is a file system abstraction supporting multiple adapters.
 
