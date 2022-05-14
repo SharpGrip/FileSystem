@@ -21,6 +21,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
+        <ProjectReference Include="..\FileSystem.Adapters.AmazonS3\FileSystem.Adapters.AmazonS3.csproj" />
+        <ProjectReference Include="..\FileSystem.Adapters.AzureBlobStorage\FileSystem.Adapters.AzureBlobStorage.csproj" />
+        <ProjectReference Include="..\FileSystem.Adapters.AzureFileStorage\FileSystem.Adapters.AzureFileStorage.csproj" />
+        <ProjectReference Include="..\FileSystem.Adapters.Dropbox\FileSystem.Adapters.Dropbox.csproj" />
+        <ProjectReference Include="..\FileSystem.Adapters.MicrosoftOneDrive\FileSystem.Adapters.MicrosoftOneDrive.csproj" />
+        <ProjectReference Include="..\FileSystem.Adapters.Sftp\FileSystem.Adapters.Sftp.csproj" />
     </ItemGroup>
 
 </Project>

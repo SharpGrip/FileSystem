@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -188,7 +189,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
                 using var fileStream = client.OpenRead(PrependRootPath(path));
                 var fileContents = new byte[fileStream.Length];
 
-                await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
+                var _ = await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
 
                 return fileContents;
             }
@@ -266,6 +267,21 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             if (exception is SshConnectionException sshConnectionException)
             {
                 return new ConnectionException(sshConnectionException);
+            }
+
+            if (exception is SocketException socketException)
+            {
+                return new ConnectionException(socketException);
+            }
+
+            if (exception is SshAuthenticationException sshAuthenticationException)
+            {
+                return new ConnectionException(sshAuthenticationException);
+            }
+
+            if (exception is ProxyException proxyException)
+            {
+                return new ConnectionException(proxyException);
             }
 
             return new AdapterRuntimeException(exception);

@@ -1,10 +1,6 @@
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Moq;
 using SharpGrip.FileSystem.Adapters;
 using SharpGrip.FileSystem.Exceptions;
-using SharpGrip.FileSystem.Models;
 using Xunit;
 
 namespace Tests.FileSystem
@@ -60,46 +56,20 @@ namespace Tests.FileSystem
         public void Test_Get_Adapter()
         {
             var fileSystem = new SharpGrip.FileSystem.FileSystem();
-            var localAdapter = new LocalAdapter("test", "/");
+            var localAdapter = new LocalAdapter("prefix-1", "/");
 
             Assert.Equal(0, fileSystem.Adapters.Count);
-            Assert.Throws<NoAdaptersRegisteredException>(() => fileSystem.GetAdapter("test"));
+            Assert.Throws<NoAdaptersRegisteredException>(() => fileSystem.GetAdapter("prefix-1"));
 
             fileSystem.Adapters.Add(localAdapter);
 
             Assert.Equal(1, fileSystem.Adapters.Count);
-            Assert.Equal(localAdapter, fileSystem.GetAdapter("test"));
-            Assert.Throws<AdapterNotFoundException>(() => fileSystem.GetAdapter("test-test"));
+            Assert.Equal(localAdapter, fileSystem.GetAdapter("prefix-1"));
+            Assert.Throws<AdapterNotFoundException>(() => fileSystem.GetAdapter("prefix-2"));
 
             fileSystem.Adapters.Add(localAdapter);
             Assert.Equal(2, fileSystem.Adapters.Count);
-            Assert.Throws<DuplicateAdapterPrefixException>(() => fileSystem.GetAdapter("test"));
-        }
-
-        [Fact]
-        public void Test_Get_File()
-        {
-            var fileSystem = new SharpGrip.FileSystem.FileSystem();
-
-            var localAdapter = new Mock<LocalAdapter>("test1", "/");
-            localAdapter.SetupAllProperties();
-
-            var fileModel = new FileModel
-            {
-                Name = "test"
-            };
-
-            localAdapter.Setup(o => o.GetFileAsync("test.txt", CancellationToken.None)).Returns(Task.FromResult<IFile>(fileModel));
-
-            var adapters = new List<IAdapter>
-            {
-                localAdapter.Object
-            };
-
-            fileSystem.Adapters = adapters;
-
-            Assert.True(fileSystem.DirectoryExists("test1://test.txt"));
-            Assert.Equal(fileModel, fileSystem.GetFileAsync("test1://test.txt", CancellationToken.None).Result);
+            Assert.Throws<DuplicateAdapterPrefixException>(() => fileSystem.GetAdapter("prefix-3"));
         }
     }
 }
