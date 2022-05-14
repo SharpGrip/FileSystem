@@ -8,6 +8,7 @@
         <PackageOutputPath>../NuGet</PackageOutputPath>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -25,6 +26,10 @@
         <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Dropbox.Api" Version="6.22.0"/>
