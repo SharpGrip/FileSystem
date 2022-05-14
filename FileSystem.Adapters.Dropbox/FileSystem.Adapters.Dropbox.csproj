@@ -13,7 +13,7 @@
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem.Adapters.Dropbox</AssemblyName>
         <PackageId>SharpGrip.FileSystem.Adapters.Dropbox</PackageId>
-        <PackageVersion>1.0.0-alpha3</PackageVersion>
+        <PackageVersion>1.0.0-beta1</PackageVersion>
         <Title>SharpGrip FileSystem Dropbox adapter</Title>
         <Description>The SharpGrip FileSystem Dropbox adapter.</Description>
         <Company>SharpGrip</Company>

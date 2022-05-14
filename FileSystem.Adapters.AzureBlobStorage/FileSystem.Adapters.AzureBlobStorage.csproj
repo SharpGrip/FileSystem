@@ -13,7 +13,7 @@
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem.Adapters.AzureBlobStorage</AssemblyName>
         <PackageId>SharpGrip.FileSystem.Adapters.AzureBlobStorage</PackageId>
-        <PackageVersion>1.0.0-alpha2</PackageVersion>
+        <PackageVersion>1.0.0-beta1</PackageVersion>
         <Title>SharpGrip FileSystem AzureBlobStorage adapter</Title>
         <Description>The SharpGrip FileSystem AzureBlobStorage adapter.</Description>
         <Company>SharpGrip</Company>

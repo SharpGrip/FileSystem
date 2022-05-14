@@ -13,7 +13,7 @@
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem.Adapters.MicrosoftOneDrive</AssemblyName>
         <PackageId>SharpGrip.FileSystem.Adapters.MicrosoftOneDrive</PackageId>
-        <PackageVersion>1.0.0-alpha1</PackageVersion>
+        <PackageVersion>1.0.0-beta1</PackageVersion>
         <Title>SharpGrip FileSystem MicrosoftOneDrive adapter</Title>
         <Description>The SharpGrip FileSystem MicrosoftOneDrive adapter.</Description>
         <Company>SharpGrip</Company>
