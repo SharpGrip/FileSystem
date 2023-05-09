@@ -1,5 +1,6 @@
-﻿namespace Tests.FileSystem.Adapters.Dropbox;
-
-public class DropboxAdapterTest
+﻿namespace Tests.FileSystem.Adapters.Dropbox
 {
+    public class DropboxAdapterTest
+    {
+    }
 }

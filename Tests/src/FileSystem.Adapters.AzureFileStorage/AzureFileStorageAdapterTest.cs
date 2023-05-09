@@ -1,5 +1,6 @@
-﻿namespace Tests.FileSystem.Adapters.AzureFileStorage;
-
-public class AzureFileStorageAdapterTest
+﻿namespace Tests.FileSystem.Adapters.AzureFileStorage
 {
+    public class AzureFileStorageAdapterTest
+    {
+    }
 }

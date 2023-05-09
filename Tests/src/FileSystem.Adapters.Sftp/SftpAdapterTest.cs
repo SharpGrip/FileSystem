@@ -5,35 +5,36 @@ using SharpGrip.FileSystem.Adapters.Sftp;
 using SharpGrip.FileSystem.Exceptions;
 using Xunit;
 
-namespace Tests.FileSystem.Adapters.Sftp;
-
-public class SftpAdapterTest
+namespace Tests.FileSystem.Adapters.Sftp
 {
-    [Fact]
-    public void Test_Instantiation()
+    public class SftpAdapterTest
     {
-        var sftpClient = new Mock<SftpClient>("hostName", "userName", "password");
-        var sftpAdapter = new SftpAdapter("prefix", "/root-path", sftpClient.Object);
+        [Fact]
+        public void Test_Instantiation()
+        {
+            var sftpClient = new Mock<SftpClient>("hostName", "userName", "password");
+            var sftpAdapter = new SftpAdapter("prefix", "/root-path", sftpClient.Object);
 
-        Assert.Equal("prefix", sftpAdapter.Prefix);
-        Assert.Equal("/root-path", sftpAdapter.RootPath);
-    }
+            Assert.Equal("prefix", sftpAdapter.Prefix);
+            Assert.Equal("/root-path", sftpAdapter.RootPath);
+        }
 
-    [Fact]
-    public void Test_Connect()
-    {
-        var sftpClient = new Mock<SftpClient>("hostName", "userName", "password");
-        var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient.Object);
+        [Fact]
+        public void Test_Connect()
+        {
+            var sftpClient = new Mock<SftpClient>("hostName", "userName", "password");
+            var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient.Object);
 
-        Assert.Throws<ConnectionException>(() => sftpAdapter.Connect());
-    }
+            Assert.Throws<ConnectionException>(() => sftpAdapter.Connect());
+        }
 
-    [Fact]
-    public async Task Test_Get_File_Async()
-    {
-        var sftpClient = new Mock<SftpClient>("hostName", "userName", "password");
-        var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient.Object);
+        [Fact]
+        public async Task Test_Get_File_Async()
+        {
+            var sftpClient = new Mock<SftpClient>("hostName", "userName", "password");
+            var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient.Object);
 
-        await Assert.ThrowsAsync<ConnectionException>(async () => await sftpAdapter.GetFileAsync("test.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(async () => await sftpAdapter.GetFileAsync("test.txt"));
+        }
     }
 }
