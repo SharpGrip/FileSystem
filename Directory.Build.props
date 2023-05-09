@@ -3,6 +3,7 @@
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <Nullable>enable</Nullable>
         <LangVersion>8.0</LangVersion>
+        <NoWarn>NU1701</NoWarn>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageOutputPath>../NuGet</PackageOutputPath>
