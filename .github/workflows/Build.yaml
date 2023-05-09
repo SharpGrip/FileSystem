@@ -2,6 +2,7 @@ name: FileSystem [Build]
 
 env:
   JAVA_VERSION: 11
+  JAVA_DISTRIBUTION: microsoft
   DOTNET_VERSION: 6.0.x
   DOTNET_BUILD_CONFIGURATION: Release
   SONAR_PATH: .\.sonar\scanner
@@ -32,6 +33,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
