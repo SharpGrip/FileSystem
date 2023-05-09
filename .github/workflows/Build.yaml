@@ -2,7 +2,7 @@ name: FileSystem [Build]
 
 env:
   JAVA_VERSION: 11
-  DOTNET_VERSION: 6.0.x
+  DOTNET_VERSION: 7.0.x
   DOTNET_INCLUDE_PRERELEASE_VERSIONS: true
   DOTNET_BUILD_CONFIGURATION: Release
   SONAR_PATH: .\.sonar\scanner
