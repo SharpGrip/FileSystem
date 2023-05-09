@@ -1,0 +1,22 @@
+<Project>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+        <Nullable>enable</Nullable>
+        <LangVersion>8.0</LangVersion>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageOutputPath>../NuGet</PackageOutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageVersion>1.0.0-beta2</PackageVersion>
+        <Company>SharpGrip</Company>
+        <Authors>SharpGrip</Authors>
+        <Copyright>SharpGrip</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+</Project>

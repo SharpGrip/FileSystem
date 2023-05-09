@@ -1,43 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <RootNamespace>SharpGrip.FileSystem.Adapters.MicrosoftOneDrive</RootNamespace>
-        <Nullable>enable</Nullable>
-        <LangVersion>8.0</LangVersion>
-        <PackageOutputPath>../NuGet</PackageOutputPath>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem.Adapters.MicrosoftOneDrive</AssemblyName>
         <PackageId>SharpGrip.FileSystem.Adapters.MicrosoftOneDrive</PackageId>
-        <PackageVersion>1.0.0-beta1</PackageVersion>
         <Title>SharpGrip FileSystem MicrosoftOneDrive adapter</Title>
         <Description>The SharpGrip FileSystem MicrosoftOneDrive adapter.</Description>
-        <Company>SharpGrip</Company>
-        <Authors>SharpGrip</Authors>
-        <Copyright>SharpGrip</Copyright>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>sharpgrip;file-system;microsoft-onedrive</PackageTags>
-        <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Graph" Version="4.17.0"/>
-        <PackageReference Include="Microsoft.Identity.Client" Version="4.40.0"/>
+        <PackageReference Include="Microsoft.Graph" Version="4.54.0" />
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.53.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FileSystem\FileSystem.csproj"/>
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
     </ItemGroup>
 
 </Project>

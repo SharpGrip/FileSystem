@@ -1,30 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <RootNamespace>SharpGrip.FileSystem</RootNamespace>
-        <Nullable>enable</Nullable>
-        <LangVersion>8.0</LangVersion>
-        <PackageOutputPath>../NuGet</PackageOutputPath>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem</AssemblyName>
         <PackageId>SharpGrip.FileSystem</PackageId>
-        <PackageVersion>1.0.0-beta1</PackageVersion>
         <Title>SharpGrip FileSystem</Title>
         <Description>SharpGrip FileSystem is a file system abstraction supporting multiple adapters.</Description>
-        <Company>SharpGrip</Company>
-        <Authors>SharpGrip</Authors>
-        <Copyright>SharpGrip</Copyright>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>sharpgrip;file-system;amazon-s3;azure-blob-storage;azure-file-storage;dropbox;microsoft-onedrive;sftp</PackageTags>
-        <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
     <ItemGroup>

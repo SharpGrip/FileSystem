@@ -1,42 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <RootNamespace>SharpGrip.FileSystem.Adapters.AzureFileStorage</RootNamespace>
-        <Nullable>enable</Nullable>
-        <LangVersion>8.0</LangVersion>
-        <PackageOutputPath>../NuGet</PackageOutputPath>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <PropertyGroup>
         <AssemblyName>SharpGrip.FileSystem.Adapters.AzureFileStorage</AssemblyName>
         <PackageId>SharpGrip.FileSystem.Adapters.AzureFileStorage</PackageId>
-        <PackageVersion>1.0.0-beta1</PackageVersion>
         <Title>SharpGrip FileSystem AzureFileStorage adapter</Title>
         <Description>The SharpGrip FileSystem AzureFileStorage adapter.</Description>
-        <Company>SharpGrip</Company>
-        <Authors>SharpGrip</Authors>
-        <Copyright>SharpGrip</Copyright>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>sharpgrip;file-system;azure-file-storage</PackageTags>
-        <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Storage.Files.Shares" Version="12.8.0"/>
+        <PackageReference Include="Azure.Storage.Files.Shares" Version="12.14.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FileSystem\FileSystem.csproj"/>
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
     </ItemGroup>
 
 </Project>
