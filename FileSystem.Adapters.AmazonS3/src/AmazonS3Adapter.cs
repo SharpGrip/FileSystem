@@ -33,15 +33,15 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         {
         }
 
-        public override async Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             try
             {
                 using var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
 
-                return ModelFactory.CreateFile(response);
+                return ModelFactory.CreateFile(response, virtualPath);
             }
             catch (AmazonS3Exception exception)
             {
@@ -58,9 +58,9 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task<IDirectory> GetDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             if (!path.EndsWith("/"))
             {
@@ -89,7 +89,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 {
                     if (item.Key == path)
                     {
-                        return ModelFactory.CreateDirectory(item);
+                        return ModelFactory.CreateDirectory(item, virtualPath);
                     }
                 }
 
@@ -101,10 +101,10 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task<IEnumerable<IFile>> GetFilesAsync(string path = "", CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
-            await GetDirectoryAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetDirectoryAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -119,7 +119,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                     if (!item.Key.EndsWith("/") && !itemName.Contains('/'))
                     {
-                        files.Add(ModelFactory.CreateFile(item));
+                        files.Add(ModelFactory.CreateFile(item, GetVirtualPath(item.Key)));
                     }
                 }
 
@@ -131,13 +131,10 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(
-            string path = "",
-            CancellationToken cancellationToken = default
-        )
+        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
-            await GetDirectoryAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetDirectoryAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -152,7 +149,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                     if (item.Key.EndsWith("/") && itemName.Count(c => c.Equals('/')) == 1)
                     {
-                        directories.Add(ModelFactory.CreateDirectory(item));
+                        directories.Add(ModelFactory.CreateDirectory(item, GetVirtualPath(item.Key)));
                     }
                 }
 
@@ -164,14 +161,14 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task CreateDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            if (await DirectoryExistsAsync(path, cancellationToken))
+            if (await DirectoryExistsAsync(virtualPath, cancellationToken))
             {
-                throw new DirectoryExistsException(PrependRootPath(path), Prefix);
+                throw new DirectoryExistsException(GetPath(virtualPath), Prefix);
             }
 
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
             path = path.EndsWith("/") ? path : path + "/";
 
             try
@@ -185,11 +182,11 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetDirectoryAsync(path, cancellationToken);
+            await GetDirectoryAsync(virtualPath, cancellationToken);
 
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
             path = path.EndsWith("/") ? path : path + "/";
 
             try
@@ -212,10 +209,10 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetFileAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -227,10 +224,10 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetFileAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -246,10 +243,10 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetFileAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -268,19 +265,14 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task WriteFileAsync(
-            string path,
-            byte[] contents,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        )
+        public override async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
-            if (!overwrite && await FileExistsAsync(path, cancellationToken))
+            if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
             {
-                throw new FileExistsException(PrependRootPath(path), Prefix);
+                throw new FileExistsException(GetPath(virtualPath), Prefix);
             }
 
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -300,14 +292,14 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default)
+        public override async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            var existingContents = await ReadFileAsync(path, cancellationToken);
+            await GetFileAsync(virtualPath, cancellationToken);
+            var existingContents = await ReadFileAsync(virtualPath, cancellationToken);
             contents = existingContents.Concat(contents).ToArray();
-            await DeleteFileAsync(path, cancellationToken);
+            await DeleteFileAsync(virtualPath, cancellationToken);
 
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             try
             {

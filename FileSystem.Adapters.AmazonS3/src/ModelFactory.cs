@@ -7,29 +7,31 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 {
     public static class ModelFactory
     {
-        public static FileModel CreateFile(GetObjectResponse file)
+        public static FileModel CreateFile(GetObjectResponse file, string virtualPath)
         {
             return new FileModel
             {
                 Name = file.Key.Split('/').Last(),
                 Path = file.Key,
+                VirtualPath = virtualPath,
                 Length = file.ContentLength,
-                LastModifiedDateTime = file.LastModified,
+                LastModifiedDateTime = file.LastModified
             };
         }
 
-        public static FileModel CreateFile(S3Object file)
+        public static FileModel CreateFile(S3Object file, string virtualPath)
         {
             return new FileModel
             {
                 Name = file.Key.Split('/').Last(),
                 Path = file.Key,
+                VirtualPath = virtualPath,
                 Length = file.Size,
                 LastModifiedDateTime = file.LastModified
             };
         }
 
-        public static DirectoryModel CreateDirectory(S3Object directory)
+        public static DirectoryModel CreateDirectory(S3Object directory, string virtualPath)
         {
             var pathParts = directory.Key.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
             var name = pathParts.Last();
@@ -43,6 +45,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             {
                 Name = name.Substring(0, name.Length - 1),
                 Path = directory.Key.Substring(0, name.Length - 1),
+                VirtualPath = virtualPath,
                 LastModifiedDateTime = directory.LastModified
             };
         }

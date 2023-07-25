@@ -31,9 +31,9 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
         {
         }
 
-        public override async Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -44,7 +44,7 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
                     throw new FileNotFoundException(path, Prefix);
                 }
 
-                return ModelFactory.CreateFile(file);
+                return ModelFactory.CreateFile(file, virtualPath);
             }
             catch (ApiException<GetMetadataError> exception)
             {
@@ -61,9 +61,9 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task<IDirectory> GetDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -74,7 +74,7 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
                     throw new DirectoryNotFoundException(path, Prefix);
                 }
 
-                return ModelFactory.CreateDirectory(directory);
+                return ModelFactory.CreateDirectory(directory, virtualPath);
             }
             catch (ApiException<GetMetadataError> exception)
             {
@@ -91,16 +91,16 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task<IEnumerable<IFile>> GetFilesAsync(string path = "", CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
-            await GetDirectoryAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetDirectoryAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
                 var result = await client.Files.ListFolderAsync(path);
 
-                return result.Entries.Where(item => !item.IsFolder).Select(ModelFactory.CreateFile).ToList();
+                return result.Entries.Where(item => !item.IsFolder).Select(file => ModelFactory.CreateFile(file, GetVirtualPath(file.PathDisplay))).ToList();
             }
             catch (Exception exception)
             {
@@ -108,17 +108,16 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string path = "",
-            CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
-            await GetDirectoryAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetDirectoryAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
                 var result = await client.Files.ListFolderAsync(path);
 
-                return result.Entries.Where(item => item.IsFolder).Select(ModelFactory.CreateDirectory).ToList();
+                return result.Entries.Where(item => item.IsFolder).Select(directory => ModelFactory.CreateDirectory(directory, GetVirtualPath(directory.PathDisplay))).ToList();
             }
             catch (Exception exception)
             {
@@ -126,16 +125,16 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task CreateDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            if (await DirectoryExistsAsync(path, cancellationToken))
+            if (await DirectoryExistsAsync(virtualPath, cancellationToken))
             {
-                throw new DirectoryExistsException(PrependRootPath(path), Prefix);
+                throw new DirectoryExistsException(GetPath(virtualPath), Prefix);
             }
 
             try
             {
-                await client.Files.CreateFolderV2Async(PrependRootPath(path));
+                await client.Files.CreateFolderV2Async(GetPath(virtualPath));
             }
             catch (Exception exception)
             {
@@ -143,13 +142,13 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
+            await GetFileAsync(virtualPath, cancellationToken);
 
             try
             {
-                await client.Files.DeleteV2Async(PrependRootPath(path));
+                await client.Files.DeleteV2Async(GetPath(virtualPath));
             }
             catch (Exception exception)
             {
@@ -157,13 +156,13 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetDirectoryAsync(path, cancellationToken);
+            await GetDirectoryAsync(virtualPath, cancellationToken);
 
             try
             {
-                client.Files.DeleteV2Async(PrependRootPath(path)).Wait(cancellationToken);
+                client.Files.DeleteV2Async(GetPath(virtualPath)).Wait(cancellationToken);
             }
             catch (Exception exception)
             {
@@ -171,13 +170,13 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
+            await GetFileAsync(virtualPath, cancellationToken);
 
             try
             {
-                using var response = await client.Files.DownloadAsync(PrependRootPath(path));
+                using var response = await client.Files.DownloadAsync(GetPath(virtualPath));
 
                 return await response.GetContentAsByteArrayAsync();
             }
@@ -187,13 +186,13 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
+            await GetFileAsync(virtualPath, cancellationToken);
 
             try
             {
-                using var response = await client.Files.DownloadAsync(PrependRootPath(path));
+                using var response = await client.Files.DownloadAsync(GetPath(virtualPath));
 
                 return await response.GetContentAsStringAsync();
             }
@@ -203,23 +202,18 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task WriteFileAsync(
-            string path,
-            byte[] contents,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        )
+        public override async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
-            if (!overwrite && await FileExistsAsync(path, cancellationToken))
+            if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
             {
-                throw new FileExistsException(PrependRootPath(path), Prefix);
+                throw new FileExistsException(GetPath(virtualPath), Prefix);
             }
 
             try
             {
                 using var memoryStream = new MemoryStream(contents);
 
-                await client.Files.UploadAsync(PrependRootPath(path), WriteMode.Overwrite.Instance, body: memoryStream);
+                await client.Files.UploadAsync(GetPath(virtualPath), WriteMode.Overwrite.Instance, body: memoryStream);
             }
             catch (Exception exception)
             {
@@ -227,17 +221,17 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default)
+        public override async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            var existingContents = await ReadFileAsync(path, cancellationToken);
+            await GetFileAsync(virtualPath, cancellationToken);
+            var existingContents = await ReadFileAsync(virtualPath, cancellationToken);
             contents = existingContents.Concat(contents).ToArray();
 
             try
             {
                 using var memoryStream = new MemoryStream(contents);
 
-                await client.Files.UploadAsync(PrependRootPath(path), WriteMode.Overwrite.Instance, body: memoryStream);
+                await client.Files.UploadAsync(GetPath(virtualPath), WriteMode.Overwrite.Instance, body: memoryStream);
             }
             catch (Exception exception)
             {

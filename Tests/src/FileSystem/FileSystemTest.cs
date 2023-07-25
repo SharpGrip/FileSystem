@@ -16,7 +16,7 @@ namespace Tests.FileSystem
 
             var fileSystem1 = new SharpGrip.FileSystem.FileSystem();
 
-            Assert.Equal(0, fileSystem1.Adapters.Count);
+            Assert.Empty(fileSystem1.Adapters);
 
             var adapters = new List<IAdapter>
             {
@@ -35,7 +35,7 @@ namespace Tests.FileSystem
             var fileSystem3 = new SharpGrip.FileSystem.FileSystem();
             fileSystem3.Adapters.Add(localAdapter1);
 
-            Assert.Equal(1, fileSystem3.Adapters.Count);
+            Assert.Single(fileSystem3.Adapters);
             Assert.Equal(localAdapter1, fileSystem2.Adapters[0]);
 
             fileSystem3.Adapters.Add(localAdapter2);
@@ -58,12 +58,12 @@ namespace Tests.FileSystem
             var fileSystem = new SharpGrip.FileSystem.FileSystem();
             var localAdapter = new LocalAdapter("prefix-1", "/");
 
-            Assert.Equal(0, fileSystem.Adapters.Count);
+            Assert.Empty(fileSystem.Adapters);
             Assert.Throws<NoAdaptersRegisteredException>(() => fileSystem.GetAdapter("prefix-1"));
 
             fileSystem.Adapters.Add(localAdapter);
 
-            Assert.Equal(1, fileSystem.Adapters.Count);
+            Assert.Single(fileSystem.Adapters);
             Assert.Equal(localAdapter, fileSystem.GetAdapter("prefix-1"));
             Assert.Throws<AdapterNotFoundException>(() => fileSystem.GetAdapter("prefix-2"));
 

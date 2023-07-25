@@ -5,19 +5,20 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
 {
     public static class ModelFactory
     {
-        public static FileModel CreateFile(DriveItem file, string path)
+        public static FileModel CreateFile(DriveItem file, string path, string virtualPath)
         {
             return new FileModel
             {
                 Name = file.Name,
                 Path = path,
+                VirtualPath = virtualPath,
                 Length = file.Size ?? 0,
                 LastModifiedDateTime = file.LastModifiedDateTime?.DateTime,
                 CreatedDateTime = file.CreatedDateTime?.DateTime
             };
         }
 
-        public static DirectoryModel CreateDirectory(DriveItem directory, string path)
+        public static DirectoryModel CreateDirectory(DriveItem directory, string path, string virtualPath)
         {
             var name = directory.Name;
 
@@ -26,11 +27,12 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             {
                 name = "";
             }
-            
+
             return new DirectoryModel
             {
                 Name = name,
                 Path = path,
+                VirtualPath = virtualPath,
                 LastModifiedDateTime = directory.LastModifiedDateTime?.DateTime,
                 CreatedDateTime = directory.CreatedDateTime?.DateTime
             };

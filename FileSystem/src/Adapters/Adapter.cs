@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SharpGrip.FileSystem.Exceptions;
+using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
-using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
-using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
+using SharpGrip.FileSystem.Utilities;
 
 namespace SharpGrip.FileSystem.Adapters
 {
@@ -20,28 +20,6 @@ namespace SharpGrip.FileSystem.Adapters
         {
             Prefix = prefix;
             RootPath = rootPath;
-        }
-
-        protected string PrependRootPath(string path)
-        {
-            return Path.Combine(RootPath, path);
-        }
-
-        protected string[] GetPathParts(string path)
-        {
-            return path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
-        }
-
-        protected string GetLastPathPart(string path)
-        {
-            return GetPathParts(path).Last();
-        }
-
-        protected string GetParentPathPart(string path)
-        {
-            var pathParts = GetPathParts(path);
-
-            return string.Join("/", pathParts.Take(pathParts.Length - 1));
         }
 
         public IFile GetFile(string path)
@@ -137,12 +115,7 @@ namespace SharpGrip.FileSystem.Adapters
             WriteFileAsync(path, contents, overwrite).Wait();
         }
 
-        public async Task WriteFileAsync(
-            string path,
-            string contents,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        )
+        public async Task WriteFileAsync(string path, string contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
             await WriteFileAsync(path, Encoding.UTF8.GetBytes(contents), overwrite, cancellationToken);
         }
@@ -173,14 +146,44 @@ namespace SharpGrip.FileSystem.Adapters
         public abstract Task DeleteFileAsync(string path, CancellationToken cancellationToken = default);
         public abstract Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default);
         public abstract Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default);
-
-        public abstract Task WriteFileAsync(
-            string path,
-            byte[] contents,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        );
-
+        public abstract Task WriteFileAsync(string path, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default);
         public abstract Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default);
+
+        protected string GetPath(string virtualPath)
+        {
+            return PathUtilities.GetPath(virtualPath, RootPath);
+        }
+
+        protected string GetVirtualPath(string path)
+        {
+            return PathUtilities.GetVirtualPath(path, Prefix, RootPath);
+        }
+
+        protected string[] GetPathParts(string path)
+        {
+            return path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        protected string GetLastPathPart(string path)
+        {
+            if (path.IsNullOrEmpty())
+            {
+                return "";
+            }
+
+            return GetPathParts(path).Last();
+        }
+
+        protected string GetParentPathPart(string path)
+        {
+            if (path.IsNullOrEmpty())
+            {
+                path = "/";
+            }
+
+            var pathParts = GetPathParts(path);
+
+            return string.Join("/", pathParts.Take(pathParts.Length - 1));
+        }
     }
 }

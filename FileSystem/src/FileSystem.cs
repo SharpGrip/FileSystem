@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using SharpGrip.FileSystem.Adapters;
 using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Models;
+using SharpGrip.FileSystem.Utilities;
 
 namespace SharpGrip.FileSystem
 {
@@ -106,9 +107,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             return adapter.GetFileAsync(path, cancellationToken);
@@ -146,9 +147,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public Task<IDirectory> GetDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             return adapter.GetDirectoryAsync(path, cancellationToken);
@@ -186,9 +187,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public Task<IEnumerable<IFile>> GetFilesAsync(string path = "", CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             return adapter.GetFilesAsync(path, cancellationToken);
@@ -226,9 +227,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string path = "", CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             return adapter.GetDirectoriesAsync(path, cancellationToken);
@@ -264,9 +265,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public async Task<bool> FileExistsAsync(string path, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             return await adapter.FileExistsAsync(path, cancellationToken);
@@ -302,9 +303,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public async Task<bool> DirectoryExistsAsync(string path, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             return await adapter.DirectoryExistsAsync(path, cancellationToken);
@@ -340,9 +341,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DirectoryExistsException">Thrown if the directory exists at the given path.</exception>
         public async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             await adapter.CreateDirectoryAsync(path, cancellationToken);
@@ -378,9 +379,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             await adapter.DeleteFileAsync(path, cancellationToken);
@@ -416,9 +417,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             await adapter.DeleteDirectoryAsync(path, cancellationToken);
@@ -456,9 +457,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public async Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             return await adapter.ReadFileAsync(path, cancellationToken);
@@ -496,9 +497,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public async Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             return await adapter.ReadTextFileAsync(path, cancellationToken);
@@ -538,21 +539,15 @@ namespace SharpGrip.FileSystem
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
-        public async Task CopyFileAsync(
-            string sourcePath,
-            string destinationPath,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        )
+        public async Task CopyFileAsync(string sourcePath, string destinationPath, bool overwrite = false, CancellationToken cancellationToken = default)
         {
-            var sourcePrefix = GetPrefix(sourcePath);
-            sourcePath = GetPath(sourcePath);
+            var sourcePrefix = PathUtilities.GetPrefix(sourcePath);
             var sourceAdapter = GetAdapter(sourcePrefix);
-            sourceAdapter.Connect();
 
-            var destinationPrefix = GetPrefix(destinationPath);
-            destinationPath = GetPath(destinationPath);
+            var destinationPrefix = PathUtilities.GetPrefix(destinationPath);
             var destinationAdapter = GetAdapter(destinationPrefix);
+
+            sourceAdapter.Connect();
             destinationAdapter.Connect();
 
             var contents = await sourceAdapter.ReadFileAsync(sourcePath, cancellationToken);
@@ -593,21 +588,15 @@ namespace SharpGrip.FileSystem
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
-        public async Task MoveFileAsync(
-            string sourcePath,
-            string destinationPath,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        )
+        public async Task MoveFileAsync(string sourcePath, string destinationPath, bool overwrite = false, CancellationToken cancellationToken = default)
         {
-            var sourcePrefix = GetPrefix(sourcePath);
-            sourcePath = GetPath(sourcePath);
+            var sourcePrefix = PathUtilities.GetPrefix(sourcePath);
             var sourceAdapter = GetAdapter(sourcePrefix);
-            sourceAdapter.Connect();
 
-            var destinationPrefix = GetPrefix(destinationPath);
-            destinationPath = GetPath(destinationPath);
+            var destinationPrefix = PathUtilities.GetPrefix(destinationPath);
             var destinationAdapter = GetAdapter(destinationPrefix);
+
+            sourceAdapter.Connect();
             destinationAdapter.Connect();
 
             var contents = await sourceAdapter.ReadFileAsync(sourcePath, cancellationToken);
@@ -647,16 +636,11 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
-        public async Task WriteFileAsync(
-            string path,
-            byte[] contents,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        )
+        public async Task WriteFileAsync(string path, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             await adapter.WriteFileAsync(path, contents, overwrite, cancellationToken);
@@ -694,16 +678,11 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
-        public async Task WriteFileAsync(
-            string path,
-            string contents,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        )
+        public async Task WriteFileAsync(string path, string contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             await adapter.WriteFileAsync(path, contents, overwrite, cancellationToken);
@@ -741,9 +720,9 @@ namespace SharpGrip.FileSystem
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public async Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             await adapter.AppendFileAsync(path, contents, cancellationToken);
@@ -781,47 +760,12 @@ namespace SharpGrip.FileSystem
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public async Task AppendFileAsync(string path, string contents, CancellationToken cancellationToken = default)
         {
-            var prefix = GetPrefix(path);
-            path = GetPath(path);
+            var prefix = PathUtilities.GetPrefix(path);
             var adapter = GetAdapter(prefix);
+
             adapter.Connect();
 
             await adapter.AppendFileAsync(path, contents, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns the prefix from a prefixed path.
-        /// </summary>
-        /// <param name="path">The prefixed path.</param>
-        /// <returns>The prefix.</returns>
-        private static string GetPrefix(string path)
-        {
-            return ResolvePrefixAndPath(path)[0];
-        }
-
-        /// <summary>
-        /// Returns the path from a prefixed path.
-        /// </summary>
-        /// <param name="path">The prefixed path.</param>
-        /// <returns>The path.</returns>
-        private static string GetPath(string path)
-        {
-            return ResolvePrefixAndPath(path)[1];
-        }
-
-        /// <summary>
-        /// Resolves the prefix and path from a prefixed path.
-        /// </summary>
-        /// <param name="path">The prefixed path.</param>
-        /// <returns>The prefix and path.</returns>
-        private static string[] ResolvePrefixAndPath(string path)
-        {
-            if (!path.Contains("://"))
-            {
-                throw new PrefixNotFoundInPathException(path);
-            }
-
-            return path.Split(new[] {"://"}, StringSplitOptions.None);
         }
     }
 }

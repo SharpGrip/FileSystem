@@ -1,11 +1,10 @@
-using Renci.SshNet.Sftp;
-using SharpGrip.FileSystem.Models;
+using System.IO;
 
-namespace SharpGrip.FileSystem.Adapters.Sftp
+namespace SharpGrip.FileSystem.Models
 {
     public static class ModelFactory
     {
-        public static IFile CreateFile(SftpFile file, string virtualPath)
+        public static FileModel CreateFile(FileInfo file, string virtualPath)
         {
             return new FileModel
             {
@@ -13,18 +12,20 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
                 Path = file.FullName,
                 VirtualPath = virtualPath,
                 Length = file.Length,
-                LastModifiedDateTime = file.LastWriteTime
+                LastModifiedDateTime = file.LastWriteTime,
+                CreatedDateTime = file.CreationTime
             };
         }
 
-        public static DirectoryModel CreateDirectory(SftpFile directory, string virtualPath)
+        public static DirectoryModel CreateDirectory(DirectoryInfo directory, string virtualPath)
         {
             return new DirectoryModel
             {
                 Name = directory.Name,
                 Path = directory.FullName,
                 VirtualPath = virtualPath,
-                LastModifiedDateTime = directory.LastWriteTime
+                LastModifiedDateTime = directory.LastWriteTime,
+                CreatedDateTime = directory.CreationTime
             };
         }
     }

@@ -32,9 +32,9 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
         {
         }
 
-        public override async Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             // Ensure that the path does not end with a '/'.
             if (path.EndsWith("/"))
@@ -51,7 +51,7 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
                     throw new FileNotFoundException(path, Prefix);
                 }
 
-                return ModelFactory.CreateFile(item, path);
+                return ModelFactory.CreateFile(item, path, virtualPath);
             }
             catch (ServiceException exception)
             {
@@ -68,9 +68,9 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task<IDirectory> GetDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             // Ensure that the path does not end with a '/'.
             if (path.EndsWith("/"))
@@ -87,7 +87,7 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
                     throw new DirectoryNotFoundException(path, Prefix);
                 }
 
-                return ModelFactory.CreateDirectory(item, path);
+                return ModelFactory.CreateDirectory(item, path, virtualPath);
             }
             catch (ServiceException exception)
             {
@@ -104,10 +104,10 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task<IEnumerable<IFile>> GetFilesAsync(string path = "", CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
-            await GetDirectoryAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetDirectoryAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             // Ensure that the path does not end with a '/'.
             if (path.EndsWith("/"))
@@ -124,7 +124,9 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
                 {
                     if (item.Folder == null)
                     {
-                        files.Add(ModelFactory.CreateFile(item, $"{path}/{item.Name}"));
+                        var filePath = $"{path}/{item.Name}";
+
+                        files.Add(ModelFactory.CreateFile(item, filePath, GetVirtualPath(filePath)));
                     }
                 }
 
@@ -136,11 +138,10 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string path = "",
-            CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
-            await GetDirectoryAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetDirectoryAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             // Ensure that the path does not end with a '/'.
             if (path.EndsWith("/"))
@@ -157,7 +158,9 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
                 {
                     if (item.Folder != null)
                     {
-                        directories.Add(ModelFactory.CreateDirectory(item, $"{path}/{item.Name}"));
+                        var directoryPath = $"{path}/{item.Name}";
+
+                        directories.Add(ModelFactory.CreateDirectory(item, directoryPath, GetVirtualPath(directoryPath)));
                     }
                 }
 
@@ -169,14 +172,14 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task CreateDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            if (await DirectoryExistsAsync(path, cancellationToken))
+            if (await DirectoryExistsAsync(virtualPath, cancellationToken))
             {
-                throw new DirectoryExistsException(PrependRootPath(path), Prefix);
+                throw new DirectoryExistsException(GetPath(virtualPath), Prefix);
             }
 
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             var directoryPath = GetLastPathPart(path);
             var parentPath = GetParentPathPart(path);
@@ -198,10 +201,10 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetDirectoryAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetDirectoryAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -215,10 +218,10 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetFileAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -232,10 +235,10 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetFileAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -253,10 +256,10 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            path = PrependRootPath(path);
+            await GetFileAsync(virtualPath, cancellationToken);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -277,15 +280,14 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task WriteFileAsync(string path, byte[] contents, bool overwrite = false,
-            CancellationToken cancellationToken = default)
+        public override async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
-            if (!overwrite && await FileExistsAsync(path, cancellationToken))
+            if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
             {
-                throw new FileExistsException(PrependRootPath(path), Prefix);
+                throw new FileExistsException(GetPath(virtualPath), Prefix);
             }
 
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -310,14 +312,14 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default)
+        public override async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            var existingContents = await ReadFileAsync(path, cancellationToken);
+            await GetFileAsync(virtualPath, cancellationToken);
+            var existingContents = await ReadFileAsync(virtualPath, cancellationToken);
             contents = existingContents.Concat(contents).ToArray();
-            await DeleteFileAsync(path, cancellationToken);
+            await DeleteFileAsync(virtualPath, cancellationToken);
 
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -344,19 +346,13 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
 
         private async Task<DriveItem> GetItemAsync(string path, CancellationToken cancellationToken = default)
         {
-            DriveItem item;
-
             // The requested path is the root path, requesting the root item in the root context is not possible. Return the root instead.
             if (path == "")
             {
-                item = await client.Drives[driveId].Root.Request().GetAsync(cancellationToken);
-            }
-            else
-            {
-                item = await client.Drives[driveId].Root.ItemWithPath(path).Request().GetAsync(cancellationToken);
+                return await client.Drives[driveId].Root.Request().GetAsync(cancellationToken);
             }
 
-            return item;
+            return await client.Drives[driveId].Root.ItemWithPath(path).Request().GetAsync(cancellationToken);
         }
 
         private async Task<DriveItem> GetParentItemAsync(string path, CancellationToken cancellationToken = default)
@@ -378,19 +374,13 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
 
         private async Task<IDriveItemChildrenCollectionPage> GetItemsAsync(string path, CancellationToken cancellationToken = default)
         {
-            IDriveItemChildrenCollectionPage items;
-
             // The requested path is the root path, requesting the root item in the root context is not possible. Return all the children of the root instead.
             if (path == "")
             {
-                items = await client.Drives[driveId].Root.Children.Request().GetAsync(cancellationToken);
-            }
-            else
-            {
-                items = await client.Drives[driveId].Root.ItemWithPath(path).Children.Request().GetAsync(cancellationToken);
+                return await client.Drives[driveId].Root.Children.Request().GetAsync(cancellationToken);
             }
 
-            return items;
+            return await client.Drives[driveId].Root.ItemWithPath(path).Children.Request().GetAsync(cancellationToken);
         }
 
         private static Exception Exception(Exception exception)

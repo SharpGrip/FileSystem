@@ -25,9 +25,9 @@ namespace SharpGrip.FileSystem.Adapters
         {
         }
 
-        public override async Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -38,7 +38,7 @@ namespace SharpGrip.FileSystem.Adapters
                     throw new FileNotFoundException(path, Prefix);
                 }
 
-                return new FileModel(file);
+                return ModelFactory.CreateFile(file, virtualPath);
             }
             catch (FileSystemException)
             {
@@ -50,9 +50,9 @@ namespace SharpGrip.FileSystem.Adapters
             }
         }
 
-        public override async Task<IDirectory> GetDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
 
             try
             {
@@ -63,7 +63,7 @@ namespace SharpGrip.FileSystem.Adapters
                     throw new DirectoryNotFoundException(path, Prefix);
                 }
 
-                return new DirectoryModel(directory);
+                return ModelFactory.CreateDirectory(directory, virtualPath);
             }
             catch (FileSystemException)
             {
@@ -75,9 +75,9 @@ namespace SharpGrip.FileSystem.Adapters
             }
         }
 
-        public override async Task<IEnumerable<IFile>> GetFilesAsync(string path = "", CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
             var directory = await Task.Run(() => new DirectoryInfo(path), cancellationToken);
 
             if (!directory.Exists)
@@ -87,7 +87,7 @@ namespace SharpGrip.FileSystem.Adapters
 
             try
             {
-                return await Task.Run(() => directory.GetFiles().Select(item => GetFile(item.FullName)).ToList(), cancellationToken);
+                return await Task.Run(() => directory.GetFiles().Select(item => GetFile(GetVirtualPath(item.FullName))).ToList(), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -95,12 +95,9 @@ namespace SharpGrip.FileSystem.Adapters
             }
         }
 
-        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(
-            string path = "",
-            CancellationToken cancellationToken = default
-        )
+        public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
-            path = PrependRootPath(path);
+            var path = GetPath(virtualPath);
             var directory = await Task.Run(() => new DirectoryInfo(path), cancellationToken);
 
             if (!directory.Exists)
@@ -110,10 +107,7 @@ namespace SharpGrip.FileSystem.Adapters
 
             try
             {
-                return await Task.Run(
-                    () => directory.GetDirectories().Select(item => GetDirectory(item.FullName)).ToList(),
-                    cancellationToken
-                );
+                return await Task.Run(() => directory.GetDirectories().Select(item => GetDirectory(GetVirtualPath(item.FullName))).ToList(), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -121,16 +115,16 @@ namespace SharpGrip.FileSystem.Adapters
             }
         }
 
-        public override async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task CreateDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            if (await DirectoryExistsAsync(path, cancellationToken))
+            if (await DirectoryExistsAsync(virtualPath, cancellationToken))
             {
-                throw new DirectoryExistsException(PrependRootPath(path), Prefix);
+                throw new DirectoryExistsException(GetPath(virtualPath), Prefix);
             }
 
             try
             {
-                await Task.Run(() => Directory.CreateDirectory(PrependRootPath(path)), cancellationToken);
+                await Task.Run(() => Directory.CreateDirectory(GetPath(virtualPath)), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -138,23 +132,23 @@ namespace SharpGrip.FileSystem.Adapters
             }
         }
 
-        public override async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            await Task.Run(() => File.Delete(PrependRootPath(path)), cancellationToken);
+            await GetFileAsync(virtualPath, cancellationToken);
+            await Task.Run(() => File.Delete(GetPath(virtualPath)), cancellationToken);
         }
 
-        public override async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetDirectoryAsync(path, cancellationToken);
-            await Task.Run(() => Directory.Delete(PrependRootPath(path), true), cancellationToken);
+            await GetDirectoryAsync(virtualPath, cancellationToken);
+            await Task.Run(() => Directory.Delete(GetPath(virtualPath), true), cancellationToken);
         }
 
-        public override async Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
+            await GetFileAsync(virtualPath, cancellationToken);
 
-            using var fileStream = new FileStream(PrependRootPath(path), FileMode.Open);
+            using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Open);
             var fileContents = new byte[fileStream.Length];
 
             var _ = await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
@@ -162,27 +156,22 @@ namespace SharpGrip.FileSystem.Adapters
             return fileContents;
         }
 
-        public override async Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default)
+        public override async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
-            using var streamReader = new StreamReader(PrependRootPath(path));
+            await GetFileAsync(virtualPath, cancellationToken);
+            using var streamReader = new StreamReader(GetPath(virtualPath));
 
             return await streamReader.ReadToEndAsync();
         }
 
-        public override async Task WriteFileAsync(
-            string path,
-            byte[] contents,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        )
+        public override async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
-            if (!overwrite && await FileExistsAsync(path, cancellationToken))
+            if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
             {
-                throw new FileExistsException(PrependRootPath(path), Prefix);
+                throw new FileExistsException(GetPath(virtualPath), Prefix);
             }
 
-            using var fileStream = new FileStream(PrependRootPath(path), FileMode.Create);
+            using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Create);
 
             await fileStream.WriteAsync(contents, 0, contents.Length, cancellationToken);
         }
@@ -191,7 +180,7 @@ namespace SharpGrip.FileSystem.Adapters
         {
             await GetFileAsync(path, cancellationToken);
 
-            using var fileStream = new FileStream(PrependRootPath(path), FileMode.Append);
+            using var fileStream = new FileStream(GetPath(path), FileMode.Append);
 
             await fileStream.WriteAsync(contents, 0, contents.Length, cancellationToken);
         }

@@ -365,12 +365,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
-        public Task CopyFileAsync(
-            string sourcePath,
-            string destinationPath,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        );
+        public Task CopyFileAsync(string sourcePath, string destinationPath, bool overwrite = false, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Moves a file from a source path to a destination path.
@@ -403,12 +398,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
-        public Task MoveFileAsync(
-            string sourcePath,
-            string destinationPath,
-            bool overwrite = false,
-            CancellationToken cancellationToken = default
-        );
+        public Task MoveFileAsync(string sourcePath, string destinationPath, bool overwrite = false, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Writes byte array contents to a file at the provided path.
