@@ -18,7 +18,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Graph" Version="4.54.0" />
-        <PackageReference Include="Microsoft.Identity.Client" Version="4.53.0" />
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.55.0" />
     </ItemGroup>
 
     <ItemGroup>
