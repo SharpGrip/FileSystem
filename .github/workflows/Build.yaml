@@ -40,6 +40,10 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Install dotnet-coverage
+        shell: powershell
+        run: dotnet tool install --global dotnet-coverage
+
       - name: Install SonarCloud scanner
         shell: powershell
         run: |
@@ -58,7 +62,7 @@ jobs:
       - name: Analyze solution
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"${{ env.SONAR_PROJECT }}" /o:"${{ env.SONAR_ORGANIZATION }}" /d:sonar.token="${{ env.SONAR_TOKEN }}" /d:sonar.host.url="${{ env.SONAR_HOST }}"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"${{ env.SONAR_PROJECT }}" /o:"${{ env.SONAR_ORGANIZATION }}" /d:sonar.token="${{ env.SONAR_TOKEN }}" /d:sonar.host.url="${{ env.SONAR_HOST }}" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
           dotnet build -c ${{ env.DOTNET_BUILD_CONFIGURATION }}
-          dotnet test --no-build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --logger trx --verbosity normal
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
+          dotnet-coverage collect "dotnet test -c ${{ env.DOTNET_BUILD_CONFIGURATION }}" -f xml -o "coverage.xml"
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ env.SONAR_TOKEN }}"
