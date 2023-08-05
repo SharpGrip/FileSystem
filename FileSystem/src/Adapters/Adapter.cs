@@ -22,36 +22,36 @@ namespace SharpGrip.FileSystem.Adapters
             RootPath = rootPath;
         }
 
-        public IFile GetFile(string path)
+        public IFile GetFile(string virtualPath)
         {
-            return GetFileAsync(path).Result;
+            return GetFileAsync(virtualPath).Result;
         }
 
-        public IDirectory GetDirectory(string path)
+        public IDirectory GetDirectory(string virtualPath)
         {
-            return GetDirectoryAsync(path).Result;
+            return GetDirectoryAsync(virtualPath).Result;
         }
 
-        public IEnumerable<IFile> GetFiles(string path = "")
+        public IEnumerable<IFile> GetFiles(string virtualPath = "")
         {
-            return GetFilesAsync(path).Result;
+            return GetFilesAsync(virtualPath).Result;
         }
 
-        public IEnumerable<IDirectory> GetDirectories(string path = "")
+        public IEnumerable<IDirectory> GetDirectories(string virtualPath = "")
         {
-            return GetDirectoriesAsync(path).Result;
+            return GetDirectoriesAsync(virtualPath).Result;
         }
 
-        public bool FileExists(string path)
+        public bool FileExists(string virtualPath)
         {
-            return FileExistsAsync(path).Result;
+            return FileExistsAsync(virtualPath).Result;
         }
 
-        public async Task<bool> FileExistsAsync(string path, CancellationToken cancellationToken = default)
+        public async Task<bool> FileExistsAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             try
             {
-                await GetFileAsync(path, cancellationToken);
+                await GetFileAsync(virtualPath, cancellationToken);
             }
             catch (FileNotFoundException)
             {
@@ -61,16 +61,16 @@ namespace SharpGrip.FileSystem.Adapters
             return true;
         }
 
-        public bool DirectoryExists(string path)
+        public bool DirectoryExists(string virtualPath)
         {
-            return DirectoryExistsAsync(path).Result;
+            return DirectoryExistsAsync(virtualPath).Result;
         }
 
-        public async Task<bool> DirectoryExistsAsync(string path, CancellationToken cancellationToken = default)
+        public async Task<bool> DirectoryExistsAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             try
             {
-                await GetDirectoryAsync(path, cancellationToken);
+                await GetDirectoryAsync(virtualPath, cancellationToken);
             }
             catch (DirectoryNotFoundException)
             {
@@ -80,78 +80,78 @@ namespace SharpGrip.FileSystem.Adapters
             return true;
         }
 
-        public void CreateDirectory(string path)
+        public void CreateDirectory(string virtualPath)
         {
-            CreateDirectoryAsync(path).Wait();
+            CreateDirectoryAsync(virtualPath).Wait();
         }
 
-        public void DeleteDirectory(string path)
+        public void DeleteDirectory(string virtualPath)
         {
-            DeleteDirectoryAsync(path).Wait();
+            DeleteDirectoryAsync(virtualPath).Wait();
         }
 
-        public void DeleteFile(string path)
+        public void DeleteFile(string virtualPath)
         {
-            DeleteFileAsync(path).Wait();
+            DeleteFileAsync(virtualPath).Wait();
         }
 
-        public byte[] ReadFile(string path)
+        public byte[] ReadFile(string virtualPath)
         {
-            return ReadFileAsync(path).Result;
+            return ReadFileAsync(virtualPath).Result;
         }
 
-        public string ReadTextFile(string path)
+        public string ReadTextFile(string virtualPath)
         {
-            return ReadTextFileAsync(path).Result;
+            return ReadTextFileAsync(virtualPath).Result;
         }
 
-        public void WriteFile(string path, byte[] contents, bool overwrite = false)
+        public void WriteFile(string virtualPath, byte[] contents, bool overwrite = false)
         {
-            WriteFileAsync(path, contents, overwrite).Wait();
+            WriteFileAsync(virtualPath, contents, overwrite).Wait();
         }
 
-        public void WriteFile(string path, string contents, bool overwrite = false)
+        public void WriteFile(string virtualPath, string contents, bool overwrite = false)
         {
-            WriteFileAsync(path, contents, overwrite).Wait();
+            WriteFileAsync(virtualPath, contents, overwrite).Wait();
         }
 
-        public async Task WriteFileAsync(string path, string contents, bool overwrite = false, CancellationToken cancellationToken = default)
+        public async Task WriteFileAsync(string virtualPath, string contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
-            await WriteFileAsync(path, Encoding.UTF8.GetBytes(contents), overwrite, cancellationToken);
+            await WriteFileAsync(virtualPath, Encoding.UTF8.GetBytes(contents), overwrite, cancellationToken);
         }
 
-        public void AppendFile(string path, byte[] contents)
+        public void AppendFile(string virtualPath, byte[] contents)
         {
-            AppendFileAsync(path, contents).Wait();
+            AppendFileAsync(virtualPath, contents).Wait();
         }
 
-        public void AppendFile(string path, string contents)
+        public void AppendFile(string virtualPath, string contents)
         {
-            AppendFileAsync(path, contents).Wait();
+            AppendFileAsync(virtualPath, contents).Wait();
         }
 
-        public async Task AppendFileAsync(string path, string contents, CancellationToken cancellationToken = default)
+        public async Task AppendFileAsync(string virtualPath, string contents, CancellationToken cancellationToken = default)
         {
-            await AppendFileAsync(path, Encoding.UTF8.GetBytes(contents), cancellationToken);
+            await AppendFileAsync(virtualPath, Encoding.UTF8.GetBytes(contents), cancellationToken);
         }
 
         public abstract void Dispose();
         public abstract void Connect();
-        public abstract Task<IFile> GetFileAsync(string path, CancellationToken cancellationToken = default);
-        public abstract Task<IDirectory> GetDirectoryAsync(string path, CancellationToken cancellationToken = default);
-        public abstract Task<IEnumerable<IFile>> GetFilesAsync(string path = "", CancellationToken cancellationToken = default);
-        public abstract Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string path = "", CancellationToken cancellationToken = default);
-        public abstract Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default);
-        public abstract Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default);
-        public abstract Task DeleteFileAsync(string path, CancellationToken cancellationToken = default);
-        public abstract Task<byte[]> ReadFileAsync(string path, CancellationToken cancellationToken = default);
-        public abstract Task<string> ReadTextFileAsync(string path, CancellationToken cancellationToken = default);
-        public abstract Task WriteFileAsync(string path, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default);
-        public abstract Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default);
+        public abstract Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default);
+        public abstract Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default);
+        public abstract Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default);
+        public abstract Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default);
+        public abstract Task CreateDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default);
+        public abstract Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default);
+        public abstract Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default);
+        public abstract Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default);
+        public abstract Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default);
+        public abstract Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default);
+        public abstract Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default);
 
-        protected string GetPath(string virtualPath)
+        protected string GetPath(string path)
         {
-            return PathUtilities.GetPath(virtualPath, RootPath);
+            return PathUtilities.GetPath(path, RootPath);
         }
 
         protected string GetVirtualPath(string path)
