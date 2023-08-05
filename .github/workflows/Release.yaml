@@ -4,6 +4,7 @@ env:
   DOTNET_VERSION: 7.0.x
   DOTNET_BUILD_CONFIGURATION: Release
   DOTNET_PACKAGES_OUTPUT_DIRECTORY: .nuget
+  NUGET_SOURCE: https://api.nuget.org/v3/index.json
   NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
 on:
@@ -30,4 +31,4 @@ jobs:
         run: dotnet pack --configuration ${{ env.DOTNET_BUILD_CONFIGURATION }} --output "${{ env.DOTNET_PACKAGES_OUTPUT_DIRECTORY }}"
 
       - name: Push packages
-        run: dotnet nuget push "${{ env.DOTNET_PACKAGES_OUTPUT_DIRECTORY }}/*.nupkg" --api-key ${{ env.NUGET_API_KEY }}
+        run: dotnet nuget push "${{ env.DOTNET_PACKAGES_OUTPUT_DIRECTORY }}/*.nupkg" --source ${{ env.NUGET_SOURCE }} --api-key ${{ env.NUGET_API_KEY }}
