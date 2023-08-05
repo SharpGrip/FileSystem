@@ -34,7 +34,7 @@ namespace Tests.FileSystem.Adapters.Sftp
             var sftpClient = new Mock<SftpClient>("hostName", "userName", "password");
             var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient.Object);
 
-            await Assert.ThrowsAsync<ConnectionException>(async () => await sftpAdapter.GetFileAsync("test.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(async () => await sftpAdapter.GetFileAsync("prefix-1://test.txt"));
         }
     }
 }

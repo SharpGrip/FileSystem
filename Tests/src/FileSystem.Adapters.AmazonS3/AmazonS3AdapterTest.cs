@@ -35,7 +35,7 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             getObjectResponse.Object.ContentLength = 1;
             getObjectResponse.Object.LastModified = new DateTime(1970, 1, 1);
 
-            amazonS3Client.Setup(o => o.GetObjectAsync("bucket-1", "/root-path-1\\test.txt", default)).ReturnsAsync(getObjectResponse.Object);
+            amazonS3Client.Setup(o => o.GetObjectAsync("bucket-1", "/root-path-1/test.txt", default)).ReturnsAsync(getObjectResponse.Object);
 
             var fileModel = new FileModel
             {
@@ -45,7 +45,7 @@ namespace Tests.FileSystem.Adapters.AmazonS3
                 LastModifiedDateTime = new DateTime(1970, 1, 1)
             };
 
-            var result = await amazonS3Adapter.GetFileAsync("test.txt");
+            var result = await amazonS3Adapter.GetFileAsync("prefix-1://test.txt");
 
             Assert.Equal(fileModel.Name, result.Name);
             Assert.Equal(fileModel.Path, result.Path);
