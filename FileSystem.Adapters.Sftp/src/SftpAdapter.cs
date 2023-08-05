@@ -180,7 +180,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
                 using var fileStream = client.OpenRead(GetPath(virtualPath));
                 var fileContents = new byte[fileStream.Length];
 
-                var _ = await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
+                _ = await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
 
                 return fileContents;
             }

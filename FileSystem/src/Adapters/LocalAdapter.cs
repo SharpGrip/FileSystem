@@ -151,7 +151,7 @@ namespace SharpGrip.FileSystem.Adapters
             using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Open);
             var fileContents = new byte[fileStream.Length];
 
-            var _ = await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
+            _ = await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
 
             return fileContents;
         }
