@@ -1,7 +1,7 @@
 name: FileSystem [Build]
 
 env:
-  JAVA_VERSION: 11
+  JAVA_VERSION: 17
   JAVA_DISTRIBUTION: microsoft
   DOTNET_VERSION: 7.0.x
   DOTNET_BUILD_CONFIGURATION: Release
@@ -49,9 +49,6 @@ jobs:
       - name: Build solution
         run: dotnet build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} /warnaserror
 
-      - name: Test solution
-        run: dotnet test --no-build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --verbosity normal
-
       - name: Cleanup solution
         run: dotnet clean
 
@@ -60,4 +57,5 @@ jobs:
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"${{ env.SONAR_PROJECT }}" /o:"${{ env.SONAR_ORGANIZATION }}" /d:sonar.login="${{ env.SONAR_TOKEN }}" /d:sonar.host.url="${{ env.SONAR_HOST }}"
           dotnet build -c ${{ env.DOTNET_BUILD_CONFIGURATION }}
+          dotnet test --no-build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --verbosity normal
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
