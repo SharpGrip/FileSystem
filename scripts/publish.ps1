@@ -1,4 +1,4 @@
-$outputPath = "NuGet"
+$outputPath = ".nuget"
 
 New-Item -ItemType Directory -Force $outputPath
 
