@@ -176,11 +176,11 @@ namespace SharpGrip.FileSystem.Adapters
             await fileStream.WriteAsync(contents, 0, contents.Length, cancellationToken);
         }
 
-        public override async Task AppendFileAsync(string path, byte[] contents, CancellationToken cancellationToken = default)
+        public override async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
         {
-            await GetFileAsync(path, cancellationToken);
+            await GetFileAsync(virtualPath, cancellationToken);
 
-            using var fileStream = new FileStream(GetPath(path), FileMode.Append);
+            using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Append);
 
             await fileStream.WriteAsync(contents, 0, contents.Length, cancellationToken);
         }
