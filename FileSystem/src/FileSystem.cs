@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -86,7 +87,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public IFile GetFile(string virtualPath)
         {
             return GetFileAsync(virtualPath).Result;
@@ -104,7 +105,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             var prefix = PathUtilities.GetPrefix(virtualPath);
@@ -126,7 +127,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public IDirectory GetDirectory(string virtualPath)
         {
             return GetDirectoryAsync(virtualPath).Result;
@@ -144,7 +145,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             var prefix = PathUtilities.GetPrefix(virtualPath);
@@ -166,7 +167,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public IEnumerable<IFile> GetFiles(string virtualPath = "")
         {
             return GetFilesAsync(virtualPath).Result;
@@ -184,7 +185,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             var prefix = PathUtilities.GetPrefix(virtualPath);
@@ -206,7 +207,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public IEnumerable<IDirectory> GetDirectories(string virtualPath = "")
         {
             return GetDirectoriesAsync(virtualPath).Result;
@@ -224,7 +225,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             var prefix = PathUtilities.GetPrefix(virtualPath);
@@ -359,7 +360,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public void DeleteFile(string virtualPath)
         {
             DeleteFileAsync(virtualPath).Wait();
@@ -376,7 +377,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             var prefix = PathUtilities.GetPrefix(virtualPath);
@@ -397,7 +398,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public void DeleteDirectory(string virtualPath)
         {
             DeleteDirectoryAsync(virtualPath).Wait();
@@ -414,7 +415,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
         public async Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             var prefix = PathUtilities.GetPrefix(virtualPath);
@@ -429,6 +430,7 @@ namespace SharpGrip.FileSystem
         /// Reads a file at the provided path.
         /// </summary>
         /// <param name="virtualPath">The virtual path (including prefix) where to read the file at.</param>
+        /// <param name="cancellationToken">Optional <see cref="CancellationToken"/> to propagate notifications that the operation should be cancelled.</param>
         /// <returns>The file contents.</returns>
         /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
         /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
@@ -436,7 +438,29 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        public async Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default)
+        {
+            var prefix = PathUtilities.GetPrefix(virtualPath);
+            var adapter = GetAdapter(prefix);
+
+            adapter.Connect();
+
+            return await adapter.ReadFileStreamAsync(virtualPath, cancellationToken);
+        }
+
+        /// <summary>
+        /// Reads a file at the provided path.
+        /// </summary>
+        /// <param name="virtualPath">The virtual path (including prefix) where to read the file at.</param>
+        /// <returns>The file contents.</returns>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public byte[] ReadFile(string virtualPath)
         {
             return ReadFileAsync(virtualPath).Result;
@@ -454,7 +478,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             var prefix = PathUtilities.GetPrefix(virtualPath);
@@ -476,7 +500,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public string ReadTextFile(string virtualPath)
         {
             return ReadTextFileAsync(virtualPath).Result;
@@ -494,7 +518,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             var prefix = PathUtilities.GetPrefix(virtualPath);
@@ -517,7 +541,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public void CopyFile(string virtualSourcePath, string virtualDestinationPath, bool overwrite = false)
         {
@@ -537,7 +561,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public async Task CopyFileAsync(string virtualSourcePath, string virtualDestinationPath, bool overwrite = false, CancellationToken cancellationToken = default)
         {
@@ -566,7 +590,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public void MoveFile(string virtualSourcePath, string virtualDestinationPath, bool overwrite = false)
         {
@@ -586,7 +610,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
         public async Task MoveFileAsync(string virtualSourcePath, string virtualDestinationPath, bool overwrite = false, CancellationToken cancellationToken = default)
         {
@@ -602,6 +626,30 @@ namespace SharpGrip.FileSystem
             var contents = await sourceAdapter.ReadFileAsync(virtualSourcePath, cancellationToken);
             await destinationAdapter.WriteFileAsync(virtualDestinationPath, contents, overwrite, cancellationToken);
             await sourceAdapter.DeleteFileAsync(virtualSourcePath, cancellationToken);
+        }
+
+        /// <summary>
+        /// Writes stream contents to a file at the provided path.
+        /// </summary>
+        /// <param name="virtualPath">The virtual path (including prefix) where to write the byte array contents to.</param>
+        /// <param name="contents">The file byte array contents.</param>
+        /// <param name="overwrite">If a file at the destination path exists overwrite it.</param>
+        /// <param name="cancellationToken">Optional <see cref="CancellationToken"/> to propagate notifications that the operation should be cancelled.</param>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
+        public async Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default)
+        {
+            var prefix = PathUtilities.GetPrefix(virtualPath);
+            var adapter = GetAdapter(prefix);
+
+            adapter.Connect();
+
+            await adapter.WriteFileAsync(virtualPath, contents, overwrite, cancellationToken);
         }
 
         /// <summary>
@@ -689,6 +737,29 @@ namespace SharpGrip.FileSystem
         }
 
         /// <summary>
+        /// Writes stream contents to a file at the provided path.
+        /// </summary>
+        /// <param name="virtualPath">The virtual path (including prefix) where to write the byte array contents to.</param>
+        /// <param name="contents">The file byte array contents.</param>
+        /// <param name="cancellationToken">Optional <see cref="CancellationToken"/> to propagate notifications that the operation should be cancelled.</param>
+        /// <exception cref="ConnectionException">Thrown when an exception occurs during the adapter's connection process. Contains an inner exception with more details.</exception>
+        /// <exception cref="AdapterRuntimeException">Thrown when an exception occurs during the adapter's runtime. Contains an inner exception with more details.</exception>
+        /// <exception cref="NoAdaptersRegisteredException">Thrown when no adapters are registered with the file system.</exception>
+        /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
+        /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
+        /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        public async Task AppendFileAsync(string virtualPath, Stream contents, CancellationToken cancellationToken = default)
+        {
+            var prefix = PathUtilities.GetPrefix(virtualPath);
+            var adapter = GetAdapter(prefix);
+
+            adapter.Connect();
+
+            await adapter.AppendFileAsync(virtualPath, contents, cancellationToken);
+        }
+
+        /// <summary>
         /// Writes byte array contents to a file at the provided path.
         /// </summary>
         /// <param name="virtualPath">The virtual path (including prefix) where to write the byte array contents to.</param>
@@ -699,7 +770,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public void AppendFile(string virtualPath, byte[] contents)
         {
             AppendFileAsync(virtualPath, contents).Wait();
@@ -717,7 +788,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
         {
             var prefix = PathUtilities.GetPrefix(virtualPath);
@@ -739,7 +810,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public void AppendFile(string virtualPath, string contents)
         {
             AppendFileAsync(virtualPath, contents).Wait();
@@ -757,7 +828,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
-        /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         public async Task AppendFileAsync(string virtualPath, string contents, CancellationToken cancellationToken = default)
         {
             var prefix = PathUtilities.GetPrefix(virtualPath);

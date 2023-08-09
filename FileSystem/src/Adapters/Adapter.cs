@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SharpGrip.FileSystem.Exceptions;
+using SharpGrip.FileSystem.Constants;
 using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
 using SharpGrip.FileSystem.Utilities;
+using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
+using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
 
 namespace SharpGrip.FileSystem.Adapters
 {
@@ -100,6 +103,43 @@ namespace SharpGrip.FileSystem.Adapters
             return ReadFileAsync(virtualPath).Result;
         }
 
+        public async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        {
+            await GetFileAsync(virtualPath, cancellationToken);
+
+            try
+            {
+                using var stream = await ReadFileStreamAsync(virtualPath, cancellationToken);
+                using var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(stream, cancellationToken);
+
+                await stream.CopyToAsync(memoryStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+
+                return memoryStream.ToArray();
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
+        }
+
+        public async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        {
+            await GetFileAsync(virtualPath, cancellationToken);
+
+            try
+            {
+                using var stream = await ReadFileStreamAsync(virtualPath, cancellationToken);
+                using var streamReader = new StreamReader(stream);
+                stream.Position = 0;
+
+                return await streamReader.ReadToEndAsync();
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
+        }
+
         public string ReadTextFile(string virtualPath)
         {
             return ReadTextFileAsync(virtualPath).Result;
@@ -108,6 +148,11 @@ namespace SharpGrip.FileSystem.Adapters
         public void WriteFile(string virtualPath, byte[] contents, bool overwrite = false)
         {
             WriteFileAsync(virtualPath, contents, overwrite).Wait();
+        }
+
+        public async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
+        {
+            await WriteFileAsync(virtualPath, new MemoryStream(contents), overwrite, cancellationToken);
         }
 
         public void WriteFile(string virtualPath, string contents, bool overwrite = false)
@@ -120,9 +165,35 @@ namespace SharpGrip.FileSystem.Adapters
             await WriteFileAsync(virtualPath, Encoding.UTF8.GetBytes(contents), overwrite, cancellationToken);
         }
 
+        public virtual async Task AppendFileAsync(string virtualPath, Stream contents, CancellationToken cancellationToken = default)
+        {
+            await GetFileAsync(virtualPath, cancellationToken);
+
+            var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(contents, cancellationToken);
+
+            var existingContents = await ReadFileAsync(virtualPath, cancellationToken);
+            var fileContents = existingContents.Concat(memoryStream.ToArray()).ToArray();
+
+            await DeleteFileAsync(virtualPath, cancellationToken);
+
+            try
+            {
+                await WriteFileAsync(virtualPath, fileContents, true, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
+        }
+
         public void AppendFile(string virtualPath, byte[] contents)
         {
             AppendFileAsync(virtualPath, contents).Wait();
+        }
+
+        public async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
+        {
+            await AppendFileAsync(virtualPath, new MemoryStream(contents), cancellationToken);
         }
 
         public void AppendFile(string virtualPath, string contents)
@@ -144,10 +215,9 @@ namespace SharpGrip.FileSystem.Adapters
         public abstract Task CreateDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default);
         public abstract Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default);
         public abstract Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default);
-        public abstract Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default);
-        public abstract Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default);
-        public abstract Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default);
-        public abstract Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default);
+        public abstract Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default);
+        public abstract Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default);
+        protected abstract Exception Exception(Exception exception);
 
         protected string GetPath(string path)
         {
