@@ -1,5 +1,5 @@
 ﻿using Azure.Storage.Blobs;
-using Moq;
+using NSubstitute;
 using SharpGrip.FileSystem.Adapters.AzureBlobStorage;
 using Xunit;
 
@@ -10,8 +10,8 @@ namespace Tests.FileSystem.Adapters.AzureBlobStorage
         [Fact]
         public void Test_Instantiation()
         {
-            var blobContainerClient = new Mock<BlobContainerClient>();
-            var azureBlobStorageAdapter = new AzureBlobStorageAdapter("prefix", "/root-path", blobContainerClient.Object);
+            var blobContainerClient = Substitute.For<BlobContainerClient>();
+            var azureBlobStorageAdapter = new AzureBlobStorageAdapter("prefix", "/root-path", blobContainerClient);
 
             Assert.Equal("prefix", azureBlobStorageAdapter.Prefix);
             Assert.Equal("/root-path", azureBlobStorageAdapter.RootPath);

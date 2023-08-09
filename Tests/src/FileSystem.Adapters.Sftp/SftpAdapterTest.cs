@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Moq;
+using NSubstitute;
 using Renci.SshNet;
 using SharpGrip.FileSystem.Adapters.Sftp;
 using SharpGrip.FileSystem.Exceptions;
@@ -12,8 +12,8 @@ namespace Tests.FileSystem.Adapters.Sftp
         [Fact]
         public void Test_Instantiation()
         {
-            var sftpClient = new Mock<SftpClient>("hostName", "userName", "password");
-            var sftpAdapter = new SftpAdapter("prefix", "/root-path", sftpClient.Object);
+            var sftpClient = Substitute.For<SftpClient>("hostName", "userName", "password");
+            var sftpAdapter = new SftpAdapter("prefix", "/root-path", sftpClient);
 
             Assert.Equal("prefix", sftpAdapter.Prefix);
             Assert.Equal("/root-path", sftpAdapter.RootPath);
@@ -22,8 +22,8 @@ namespace Tests.FileSystem.Adapters.Sftp
         [Fact]
         public void Test_Connect()
         {
-            var sftpClient = new Mock<SftpClient>("hostName", "userName", "password");
-            var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient.Object);
+            var sftpClient = Substitute.For<SftpClient>("hostName", "userName", "password");
+            var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient);
 
             Assert.Throws<ConnectionException>(() => sftpAdapter.Connect());
         }
@@ -31,8 +31,8 @@ namespace Tests.FileSystem.Adapters.Sftp
         [Fact]
         public async Task Test_Get_File_Async()
         {
-            var sftpClient = new Mock<SftpClient>("hostName", "userName", "password");
-            var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient.Object);
+            var sftpClient = Substitute.For<SftpClient>("hostName", "userName", "password");
+            var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient);
 
             await Assert.ThrowsAsync<ConnectionException>(async () => await sftpAdapter.GetFileAsync("prefix-1://test.txt"));
         }
