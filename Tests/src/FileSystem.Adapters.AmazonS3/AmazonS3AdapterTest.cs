@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Moq;
+using NSubstitute;
 using SharpGrip.FileSystem.Adapters.AmazonS3;
 using SharpGrip.FileSystem.Models;
 using Xunit;
@@ -15,8 +14,8 @@ namespace Tests.FileSystem.Adapters.AmazonS3
         [Fact]
         public void Test_Instantiation()
         {
-            var amazonS3Client = new Mock<AmazonS3Client>("awsAccessKeyId", "awsSecretAccessKey", RegionEndpoint.USEast2);
-            var amazonS3Adapter = new AmazonS3Adapter("prefix", "/root-path", amazonS3Client.Object, "bucket");
+            var amazonS3Client = Substitute.For<IAmazonS3>();
+            var amazonS3Adapter = new AmazonS3Adapter("prefix", "/root-path", amazonS3Client, "bucket");
 
             Assert.Equal("prefix", amazonS3Adapter.Prefix);
             Assert.Equal("/root-path", amazonS3Adapter.RootPath);
@@ -25,17 +24,16 @@ namespace Tests.FileSystem.Adapters.AmazonS3
         [Fact]
         public async Task Test_Get_File_Async()
         {
-            var amazonS3Client = new Mock<AmazonS3Client>("awsAccessKeyId", "awsSecretAccessKey", RegionEndpoint.USEast2);
-            var amazonS3Adapter = new AmazonS3Adapter("prefix-1", "/root-path-1", amazonS3Client.Object, "bucket-1");
+            var amazonS3Client = Substitute.For<IAmazonS3>();
+            var amazonS3Adapter = new AmazonS3Adapter("prefix-1", "/root-path-1", amazonS3Client, "bucket-1");
 
-            var getObjectResponse = new Mock<GetObjectResponse>();
+            var getObjectResponse = Substitute.For<GetObjectResponse>();
 
-            getObjectResponse.SetupAllProperties();
-            getObjectResponse.Object.Key = "test.txt";
-            getObjectResponse.Object.ContentLength = 1;
-            getObjectResponse.Object.LastModified = new DateTime(1970, 1, 1);
+            getObjectResponse.Key = "test.txt";
+            getObjectResponse.ContentLength = 1;
+            getObjectResponse.LastModified = new DateTime(1970, 1, 1);
 
-            amazonS3Client.Setup(o => o.GetObjectAsync("bucket-1", "/root-path-1/test.txt", default)).ReturnsAsync(getObjectResponse.Object);
+            amazonS3Client.GetObjectAsync("bucket-1", "/root-path-1/test.txt").Returns(getObjectResponse);
 
             var fileModel = new FileModel
             {

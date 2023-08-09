@@ -15,10 +15,10 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 {
     public class AmazonS3Adapter : Adapter
     {
-        private readonly AmazonS3Client client;
+        private readonly IAmazonS3 client;
         private readonly string bucketName;
 
-        public AmazonS3Adapter(string prefix, string rootPath, AmazonS3Client client, string bucketName) : base(prefix, rootPath)
+        public AmazonS3Adapter(string prefix, string rootPath, IAmazonS3 client, string bucketName) : base(prefix, rootPath)
         {
             this.client = client;
             this.bucketName = bucketName;
