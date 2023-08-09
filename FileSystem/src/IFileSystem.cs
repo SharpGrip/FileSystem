@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public IFile GetFile(string virtualPath);
 
         /// <summary>
@@ -66,6 +68,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public IDirectory GetDirectory(string virtualPath);
 
         /// <summary>
@@ -95,6 +98,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public IEnumerable<IFile> GetFiles(string virtualPath = "");
 
         /// <summary>
@@ -124,6 +128,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public IEnumerable<IDirectory> GetDirectories(string virtualPath = "");
 
         /// <summary>
@@ -152,6 +157,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public bool FileExists(string virtualPath);
 
         /// <summary>
@@ -179,6 +185,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="DuplicateAdapterPrefixException">Thrown when multiple adapters are registered with the same prefix.</exception>
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public bool DirectoryExists(string virtualPath);
 
         /// <summary>
@@ -206,6 +213,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryExistsException">Thrown if the directory exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public void CreateDirectory(string virtualPath);
 
         /// <summary>
@@ -233,6 +241,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public void DeleteFile(string virtualPath);
 
         /// <summary>
@@ -260,6 +269,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public void DeleteDirectory(string virtualPath);
 
         /// <summary>
@@ -288,6 +298,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public byte[] ReadFile(string virtualPath);
 
         /// <summary>
@@ -317,6 +328,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public string ReadTextFile(string virtualPath);
 
         /// <summary>
@@ -348,6 +360,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public void CopyFile(string virtualSourcePath, string virtualDestinationPath, bool overwrite = false);
 
         /// <summary>
@@ -381,6 +394,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public void MoveFile(string virtualSourcePath, string virtualDestinationPath, bool overwrite = false);
 
         /// <summary>
@@ -413,6 +427,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public void WriteFile(string virtualPath, byte[] contents, bool overwrite = false);
 
         /// <summary>
@@ -444,6 +459,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileExistsException">Thrown if the file exists at the given path and parameter "overwrite" = false.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public void WriteFile(string virtualPath, string contents, bool overwrite = false);
 
         /// <summary>
@@ -474,6 +490,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public void AppendFile(string virtualPath, byte[] contents);
 
         /// <summary>
@@ -503,6 +520,7 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
+        [Obsolete("Method is deprecated, please use the async version instead. Method will be removed in v2.0.")]
         public void AppendFile(string virtualPath, string contents);
 
         /// <summary>
