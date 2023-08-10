@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Tests.FileSystem.Adapters.AmazonS3
 {
-    public class AmazonS3AdapterTest
+    public class AmazonS3AdapterTest : IAdapterTests
     {
         private readonly AmazonS3Exception amazonS3NoSuchKeyException = new("NoSuchKey", ErrorType.Receiver, "NoSuchKey", "12345", HttpStatusCode.NotFound);
         private readonly AmazonS3Exception amazonS3InvalidAccessKeyIdException = new("InvalidAccessKeyId", ErrorType.Receiver, "InvalidAccessKeyId", "12345", HttpStatusCode.Unauthorized);
@@ -29,6 +29,12 @@ namespace Tests.FileSystem.Adapters.AmazonS3
 
             Assert.Equal("prefix", amazonS3Adapter.Prefix);
             Assert.Equal("/root-path", amazonS3Adapter.RootPath);
+        }
+
+        [Fact]
+        public async Task Test_Connect()
+        {
+            await Task.CompletedTask;
         }
 
         [Fact]
@@ -295,6 +301,30 @@ namespace Tests.FileSystem.Adapters.AmazonS3
         }
 
         [Fact]
+        public async Task Test_Delete_File_Async()
+        {
+            var amazonS3Client = Substitute.For<IAmazonS3>();
+            var amazonS3Adapter = new AmazonS3Adapter("prefix-1", "root-path-1", amazonS3Client, "bucket-1");
+            var fileSystem = new SharpGrip.FileSystem.FileSystem(new List<IAdapter> {amazonS3Adapter});
+
+            var getObjectResponse = Substitute.For<GetObjectResponse>();
+
+            getObjectResponse.Key = "test4.txt";
+            getObjectResponse.ContentLength = 1;
+            getObjectResponse.LastModified = new DateTime(1970, 1, 1);
+
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").ThrowsAsync(amazonS3NoSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3InvalidAccessKeyIdException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").Returns(getObjectResponse);
+
+            await Assert.ThrowsAsync<FileNotFoundException>(() => fileSystem.DeleteFileAsync("prefix-1://test1.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.DeleteFileAsync("prefix-1://test2.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.DeleteFileAsync("prefix-1://test3.txt"));
+            await fileSystem.DeleteFileAsync("prefix-1://test4.txt");
+        }
+
+        [Fact]
         public async Task Test_Delete_Directory_Async()
         {
             var amazonS3Client = Substitute.For<IAmazonS3>();
@@ -324,6 +354,30 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.DeleteDirectoryAsync("prefix-1://test3"));
             await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.DeleteDirectoryAsync("prefix-1://test4"));
             await fileSystem.DeleteDirectoryAsync("prefix-1://test5");
+        }
+
+        [Fact]
+        public async Task Test_Read_File_Async()
+        {
+            await Task.CompletedTask;
+        }
+
+        [Fact]
+        public async Task Test_Read_Text_File_Async()
+        {
+            await Task.CompletedTask;
+        }
+
+        [Fact]
+        public async Task Test_Write_File_Async()
+        {
+            await Task.CompletedTask;
+        }
+
+        [Fact]
+        public async Task Test_Append_File_Async()
+        {
+            await Task.CompletedTask;
         }
     }
 }
