@@ -130,7 +130,6 @@ namespace SharpGrip.FileSystem.Adapters
             {
                 using var stream = await ReadFileStreamAsync(virtualPath, cancellationToken);
                 using var streamReader = new StreamReader(stream);
-                stream.Position = 0;
 
                 return await streamReader.ReadToEndAsync();
             }

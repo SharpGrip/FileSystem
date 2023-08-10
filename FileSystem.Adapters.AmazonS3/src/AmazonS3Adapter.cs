@@ -255,8 +255,6 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             try
             {
-                contents.Seek(0, SeekOrigin.Begin);
-
                 var request = new PutObjectRequest
                 {
                     InputStream = contents,
