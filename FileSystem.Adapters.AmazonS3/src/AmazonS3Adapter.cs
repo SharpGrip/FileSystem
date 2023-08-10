@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
 using SharpGrip.FileSystem.Exceptions;
+using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
@@ -41,7 +42,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             {
                 using var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
 
-                return ModelFactory.CreateFile(response, virtualPath);
+                return ModelFactory.CreateFile(response, path, virtualPath);
             }
             catch (AmazonS3Exception exception)
             {
@@ -69,15 +70,12 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             try
             {
-                var prefix = "";
-                var pathParts = GetPathParts(path);
-
-                if (pathParts.Length > 1)
+                if (path == "/")
                 {
-                    prefix = string.Join("/", pathParts.Take(pathParts.Length - 1)) + "/";
+                    return ModelFactory.CreateDirectory(new S3Object {Key = "/"}, virtualPath);
                 }
 
-                var request = new ListObjectsV2Request {BucketName = bucketName, Prefix = prefix};
+                var request = new ListObjectsV2Request {BucketName = bucketName, Prefix = path};
                 var response = await client.ListObjectsV2Async(request, cancellationToken);
 
                 if (response.KeyCount == 0)
@@ -105,6 +103,11 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
             var path = GetPath(virtualPath);
+
+            if (!path.EndsWith("/"))
+            {
+                path += "/";
+            }
 
             try
             {
@@ -145,7 +148,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                 foreach (var item in response.S3Objects)
                 {
-                    var itemName = item.Key.Substring(0, item.Key.Length - path.Length);
+                    var itemName = item.Key.Substring(path.Length).RemoveLeadingForwardSlash();
 
                     if (item.Key.EndsWith("/") && itemName.Count(c => c.Equals('/')) == 1)
                     {
@@ -192,9 +195,9 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             try
             {
                 var deleteObjectsRequest = new DeleteObjectsRequest {BucketName = bucketName};
-                var listObjectsRequest = new ListObjectsRequest {BucketName = bucketName, Prefix = path};
+                var listObjectsRequest = new ListObjectsV2Request {BucketName = bucketName, Prefix = path};
 
-                var response = await client.ListObjectsAsync(listObjectsRequest, cancellationToken);
+                var response = await client.ListObjectsV2Async(listObjectsRequest, cancellationToken);
 
                 foreach (S3Object entry in response.S3Objects)
                 {

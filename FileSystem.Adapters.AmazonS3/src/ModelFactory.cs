@@ -1,18 +1,19 @@
 using System;
 using System.Linq;
 using Amazon.S3.Model;
+using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
 
 namespace SharpGrip.FileSystem.Adapters.AmazonS3
 {
     public static class ModelFactory
     {
-        public static FileModel CreateFile(GetObjectResponse file, string virtualPath)
+        public static FileModel CreateFile(GetObjectResponse file, string path, string virtualPath)
         {
             return new FileModel
             {
                 Name = file.Key.Split('/').Last(),
-                Path = file.Key,
+                Path = path,
                 VirtualPath = virtualPath,
                 Length = file.ContentLength,
                 LastModifiedDateTime = file.LastModified
@@ -34,7 +35,12 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         public static DirectoryModel CreateDirectory(S3Object directory, string virtualPath)
         {
             var pathParts = directory.Key.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
-            var name = pathParts.Last();
+            var name = pathParts.LastOrDefault();
+
+            if (name == null)
+            {
+                name = "/";
+            }
 
             if (pathParts.Length == 1)
             {
@@ -43,8 +49,8 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             return new DirectoryModel
             {
-                Name = name.Substring(0, name.Length - 1),
-                Path = directory.Key.Substring(0, name.Length - 1),
+                Name = name,
+                Path = directory.Key.RemoveTrailingForwardSlash(),
                 VirtualPath = virtualPath,
                 LastModifiedDateTime = directory.LastModified
             };

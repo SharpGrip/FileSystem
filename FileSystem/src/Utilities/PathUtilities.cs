@@ -27,6 +27,11 @@ namespace SharpGrip.FileSystem.Utilities
         /// <returns>The path.</returns>
         public static string GetPath(string virtualPath, string rootPath)
         {
+            if (string.IsNullOrWhiteSpace(rootPath))
+            {
+                return string.Join(PathSeparator, ResolvePrefixAndPath(virtualPath)[1]);
+            }
+
             return string.Join(PathSeparator, rootPath, ResolvePrefixAndPath(virtualPath)[1]);
         }
 
