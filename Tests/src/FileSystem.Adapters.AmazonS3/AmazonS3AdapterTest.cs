@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ using SharpGrip.FileSystem.Adapters;
 using SharpGrip.FileSystem.Adapters.AmazonS3;
 using SharpGrip.FileSystem.Exceptions;
 using Xunit;
+using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
+using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
 
 namespace Tests.FileSystem.Adapters.AmazonS3
 {
@@ -357,27 +360,187 @@ namespace Tests.FileSystem.Adapters.AmazonS3
         }
 
         [Fact]
+        public async Task Test_Read_File_Stream_Async()
+        {
+            var amazonS3Client = Substitute.For<IAmazonS3>();
+            var amazonS3Adapter = new AmazonS3Adapter("prefix-1", "root-path-1", amazonS3Client, "bucket-1");
+            var fileSystem = new SharpGrip.FileSystem.FileSystem(new List<IAdapter> {amazonS3Adapter});
+
+            var getObjectResponse1 = Substitute.For<GetObjectResponse>();
+            var getObjectResponse2 = Substitute.For<GetObjectResponse>();
+
+            getObjectResponse1.Key = "test1.txt";
+            getObjectResponse1.ContentLength = 1;
+            getObjectResponse1.LastModified = new DateTime(1970, 1, 1);
+
+            getObjectResponse2.Key = "test1.txt";
+            getObjectResponse2.ContentLength = 1;
+            getObjectResponse2.LastModified = new DateTime(1970, 1, 1);
+            getObjectResponse2.ResponseStream = new MemoryStream("test1"u8.ToArray());
+
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse1, getObjectResponse2);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3NoSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(amazonS3InvalidAccessKeyIdException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(amazonS3InvalidSecurityException);
+
+            var fileStream = await fileSystem.ReadFileStreamAsync("prefix-1://test1.txt");
+            var streamReader = new StreamReader(fileStream);
+
+            Assert.Equal("test1", await streamReader.ReadToEndAsync());
+            await Assert.ThrowsAsync<FileNotFoundException>(() => fileSystem.ReadFileStreamAsync("prefix-1://test2.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.ReadFileStreamAsync("prefix-1://test3.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.ReadFileStreamAsync("prefix-1://test4.txt"));
+        }
+
+        [Fact]
         public async Task Test_Read_File_Async()
         {
-            await Task.CompletedTask;
+            var amazonS3Client = Substitute.For<IAmazonS3>();
+            var amazonS3Adapter = new AmazonS3Adapter("prefix-1", "root-path-1", amazonS3Client, "bucket-1");
+            var fileSystem = new SharpGrip.FileSystem.FileSystem(new List<IAdapter> {amazonS3Adapter});
+
+            var getObjectResponse1 = Substitute.For<GetObjectResponse>();
+            var getObjectResponse2 = Substitute.For<GetObjectResponse>();
+            var getObjectResponse3 = Substitute.For<GetObjectResponse>();
+
+            getObjectResponse1.Key = "test1.txt";
+            getObjectResponse1.ContentLength = 1;
+            getObjectResponse1.LastModified = new DateTime(1970, 1, 1);
+
+            getObjectResponse2.Key = "test1.txt";
+            getObjectResponse2.ContentLength = 1;
+            getObjectResponse2.LastModified = new DateTime(1970, 1, 1);
+
+            getObjectResponse3.Key = "test1.txt";
+            getObjectResponse3.ContentLength = 1;
+            getObjectResponse3.LastModified = new DateTime(1970, 1, 1);
+            getObjectResponse3.ResponseStream = new MemoryStream("test1"u8.ToArray());
+
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3NoSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(amazonS3InvalidAccessKeyIdException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(amazonS3InvalidSecurityException);
+
+            var fileContents = await fileSystem.ReadFileAsync("prefix-1://test1.txt");
+
+            Assert.Equal("test1", System.Text.Encoding.UTF8.GetString(fileContents));
+            await Assert.ThrowsAsync<FileNotFoundException>(() => fileSystem.ReadFileAsync("prefix-1://test2.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.ReadFileAsync("prefix-1://test3.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.ReadFileAsync("prefix-1://test4.txt"));
         }
 
         [Fact]
         public async Task Test_Read_Text_File_Async()
         {
-            await Task.CompletedTask;
+            var amazonS3Client = Substitute.For<IAmazonS3>();
+            var amazonS3Adapter = new AmazonS3Adapter("prefix-1", "root-path-1", amazonS3Client, "bucket-1");
+            var fileSystem = new SharpGrip.FileSystem.FileSystem(new List<IAdapter> {amazonS3Adapter});
+
+            var getObjectResponse1 = Substitute.For<GetObjectResponse>();
+            var getObjectResponse2 = Substitute.For<GetObjectResponse>();
+            var getObjectResponse3 = Substitute.For<GetObjectResponse>();
+
+            getObjectResponse1.Key = "test1.txt";
+            getObjectResponse1.ContentLength = 1;
+            getObjectResponse1.LastModified = new DateTime(1970, 1, 1);
+
+            getObjectResponse2.Key = "test1.txt";
+            getObjectResponse2.ContentLength = 1;
+            getObjectResponse2.LastModified = new DateTime(1970, 1, 1);
+
+            getObjectResponse3.Key = "test1.txt";
+            getObjectResponse3.ContentLength = 1;
+            getObjectResponse3.LastModified = new DateTime(1970, 1, 1);
+            getObjectResponse3.ResponseStream = new MemoryStream("test1"u8.ToArray());
+
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3NoSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(amazonS3InvalidAccessKeyIdException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(amazonS3InvalidSecurityException);
+
+            var fileContents = await fileSystem.ReadTextFileAsync("prefix-1://test1.txt");
+
+            Assert.Equal("test1", fileContents);
+            await Assert.ThrowsAsync<FileNotFoundException>(() => fileSystem.ReadFileAsync("prefix-1://test2.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.ReadFileAsync("prefix-1://test3.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.ReadFileAsync("prefix-1://test4.txt"));
         }
 
         [Fact]
         public async Task Test_Write_File_Async()
         {
-            await Task.CompletedTask;
+            var amazonS3Client = Substitute.For<IAmazonS3>();
+            var amazonS3Adapter = new AmazonS3Adapter("prefix-1", "root-path-1", amazonS3Client, "bucket-1");
+            var fileSystem = new SharpGrip.FileSystem.FileSystem(new List<IAdapter> {amazonS3Adapter});
+
+            var getObjectResponse = Substitute.For<GetObjectResponse>();
+
+            getObjectResponse.Key = "test1.txt";
+            getObjectResponse.ContentLength = 1;
+            getObjectResponse.LastModified = new DateTime(1970, 1, 1);
+
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").Returns(getObjectResponse);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").Returns(getObjectResponse);
+            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test2.txt")).ThrowsAsync(amazonS3InvalidAccessKeyIdException);
+            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test3.txt")).ThrowsAsync(amazonS3InvalidSecurityException);
+
+            await fileSystem.WriteFileAsync("prefix-1://test1.txt", new MemoryStream(), true);
+            await Assert.ThrowsAsync<FileExistsException>(() => fileSystem.WriteFileAsync("prefix-1://test1.txt", new MemoryStream()));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.WriteFileAsync("prefix-1://test2.txt", new MemoryStream(), true));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.WriteFileAsync("prefix-1://test3.txt", new MemoryStream(), true));
         }
 
         [Fact]
         public async Task Test_Append_File_Async()
         {
-            await Task.CompletedTask;
+            var amazonS3Client = Substitute.For<IAmazonS3>();
+            var amazonS3Adapter = new AmazonS3Adapter("prefix-1", "root-path-1", amazonS3Client, "bucket-1");
+            var fileSystem = new SharpGrip.FileSystem.FileSystem(new List<IAdapter> {amazonS3Adapter});
+
+            var getObjectResponse1 = Substitute.For<GetObjectResponse>();
+            var getObjectResponse2 = Substitute.For<GetObjectResponse>();
+            var getObjectResponse3 = Substitute.For<GetObjectResponse>();
+            var getObjectResponse4 = Substitute.For<GetObjectResponse>();
+            var getObjectResponse5 = Substitute.For<GetObjectResponse>();
+
+            getObjectResponse1.Key = "test1.txt";
+            getObjectResponse1.ContentLength = 1;
+            getObjectResponse1.LastModified = new DateTime(1970, 1, 1);
+            getObjectResponse3.ResponseStream = new MemoryStream("test1"u8.ToArray());
+
+            getObjectResponse2.Key = "test1.txt";
+            getObjectResponse2.ContentLength = 1;
+            getObjectResponse2.LastModified = new DateTime(1970, 1, 1);
+            getObjectResponse3.ResponseStream = new MemoryStream("test1"u8.ToArray());
+
+            getObjectResponse3.Key = "test1.txt";
+            getObjectResponse3.ContentLength = 1;
+            getObjectResponse3.LastModified = new DateTime(1970, 1, 1);
+            getObjectResponse3.ResponseStream = new MemoryStream("test1"u8.ToArray());
+
+            getObjectResponse4.Key = "test1.txt";
+            getObjectResponse4.ContentLength = 1;
+            getObjectResponse4.LastModified = new DateTime(1970, 1, 1);
+            getObjectResponse4.ResponseStream = new MemoryStream("test1"u8.ToArray());
+
+            getObjectResponse5.Key = "test1.txt";
+            getObjectResponse5.ContentLength = 1;
+            getObjectResponse5.LastModified = new DateTime(1970, 1, 1);
+            getObjectResponse5.ResponseStream = new MemoryStream("test1"u8.ToArray());
+
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3, getObjectResponse4, getObjectResponse5);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3NoSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3, getObjectResponse4, getObjectResponse5);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3, getObjectResponse4, getObjectResponse5);
+            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test2.txt")).ThrowsAsync(amazonS3InvalidAccessKeyIdException);
+            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test3.txt")).ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test4.txt")).ThrowsAsync(amazonS3InvalidSecurityException);
+
+            await fileSystem.AppendFileAsync("prefix-1://test1.txt", new MemoryStream());
+            await Assert.ThrowsAsync<FileNotFoundException>(() => fileSystem.AppendFileAsync("prefix-1://test2.txt", new MemoryStream()));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.AppendFileAsync("prefix-1://test3.txt", new MemoryStream()));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.AppendFileAsync("prefix-1://test4.txt", new MemoryStream()));
         }
     }
 }

@@ -93,6 +93,14 @@ namespace Tests.FileSystem
         }
 
         [Fact]
+        public async Task Test_Read_File_Stream_Async()
+        {
+            var localAdapter = new LocalAdapter("prefix-1", "/root-path-1");
+
+            await Assert.ThrowsAsync<FileNotFoundException>(async () => await localAdapter.ReadFileAsync("prefix-1://test.txt"));
+        }
+
+        [Fact]
         public async Task Test_Read_File_Async()
         {
             var localAdapter = new LocalAdapter("prefix-1", "/root-path-1");
