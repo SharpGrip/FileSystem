@@ -227,18 +227,16 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        public override async Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
             var path = GetPath(virtualPath);
 
             try
             {
-                using var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
-                using var memoryStream = new MemoryStream();
-                await response.ResponseStream.CopyToAsync(memoryStream, 81920, cancellationToken);
+                var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
 
-                return memoryStream.ToArray();
+                return response.ResponseStream;
             }
             catch (Exception exception)
             {
@@ -246,29 +244,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath);
-
-            try
-            {
-                using var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
-                using var memoryStream = new MemoryStream();
-                await response.ResponseStream.CopyToAsync(memoryStream, 81920, cancellationToken);
-
-                using var streamReader = new StreamReader(memoryStream);
-                memoryStream.Position = 0;
-
-                return await streamReader.ReadToEndAsync();
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        public override async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
+        public override async Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
             if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
             {
@@ -279,10 +255,11 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             try
             {
-                using var memoryStream = new MemoryStream(contents);
+                contents.Seek(0, SeekOrigin.Begin);
+
                 var request = new PutObjectRequest
                 {
-                    InputStream = memoryStream,
+                    InputStream = contents,
                     BucketName = bucketName,
                     Key = path
                 };
@@ -295,34 +272,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             }
         }
 
-        public override async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-            var existingContents = await ReadFileAsync(virtualPath, cancellationToken);
-            contents = existingContents.Concat(contents).ToArray();
-            await DeleteFileAsync(virtualPath, cancellationToken);
-
-            var path = GetPath(virtualPath);
-
-            try
-            {
-                using var memoryStream = new MemoryStream(contents);
-                var request = new PutObjectRequest
-                {
-                    InputStream = memoryStream,
-                    BucketName = bucketName,
-                    Key = path
-                };
-
-                await client.PutObjectAsync(request, cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        private static Exception Exception(Exception exception)
+        protected override Exception Exception(Exception exception)
         {
             if (exception is FileSystemException)
             {

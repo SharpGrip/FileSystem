@@ -10,6 +10,7 @@ using Renci.SshNet;
 using Renci.SshNet.Common;
 using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Models;
+using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
 
@@ -103,7 +104,8 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
             try
             {
-                return await Task.Run(() => client.ListDirectory(path).Where(item => !item.IsDirectory).Select(file => ModelFactory.CreateFile(file, GetVirtualPath(file.FullName))).ToList(), cancellationToken);
+                return await Task.Run(() => client.ListDirectory(path).Where(item => !item.IsDirectory).Select(file => ModelFactory.CreateFile(file, GetVirtualPath(file.FullName))).ToList(),
+                    cancellationToken);
             }
             catch (Exception exception)
             {
@@ -118,7 +120,9 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
             try
             {
-                return await Task.Run(() => client.ListDirectory(path).Where(item => item.IsDirectory).Select(directory => ModelFactory.CreateDirectory(directory, GetVirtualPath(directory.FullName))).ToList(), cancellationToken);
+                return await Task.Run(
+                    () => client.ListDirectory(path).Where(item => item.IsDirectory).Select(directory => ModelFactory.CreateDirectory(directory, GetVirtualPath(directory.FullName))).ToList(),
+                    cancellationToken);
             }
             catch (Exception exception)
             {
@@ -143,20 +147,6 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-
-            try
-            {
-                await Task.Run(() => client.DeleteFile(GetPath(virtualPath)), cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
         public override async Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
@@ -171,18 +161,13 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
             try
             {
-                using var fileStream = client.OpenRead(GetPath(virtualPath));
-                var fileContents = new byte[fileStream.Length];
-
-                _ = await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
-
-                return fileContents;
+                await Task.Run(() => client.DeleteFile(GetPath(virtualPath)), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -190,15 +175,13 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        public override async Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
             try
             {
-                using var streamReader = new StreamReader(client.OpenRead(GetPath(virtualPath)));
-
-                return await streamReader.ReadToEndAsync();
+                return client.OpenRead(GetPath(virtualPath));
             }
             catch (Exception exception)
             {
@@ -206,7 +189,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
+        public override async Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
             if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
             {
@@ -215,7 +198,10 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
             try
             {
-                await Task.Run(() => client.WriteAllBytes(GetPath(virtualPath), contents), cancellationToken);
+                contents.Seek(0, SeekOrigin.Begin);
+
+                var writeStream = client.OpenWrite(GetPath(virtualPath));
+                await contents.CopyToAsync(writeStream);
             }
             catch (Exception exception)
             {
@@ -223,13 +209,15 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        public override async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
+        public new async Task AppendFileAsync(string virtualPath, Stream contents, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
             try
             {
-                var stringContents = Encoding.UTF8.GetString(contents, 0, contents.Length);
+                using var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(contents, cancellationToken);
+                var fileContents = memoryStream.ToArray();
+                var stringContents = Encoding.UTF8.GetString(fileContents, 0, fileContents.Length);
 
                 await Task.Run(() => client.AppendAllText(GetPath(virtualPath), stringContents), cancellationToken);
             }
@@ -243,7 +231,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             }
         }
 
-        private static Exception Exception(Exception exception)
+        protected override Exception Exception(Exception exception)
         {
             if (exception is FileSystemException)
             {

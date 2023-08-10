@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -235,20 +234,16 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        public override async Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
             var path = GetPath(virtualPath);
 
             try
             {
-                using var memoryStream = new MemoryStream();
                 var item = await GetItemAsync(path, cancellationToken);
 
-                var stream = await client.Drives[driveId].Items[item.Id].Content.Request().GetAsync(cancellationToken);
-                await stream.CopyToAsync(memoryStream, 81920, cancellationToken);
-
-                return memoryStream.ToArray();
+                return await client.Drives[driveId].Items[item.Id].Content.Request().GetAsync(cancellationToken);
             }
             catch (Exception exception)
             {
@@ -256,31 +251,7 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             }
         }
 
-        public override async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath);
-
-            try
-            {
-                using var memoryStream = new MemoryStream();
-                var item = await GetItemAsync(path, cancellationToken);
-
-                var stream = await client.Drives[driveId].Items[item.Id].Content.Request().GetAsync(cancellationToken);
-                await stream.CopyToAsync(memoryStream, 81920, cancellationToken);
-
-                using var streamReader = new StreamReader(memoryStream);
-                memoryStream.Position = 0;
-
-                return await streamReader.ReadToEndAsync();
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        public override async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
+        public override async Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
             if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
             {
@@ -291,41 +262,9 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
 
             try
             {
-                using var memoryStream = new MemoryStream(contents);
+                contents.Seek(0, SeekOrigin.Begin);
                 var uploadSession = await client.Drives[driveId].Root.ItemWithPath(path).CreateUploadSession().Request().PostAsync(cancellationToken);
-                var largeFileUploadTask = new LargeFileUploadTask<DriveItem>(uploadSession, memoryStream);
-
-                var result = await largeFileUploadTask.UploadAsync();
-
-                if (!result.UploadSucceeded)
-                {
-                    throw new AdapterRuntimeException();
-                }
-            }
-            catch (TaskCanceledException exception) when (exception.InnerException != null)
-            {
-                throw Exception(exception.InnerException);
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        public override async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-            var existingContents = await ReadFileAsync(virtualPath, cancellationToken);
-            contents = existingContents.Concat(contents).ToArray();
-            await DeleteFileAsync(virtualPath, cancellationToken);
-
-            var path = GetPath(virtualPath);
-
-            try
-            {
-                using var memoryStream = new MemoryStream(contents);
-                var uploadSession = await client.Drives[driveId].Root.ItemWithPath(path).CreateUploadSession().Request().PostAsync(cancellationToken);
-                var largeFileUploadTask = new LargeFileUploadTask<DriveItem>(uploadSession, memoryStream);
+                var largeFileUploadTask = new LargeFileUploadTask<DriveItem>(uploadSession, contents);
 
                 var result = await largeFileUploadTask.UploadAsync();
 
@@ -383,7 +322,7 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
             return await client.Drives[driveId].Root.ItemWithPath(path).Children.Request().GetAsync(cancellationToken);
         }
 
-        private static Exception Exception(Exception exception)
+        protected override Exception Exception(Exception exception)
         {
             if (exception is FileSystemException)
             {

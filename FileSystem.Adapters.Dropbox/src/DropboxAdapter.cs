@@ -170,7 +170,7 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        public override async Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
@@ -178,7 +178,7 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             {
                 using var response = await client.Files.DownloadAsync(GetPath(virtualPath));
 
-                return await response.GetContentAsByteArrayAsync();
+                return await response.GetContentAsStreamAsync();
             }
             catch (Exception exception)
             {
@@ -186,23 +186,7 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-
-            try
-            {
-                using var response = await client.Files.DownloadAsync(GetPath(virtualPath));
-
-                return await response.GetContentAsStringAsync();
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        public override async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
+        public override async Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
             if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
             {
@@ -211,9 +195,9 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
 
             try
             {
-                using var memoryStream = new MemoryStream(contents);
+                contents.Seek(0, SeekOrigin.Begin);
 
-                await client.Files.UploadAsync(GetPath(virtualPath), WriteMode.Overwrite.Instance, body: memoryStream);
+                await client.Files.UploadAsync(GetPath(virtualPath), WriteMode.Overwrite.Instance, body: contents);
             }
             catch (Exception exception)
             {
@@ -221,25 +205,7 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
             }
         }
 
-        public override async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-            var existingContents = await ReadFileAsync(virtualPath, cancellationToken);
-            contents = existingContents.Concat(contents).ToArray();
-
-            try
-            {
-                using var memoryStream = new MemoryStream(contents);
-
-                await client.Files.UploadAsync(GetPath(virtualPath), WriteMode.Overwrite.Instance, body: memoryStream);
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        private static Exception Exception(Exception exception)
+        protected override Exception Exception(Exception exception)
         {
             if (exception is FileSystemException)
             {

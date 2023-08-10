@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
@@ -203,17 +202,14 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
             }
         }
 
-        public override async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        public override async Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
             var path = GetPath(virtualPath);
 
             try
             {
-                using var memoryStream = new MemoryStream();
-                await client.GetBlobClient(path).DownloadToAsync(memoryStream, cancellationToken);
-
-                return memoryStream.ToArray();
+                return await client.GetBlobClient(path).OpenReadAsync(cancellationToken: cancellationToken);
             }
             catch (Exception exception)
             {
@@ -221,28 +217,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
             }
         }
 
-        public override async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath);
-
-            try
-            {
-                using var memoryStream = new MemoryStream();
-                await client.GetBlobClient(path).DownloadToAsync(memoryStream, cancellationToken);
-
-                using var streamReader = new StreamReader(memoryStream);
-                memoryStream.Position = 0;
-
-                return await streamReader.ReadToEndAsync();
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        public override async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
+        public override async Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
             if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
             {
@@ -253,9 +228,9 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
 
             try
             {
-                using var memoryStream = new MemoryStream(contents);
+                contents.Seek(0, SeekOrigin.Begin);
 
-                await client.UploadBlobAsync(path, memoryStream, cancellationToken);
+                await client.UploadBlobAsync(path, contents, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -263,28 +238,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
             }
         }
 
-        public override async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-            var existingContents = await ReadFileAsync(virtualPath, cancellationToken);
-            contents = existingContents.Concat(contents).ToArray();
-            await DeleteFileAsync(virtualPath, cancellationToken);
-
-            var path = GetPath(virtualPath);
-
-            try
-            {
-                using var memoryStream = new MemoryStream(contents);
-
-                await client.UploadBlobAsync(path, memoryStream, cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        private static Exception Exception(Exception exception)
+        protected override Exception Exception(Exception exception)
         {
             if (exception is FileSystemException)
             {
