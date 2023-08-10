@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SharpGrip.FileSystem.Models;
@@ -30,13 +31,16 @@ namespace SharpGrip.FileSystem.Adapters
         void DeleteDirectory(string virtualPath);
         Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default);
         byte[] ReadFile(string virtualPath);
+        Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default);
         Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default);
         string ReadTextFile(string virtualPath);
         Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default);
+        Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default);
         void WriteFile(string virtualPath, byte[] contents, bool overwrite = false);
         Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default);
         void WriteFile(string virtualPath, string contents, bool overwrite = false);
         Task WriteFileAsync(string virtualPath, string contents, bool overwrite = false, CancellationToken cancellationToken = default);
+        Task AppendFileAsync(string virtualPath, Stream contents, CancellationToken cancellationToken = default);
         void AppendFile(string virtualPath, byte[] contents);
         Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default);
         void AppendFile(string virtualPath, string contents);

@@ -144,27 +144,14 @@ namespace SharpGrip.FileSystem.Adapters
             await Task.Run(() => Directory.Delete(GetPath(virtualPath), true), cancellationToken);
         }
 
-        public override async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        public override async Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
-            using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Open);
-            var fileContents = new byte[fileStream.Length];
-
-            _ = await fileStream.ReadAsync(fileContents, 0, (int) fileStream.Length, cancellationToken);
-
-            return fileContents;
+            return new FileStream(GetPath(virtualPath), FileMode.Open);
         }
 
-        public override async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-            using var streamReader = new StreamReader(GetPath(virtualPath));
-
-            return await streamReader.ReadToEndAsync();
-        }
-
-        public override async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
+        public override async Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
             if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
             {
@@ -172,17 +159,24 @@ namespace SharpGrip.FileSystem.Adapters
             }
 
             using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Create);
+            contents.Seek(0, SeekOrigin.Begin);
 
-            await fileStream.WriteAsync(contents, 0, contents.Length, cancellationToken);
+            await contents.CopyToAsync(fileStream);
         }
 
-        public override async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
+        public new async Task AppendFileAsync(string virtualPath, Stream contents, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
             using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Append);
+            contents.Seek(0, SeekOrigin.Begin);
 
-            await fileStream.WriteAsync(contents, 0, contents.Length, cancellationToken);
+            await contents.CopyToAsync(fileStream);
+        }
+
+        protected override Exception Exception(Exception exception)
+        {
+            throw new NotImplementedException();
         }
     }
 }
