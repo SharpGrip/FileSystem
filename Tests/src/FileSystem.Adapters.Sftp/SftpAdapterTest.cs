@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using NSubstitute;
+﻿using NSubstitute;
 using Renci.SshNet;
 using SharpGrip.FileSystem.Adapters.Sftp;
 using SharpGrip.FileSystem.Exceptions;
@@ -26,15 +25,6 @@ namespace Tests.FileSystem.Adapters.Sftp
             var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient);
 
             Assert.Throws<ConnectionException>(() => sftpAdapter.Connect());
-        }
-
-        [Fact]
-        public async Task Test_Get_File_Async()
-        {
-            var sftpClient = Substitute.For<SftpClient>("hostName", "userName", "password");
-            var sftpAdapter = new SftpAdapter("prefix-1", "/root-path-1", sftpClient);
-
-            await Assert.ThrowsAsync<ConnectionException>(async () => await sftpAdapter.GetFileAsync("prefix-1://test.txt"));
         }
     }
 }

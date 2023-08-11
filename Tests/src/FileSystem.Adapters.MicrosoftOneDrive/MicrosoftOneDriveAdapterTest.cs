@@ -19,5 +19,17 @@ namespace Tests.FileSystem.Adapters.MicrosoftOneDrive
             Assert.Equal("prefix", microsoftOneDriveAdapter.Prefix);
             Assert.Equal("/root-path", microsoftOneDriveAdapter.RootPath);
         }
+
+        [Fact]
+        public Task Test_Connect()
+        {
+            var delegateAuthenticationProvider = new DelegateAuthenticationProvider(message => Task.FromResult(message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "12345")));
+            var graphServiceClient = Substitute.For<GraphServiceClient>(delegateAuthenticationProvider, null);
+            var microsoftOneDriveAdapter = new MicrosoftOneDriveAdapter("prefix", "/root-path", graphServiceClient, "driveId");
+
+            microsoftOneDriveAdapter.Connect();
+
+            return Task.CompletedTask;
+        }
     }
 }
