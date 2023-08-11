@@ -20,9 +20,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
 {
     public class AmazonS3AdapterTest : IAdapterTests
     {
-        private readonly AmazonS3Exception amazonS3NoSuchKeyException = new("NoSuchKey", ErrorType.Receiver, "NoSuchKey", "12345", HttpStatusCode.NotFound);
-        private readonly AmazonS3Exception amazonS3InvalidAccessKeyIdException = new("InvalidAccessKeyId", ErrorType.Receiver, "InvalidAccessKeyId", "12345", HttpStatusCode.Unauthorized);
-        private readonly AmazonS3Exception amazonS3InvalidSecurityException = new("InvalidSecurity", ErrorType.Receiver, "InvalidSecurity", "12345", HttpStatusCode.Unauthorized);
+        private readonly AmazonS3Exception noSuchKeyException = new("NoSuchKey", ErrorType.Receiver, "NoSuchKey", "12345", HttpStatusCode.NotFound);
+        private readonly AmazonS3Exception invalidAccessKeyIdException = new("InvalidAccessKeyId", ErrorType.Receiver, "InvalidAccessKeyId", "12345", HttpStatusCode.Unauthorized);
+        private readonly AmazonS3Exception invalidSecurityException = new("InvalidSecurity", ErrorType.Receiver, "InvalidSecurity", "12345", HttpStatusCode.Unauthorized);
 
         [Fact]
         public void Test_Instantiation()
@@ -35,9 +35,14 @@ namespace Tests.FileSystem.Adapters.AmazonS3
         }
 
         [Fact]
-        public async Task Test_Connect()
+        public Task Test_Connect()
         {
-            await Task.CompletedTask;
+            var amazonS3Client = Substitute.For<IAmazonS3>();
+            var amazonS3Adapter = new AmazonS3Adapter("prefix", "/root-path", amazonS3Client, "bucket");
+
+            amazonS3Adapter.Connect();
+
+            return Task.CompletedTask;
         }
 
         [Fact]
@@ -54,9 +59,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             getObjectResponse.LastModified = new DateTime(1970, 1, 1);
 
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(noSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(invalidSecurityException);
 
             var file = await fileSystem.GetFileAsync("prefix-1://test1.txt");
 
@@ -92,9 +97,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
 
             amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test1/")).Returns(listObjectsV2Response1);
             amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test2/")).Returns(listObjectsV2Response2);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test4/")).ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test5/")).ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(noSuchKeyException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test4/")).ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test5/")).ThrowsAsync(invalidSecurityException);
 
             var directory = await fileSystem.GetDirectoryAsync("prefix-1://test1");
 
@@ -135,9 +140,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             listObjectsV2Response.KeyCount = listObjectsV2Response.S3Objects.Count;
 
             amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test1/")).Returns(listObjectsV2Response);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test2/")).ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test4/")).ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test2/")).ThrowsAsync(noSuchKeyException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test4/")).ThrowsAsync(invalidSecurityException);
 
             var files = await fileSystem.GetFilesAsync("prefix-1://test1");
             var file = files.First();
@@ -187,9 +192,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             listObjectsV2Response.KeyCount = listObjectsV2Response.S3Objects.Count;
 
             amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/")).Returns(listObjectsV2Response);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test1/")).ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test2/")).ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test1/")).ThrowsAsync(noSuchKeyException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test2/")).ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(invalidSecurityException);
 
             var directories = (await fileSystem.GetDirectoriesAsync("prefix-1://")).ToList();
             var directory1 = directories[0];
@@ -224,9 +229,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             getObjectResponse.LastModified = new DateTime(1970, 1, 1);
 
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(noSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(invalidSecurityException);
 
             Assert.True(await fileSystem.FileExistsAsync("prefix-1://test1.txt"));
             Assert.False(await fileSystem.FileExistsAsync("prefix-1://test2.txt"));
@@ -258,9 +263,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test1/")).Returns(listObjectsV2Response1);
             amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test2/")).Returns(listObjectsV2Response2);
 
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test4/")).ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test5/")).ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(noSuchKeyException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test4/")).ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test5/")).ThrowsAsync(invalidSecurityException);
 
             Assert.True(await fileSystem.DirectoryExistsAsync("prefix-1://"));
             Assert.True(await fileSystem.DirectoryExistsAsync("prefix-1://root-path-1/test1"));
@@ -291,9 +296,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             listObjectsV2Response1.KeyCount = listObjectsV2Response1.S3Objects.Count;
 
             amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test1/")).Returns(listObjectsV2Response1);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test2/")).ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test4/")).ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test2/")).ThrowsAsync(noSuchKeyException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test4/")).ThrowsAsync(invalidSecurityException);
             amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test5/")).Returns(listObjectsV2Response2);
 
             await Assert.ThrowsAsync<DirectoryExistsException>(() => fileSystem.CreateDirectoryAsync("prefix-1://test1"));
@@ -316,9 +321,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             getObjectResponse.ContentLength = 1;
             getObjectResponse.LastModified = new DateTime(1970, 1, 1);
 
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").ThrowsAsync(noSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(invalidSecurityException);
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").Returns(getObjectResponse);
 
             await Assert.ThrowsAsync<FileNotFoundException>(() => fileSystem.DeleteFileAsync("prefix-1://test1.txt"));
@@ -347,9 +352,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             listObjectsV2Response2.KeyCount = listObjectsV2Response2.S3Objects.Count;
 
             amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test1/")).Returns(listObjectsV2Response1);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test2/")).ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test4/")).ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test2/")).ThrowsAsync(noSuchKeyException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test3/")).ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test4/")).ThrowsAsync(invalidSecurityException);
             amazonS3Client.ListObjectsV2Async(Arg.Is<ListObjectsV2Request>(x => x.Prefix == "root-path-1/test5/")).Returns(listObjectsV2Response2);
 
             await Assert.ThrowsAsync<DirectoryNotFoundException>(() => fileSystem.DeleteDirectoryAsync("prefix-1://test1"));
@@ -379,9 +384,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             getObjectResponse2.ResponseStream = new MemoryStream("test1"u8.ToArray());
 
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse1, getObjectResponse2);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(noSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(invalidSecurityException);
 
             var fileStream = await fileSystem.ReadFileStreamAsync("prefix-1://test1.txt");
             var streamReader = new StreamReader(fileStream);
@@ -417,9 +422,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             getObjectResponse3.ResponseStream = new MemoryStream("test1"u8.ToArray());
 
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(noSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(invalidSecurityException);
 
             var fileContents = await fileSystem.ReadFileAsync("prefix-1://test1.txt");
 
@@ -454,9 +459,9 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             getObjectResponse3.ResponseStream = new MemoryStream("test1"u8.ToArray());
 
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3NoSuchKeyException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(noSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").ThrowsAsync(invalidSecurityException);
 
             var fileContents = await fileSystem.ReadTextFileAsync("prefix-1://test1.txt");
 
@@ -482,8 +487,8 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse);
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").Returns(getObjectResponse);
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").Returns(getObjectResponse);
-            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test2.txt")).ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test3.txt")).ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test2.txt")).ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test3.txt")).ThrowsAsync(invalidSecurityException);
 
             await fileSystem.WriteFileAsync("prefix-1://test1.txt", new MemoryStream(), true);
             await Assert.ThrowsAsync<FileExistsException>(() => fileSystem.WriteFileAsync("prefix-1://test1.txt", new MemoryStream()));
@@ -530,12 +535,12 @@ namespace Tests.FileSystem.Adapters.AmazonS3
             getObjectResponse5.ResponseStream = new MemoryStream("test1"u8.ToArray());
 
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3, getObjectResponse4, getObjectResponse5);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(amazonS3NoSuchKeyException);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(noSuchKeyException);
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3, getObjectResponse4, getObjectResponse5);
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3, getObjectResponse4, getObjectResponse5);
-            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test2.txt")).ThrowsAsync(amazonS3InvalidAccessKeyIdException);
-            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test3.txt")).ThrowsAsync(amazonS3InvalidSecurityException);
-            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test4.txt")).ThrowsAsync(amazonS3InvalidSecurityException);
+            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test2.txt")).ThrowsAsync(invalidAccessKeyIdException);
+            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test3.txt")).ThrowsAsync(invalidSecurityException);
+            amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test4.txt")).ThrowsAsync(invalidSecurityException);
 
             await fileSystem.AppendFileAsync("prefix-1://test1.txt", new MemoryStream());
             await Assert.ThrowsAsync<FileNotFoundException>(() => fileSystem.AppendFileAsync("prefix-1://test2.txt", new MemoryStream()));
