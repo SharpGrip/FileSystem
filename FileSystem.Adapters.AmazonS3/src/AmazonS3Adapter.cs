@@ -76,20 +76,27 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 }
 
                 var request = new ListObjectsV2Request {BucketName = bucketName, Prefix = path};
-                var response = await client.ListObjectsV2Async(request, cancellationToken);
+                ListObjectsV2Response response;
 
-                if (response.KeyCount == 0)
+                do
                 {
-                    throw new DirectoryNotFoundException(path, Prefix);
-                }
+                    response = await client.ListObjectsV2Async(request, cancellationToken);
 
-                foreach (var item in response.S3Objects)
-                {
-                    if (item.Key == path)
+                    if (response.KeyCount == 0)
                     {
-                        return ModelFactory.CreateDirectory(item, virtualPath);
+                        throw new DirectoryNotFoundException(path, Prefix);
                     }
-                }
+
+                    foreach (var item in response.S3Objects)
+                    {
+                        if (item.Key == path)
+                        {
+                            return ModelFactory.CreateDirectory(item, virtualPath);
+                        }
+                    }
+
+                    request.ContinuationToken = response.NextContinuationToken;
+                } while (response.IsTruncated);
 
                 throw new DirectoryNotFoundException(path, Prefix);
             }
@@ -109,22 +116,35 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 path += "/";
             }
 
+            if (path == "/")
+            {
+                path = "";
+            }
+
             try
             {
                 var request = new ListObjectsV2Request {BucketName = bucketName, Prefix = path};
-                var response = await client.ListObjectsV2Async(request, cancellationToken);
+                ListObjectsV2Response response;
 
                 var files = new List<IFile>();
 
-                foreach (var item in response.S3Objects)
+                do
                 {
-                    var itemName = item.Key.Substring(0, item.Key.Length - path.Length);
+                    response = await client.ListObjectsV2Async(request, cancellationToken);
 
-                    if (!item.Key.EndsWith("/") && !itemName.Contains('/'))
+                    foreach (var item in response.S3Objects)
                     {
-                        files.Add(ModelFactory.CreateFile(item, GetVirtualPath(item.Key)));
+                        // var itemName = item.Key.Substring(0, item.Key.Length - path.Length);
+                        var itemName = item.Key.Substring(path.Length).RemoveLeadingForwardSlash();
+
+                        if (!item.Key.EndsWith("/") && !itemName.Contains('/'))
+                        {
+                            files.Add(ModelFactory.CreateFile(item, GetVirtualPath(item.Key)));
+                        }
                     }
-                }
+
+                    request.ContinuationToken = response.NextContinuationToken;
+                } while (response.IsTruncated);
 
                 return files;
             }
@@ -139,22 +159,39 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             await GetDirectoryAsync(virtualPath, cancellationToken);
             var path = GetPath(virtualPath);
 
+            if (!path.EndsWith("/"))
+            {
+                path += "/";
+            }
+
+            if (path == "/")
+            {
+                path = "";
+            }
+
             try
             {
                 var request = new ListObjectsV2Request {BucketName = bucketName, Prefix = path};
-                var response = await client.ListObjectsV2Async(request, cancellationToken);
+                ListObjectsV2Response response;
 
                 var directories = new List<IDirectory>();
 
-                foreach (var item in response.S3Objects)
+                do
                 {
-                    var itemName = item.Key.Substring(path.Length).RemoveLeadingForwardSlash();
+                    response = await client.ListObjectsV2Async(request, cancellationToken);
 
-                    if (item.Key.EndsWith("/") && itemName.Count(c => c.Equals('/')) == 1)
+                    foreach (var item in response.S3Objects)
                     {
-                        directories.Add(ModelFactory.CreateDirectory(item, GetVirtualPath(item.Key)));
+                        var itemName = item.Key.Substring(path.Length).RemoveLeadingForwardSlash();
+
+                        if (item.Key.EndsWith("/") && itemName.Count(c => c.Equals('/')) == 1)
+                        {
+                            directories.Add(ModelFactory.CreateDirectory(item, GetVirtualPath(item.Key)));
+                        }
                     }
-                }
+
+                    request.ContinuationToken = response.NextContinuationToken;
+                } while (response.IsTruncated);
 
                 return directories;
             }
@@ -197,12 +234,20 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 var deleteObjectsRequest = new DeleteObjectsRequest {BucketName = bucketName};
                 var listObjectsRequest = new ListObjectsV2Request {BucketName = bucketName, Prefix = path};
 
-                var response = await client.ListObjectsV2Async(listObjectsRequest, cancellationToken);
+                ListObjectsV2Response response;
 
-                foreach (S3Object entry in response.S3Objects)
+                do
                 {
-                    deleteObjectsRequest.AddKey(entry.Key);
-                }
+                    response = await client.ListObjectsV2Async(listObjectsRequest, cancellationToken);
+
+                    foreach (S3Object entry in response.S3Objects)
+                    {
+                        deleteObjectsRequest.AddKey(entry.Key);
+                    }
+
+                    listObjectsRequest.ContinuationToken = response.NextContinuationToken;
+                } while (response.IsTruncated);
+
 
                 await client.DeleteObjectsAsync(deleteObjectsRequest, cancellationToken);
             }
