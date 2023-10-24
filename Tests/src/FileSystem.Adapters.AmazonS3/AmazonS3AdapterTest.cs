@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Amazon.Runtime;
 using Amazon.S3;
@@ -428,7 +429,7 @@ namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.AmazonS3
 
             var fileContents = await fileSystem.ReadFileAsync("prefix-1://test1.txt");
 
-            Assert.Equal("test1", System.Text.Encoding.UTF8.GetString(fileContents));
+            Assert.Equal("test1", Encoding.UTF8.GetString(fileContents));
             await Assert.ThrowsAsync<FileNotFoundException>(() => fileSystem.ReadFileAsync("prefix-1://test2.txt"));
             await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.ReadFileAsync("prefix-1://test3.txt"));
             await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.ReadFileAsync("prefix-1://test4.txt"));

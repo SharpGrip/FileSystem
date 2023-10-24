@@ -18,7 +18,7 @@ namespace SharpGrip.FileSystem.Exceptions
         private static string GetMessage(string prefix, IEnumerable<IAdapter> adapters)
         {
             var adaptersString = string.Join("', '", adapters.Select(adapter => adapter.Prefix).ToArray());
-            
+
             return $"No adapter found with prefix '{prefix}'. Registered adapters are: '{adaptersString}'.";
         }
     }
