@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using SharpGrip.FileSystem.Configuration;
 using SharpGrip.FileSystem.Models;
 
 namespace SharpGrip.FileSystem.Adapters
@@ -11,7 +12,9 @@ namespace SharpGrip.FileSystem.Adapters
     {
         string Prefix { get; }
         string RootPath { get; }
+        public IAdapterConfiguration AdapterConfiguration { get; }
         public void Connect();
+        public void ClearCache();
         IFile GetFile(string virtualPath);
         Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default);
         IDirectory GetDirectory(string virtualPath);

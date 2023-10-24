@@ -4,7 +4,7 @@ using SharpGrip.FileSystem.Adapters.Sftp;
 using SharpGrip.FileSystem.Exceptions;
 using Xunit;
 
-namespace Tests.FileSystem.Adapters.Sftp
+namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.Sftp
 {
     public class SftpAdapterTest
     {

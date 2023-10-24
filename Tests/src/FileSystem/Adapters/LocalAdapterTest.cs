@@ -3,7 +3,7 @@ using SharpGrip.FileSystem.Adapters;
 using SharpGrip.FileSystem.Exceptions;
 using Xunit;
 
-namespace Tests.FileSystem
+namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters
 {
     public class LocalAdapterTest : IAdapterTests
     {

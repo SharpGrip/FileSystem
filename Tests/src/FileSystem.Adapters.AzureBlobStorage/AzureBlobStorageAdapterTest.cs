@@ -4,7 +4,7 @@ using NSubstitute;
 using SharpGrip.FileSystem.Adapters.AzureBlobStorage;
 using Xunit;
 
-namespace Tests.FileSystem.Adapters.AzureBlobStorage
+namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.AzureBlobStorage
 {
     public class AzureBlobStorageAdapterTest
     {

@@ -28,7 +28,7 @@ namespace SharpGrip.FileSystem
         public IAdapter GetAdapter(string prefix);
 
         /// <summary>
-        /// Return a file.
+        /// Returns a file.
         /// </summary>
         /// <param name="virtualPath">The virtual path (including prefix) to the file.</param>
         /// <returns>The file.</returns>
@@ -43,7 +43,7 @@ namespace SharpGrip.FileSystem
         public IFile GetFile(string virtualPath);
 
         /// <summary>
-        /// Return a file.
+        /// Returns a file.
         /// </summary>
         /// <param name="virtualPath">The virtual path (including prefix) to the file.</param>
         /// <param name="cancellationToken">Optional <see cref="CancellationToken"/> to propagate notifications that the operation should be cancelled.</param>

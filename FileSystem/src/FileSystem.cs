@@ -113,6 +113,11 @@ namespace SharpGrip.FileSystem
 
             adapter.Connect();
 
+            if (adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
+
             return adapter.GetFileAsync(virtualPath, cancellationToken);
         }
 
@@ -152,6 +157,11 @@ namespace SharpGrip.FileSystem
             var adapter = GetAdapter(prefix);
 
             adapter.Connect();
+
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
 
             return adapter.GetDirectoryAsync(virtualPath, cancellationToken);
         }
@@ -193,6 +203,11 @@ namespace SharpGrip.FileSystem
 
             adapter.Connect();
 
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
+
             return adapter.GetFilesAsync(virtualPath, cancellationToken);
         }
 
@@ -233,6 +248,11 @@ namespace SharpGrip.FileSystem
 
             adapter.Connect();
 
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
+
             return adapter.GetDirectoriesAsync(virtualPath, cancellationToken);
         }
 
@@ -270,6 +290,11 @@ namespace SharpGrip.FileSystem
             var adapter = GetAdapter(prefix);
 
             adapter.Connect();
+
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
 
             return await adapter.FileExistsAsync(virtualPath, cancellationToken);
         }
@@ -309,6 +334,11 @@ namespace SharpGrip.FileSystem
 
             adapter.Connect();
 
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
+
             return await adapter.DirectoryExistsAsync(virtualPath, cancellationToken);
         }
 
@@ -346,6 +376,11 @@ namespace SharpGrip.FileSystem
             var adapter = GetAdapter(prefix);
 
             adapter.Connect();
+
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
 
             await adapter.CreateDirectoryAsync(virtualPath, cancellationToken);
         }
@@ -385,6 +420,11 @@ namespace SharpGrip.FileSystem
 
             adapter.Connect();
 
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
+
             await adapter.DeleteFileAsync(virtualPath, cancellationToken);
         }
 
@@ -423,6 +463,11 @@ namespace SharpGrip.FileSystem
 
             adapter.Connect();
 
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
+
             await adapter.DeleteDirectoryAsync(virtualPath, cancellationToken);
         }
 
@@ -445,6 +490,11 @@ namespace SharpGrip.FileSystem
             var adapter = GetAdapter(prefix);
 
             adapter.Connect();
+
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
 
             return await adapter.ReadFileStreamAsync(virtualPath, cancellationToken);
         }
@@ -486,6 +536,11 @@ namespace SharpGrip.FileSystem
 
             adapter.Connect();
 
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
+
             return await adapter.ReadFileAsync(virtualPath, cancellationToken);
         }
 
@@ -525,6 +580,11 @@ namespace SharpGrip.FileSystem
             var adapter = GetAdapter(prefix);
 
             adapter.Connect();
+
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
 
             return await adapter.ReadTextFileAsync(virtualPath, cancellationToken);
         }
@@ -572,7 +632,18 @@ namespace SharpGrip.FileSystem
             var destinationAdapter = GetAdapter(destinationPrefix);
 
             sourceAdapter.Connect();
+
+            if (!sourceAdapter.AdapterConfiguration.EnableCache)
+            {
+                sourceAdapter.ClearCache();
+            }
+
             destinationAdapter.Connect();
+
+            if (!destinationAdapter.AdapterConfiguration.EnableCache)
+            {
+                destinationAdapter.ClearCache();
+            }
 
             var contents = await sourceAdapter.ReadFileAsync(virtualSourcePath, cancellationToken);
             await destinationAdapter.WriteFileAsync(virtualDestinationPath, contents, overwrite, cancellationToken);
@@ -621,7 +692,18 @@ namespace SharpGrip.FileSystem
             var destinationAdapter = GetAdapter(destinationPrefix);
 
             sourceAdapter.Connect();
+
+            if (!sourceAdapter.AdapterConfiguration.EnableCache)
+            {
+                sourceAdapter.ClearCache();
+            }
+
             destinationAdapter.Connect();
+
+            if (!destinationAdapter.AdapterConfiguration.EnableCache)
+            {
+                destinationAdapter.ClearCache();
+            }
 
             var contents = await sourceAdapter.ReadFileAsync(virtualSourcePath, cancellationToken);
             await destinationAdapter.WriteFileAsync(virtualDestinationPath, contents, overwrite, cancellationToken);
@@ -648,6 +730,11 @@ namespace SharpGrip.FileSystem
             var adapter = GetAdapter(prefix);
 
             adapter.Connect();
+
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
 
             await adapter.WriteFileAsync(virtualPath, contents, overwrite, cancellationToken);
         }
@@ -691,6 +778,11 @@ namespace SharpGrip.FileSystem
 
             adapter.Connect();
 
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
+
             await adapter.WriteFileAsync(virtualPath, contents, overwrite, cancellationToken);
         }
 
@@ -733,6 +825,11 @@ namespace SharpGrip.FileSystem
 
             adapter.Connect();
 
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
+
             await adapter.WriteFileAsync(virtualPath, contents, overwrite, cancellationToken);
         }
 
@@ -755,6 +852,11 @@ namespace SharpGrip.FileSystem
             var adapter = GetAdapter(prefix);
 
             adapter.Connect();
+
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
 
             await adapter.AppendFileAsync(virtualPath, contents, cancellationToken);
         }
@@ -796,6 +898,11 @@ namespace SharpGrip.FileSystem
 
             adapter.Connect();
 
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
+
             await adapter.AppendFileAsync(virtualPath, contents, cancellationToken);
         }
 
@@ -835,6 +942,11 @@ namespace SharpGrip.FileSystem
             var adapter = GetAdapter(prefix);
 
             adapter.Connect();
+
+            if (!adapter.AdapterConfiguration.EnableCache)
+            {
+                adapter.ClearCache();
+            }
 
             await adapter.AppendFileAsync(virtualPath, contents, cancellationToken);
         }

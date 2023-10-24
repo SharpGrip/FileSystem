@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.AzureFi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.Dropbox", "FileSystem.Adapters.Dropbox\FileSystem.Adapters.Dropbox.csproj", "{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.GoogleDrive", "FileSystem.Adapters.GoogleDrive\FileSystem.Adapters.GoogleDrive.csproj", "{CB1F411C-3FB5-4441-9541-423951C17BAF}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.MicrosoftOneDrive", "FileSystem.Adapters.MicrosoftOneDrive\FileSystem.Adapters.MicrosoftOneDrive.csproj", "{9955422E-4A50-43CD-BC2B-91E6820F206C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.Sftp", "FileSystem.Adapters.Sftp\FileSystem.Adapters.Sftp.csproj", "{DFDEAACC-CCFA-4A78-8E7D-AC61FB1A002D}"
@@ -42,6 +44,10 @@ Global
 		{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB1F411C-3FB5-4441-9541-423951C17BAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB1F411C-3FB5-4441-9541-423951C17BAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB1F411C-3FB5-4441-9541-423951C17BAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB1F411C-3FB5-4441-9541-423951C17BAF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9955422E-4A50-43CD-BC2B-91E6820F206C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9955422E-4A50-43CD-BC2B-91E6820F206C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9955422E-4A50-43CD-BC2B-91E6820F206C}.Release|Any CPU.ActiveCfg = Release|Any CPU

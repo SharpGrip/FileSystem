@@ -16,11 +16,11 @@ using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundExcept
 
 namespace SharpGrip.FileSystem.Adapters.Sftp
 {
-    public class SftpAdapter : Adapter
+    public class SftpAdapter : Adapter<SftpAdapterConfiguration, string, string>
     {
         private readonly SftpClient client;
 
-        public SftpAdapter(string prefix, string rootPath, SftpClient client) : base(prefix, rootPath)
+        public SftpAdapter(string prefix, string rootPath, SftpClient client, Action<SftpAdapterConfiguration>? configuration = null) : base(prefix, rootPath, configuration)
         {
             this.client = client;
         }

@@ -11,9 +11,9 @@ using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundExcept
 
 namespace SharpGrip.FileSystem.Adapters
 {
-    public class LocalAdapter : Adapter
+    public class LocalAdapter : Adapter<LocalAdapterConfiguration, string, string>
     {
-        public LocalAdapter(string prefix, string rootPath) : base(prefix, rootPath)
+        public LocalAdapter(string prefix, string rootPath, Action<LocalAdapterConfiguration>? configuration = null) : base(prefix, rootPath, configuration)
         {
         }
 

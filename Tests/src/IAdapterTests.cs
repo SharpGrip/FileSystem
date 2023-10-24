@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Tests;
+namespace SharpGrip.FileSystem.Tests;
 
 public interface IAdapterTests
 {

@@ -21,6 +21,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
     </ItemGroup>
 
 </Project>
