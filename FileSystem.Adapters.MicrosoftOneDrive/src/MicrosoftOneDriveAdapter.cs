@@ -12,12 +12,13 @@ using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundExcept
 
 namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
 {
-    public class MicrosoftOneDriveAdapter : Adapter
+    public class MicrosoftOneDriveAdapter : Adapter<MicrosoftOneDriveAdapterConfiguration, string, string>
     {
         private readonly GraphServiceClient client;
         private readonly string driveId;
 
-        public MicrosoftOneDriveAdapter(string prefix, string rootPath, GraphServiceClient client, string driveId) : base(prefix, rootPath)
+        public MicrosoftOneDriveAdapter(string prefix, string rootPath, GraphServiceClient client, string driveId, Action<MicrosoftOneDriveAdapterConfiguration>? configuration = null)
+            : base(prefix, rootPath, configuration)
         {
             this.client = client;
             this.driveId = driveId;

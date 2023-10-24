@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>SharpGrip.FileSystem.Adapters.GoogleDrive</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AssemblyName>SharpGrip.FileSystem.Adapters.GoogleDrive</AssemblyName>
+        <PackageId>SharpGrip.FileSystem.Adapters.GoogleDrive</PackageId>
+        <Title>SharpGrip FileSystem Google Drive adapter</Title>
+        <Description>The SharpGrip FileSystem Google Drive adapter.</Description>
+        <PackageTags>sharpgrip;file-system;google-drive</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Google.Apis.Drive.v3" Version="1.62.0.3155" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj"/>
+    </ItemGroup>
+
+</Project>

@@ -5,8 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SharpGrip.FileSystem.Cache;
+using SharpGrip.FileSystem.Configuration;
 using SharpGrip.FileSystem.Constants;
-using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
 using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
@@ -14,15 +15,26 @@ using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundExcept
 
 namespace SharpGrip.FileSystem.Adapters
 {
-    public abstract class Adapter : IAdapter
+    public abstract class Adapter<TAdapterConfiguration, TCacheKey, TCacheValue> : IAdapter
+        where TAdapterConfiguration : IAdapterConfiguration, new()
+        where TCacheKey : class
     {
         public string Prefix { get; }
         public string RootPath { get; }
+        public TAdapterConfiguration Configuration { get; }
+        public IAdapterConfiguration AdapterConfiguration => Configuration;
 
-        protected Adapter(string prefix, string rootPath)
+        private IDictionary<TCacheKey, CacheEntry<TCacheKey, TCacheValue>> Cache { get; set; } = new Dictionary<TCacheKey, CacheEntry<TCacheKey, TCacheValue>>();
+
+        protected Adapter(string prefix, string rootPath, Action<TAdapterConfiguration>? configuration)
         {
             Prefix = prefix;
-            RootPath = rootPath;
+            RootPath = PathUtilities.NormalizeRootPath(rootPath);
+
+            var adapterConfiguration = new TAdapterConfiguration();
+            configuration?.Invoke(adapterConfiguration);
+
+            Configuration = adapterConfiguration;
         }
 
         public IFile GetFile(string virtualPath)
@@ -230,29 +242,54 @@ namespace SharpGrip.FileSystem.Adapters
 
         protected string[] GetPathParts(string path)
         {
-            return path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+            return PathUtilities.GetPathParts(path);
         }
 
         protected string GetLastPathPart(string path)
         {
-            if (path.IsNullOrEmpty())
-            {
-                return "";
-            }
-
-            return GetPathParts(path).Last();
+            return PathUtilities.GetLastPathPart(path);
         }
 
         protected string GetParentPathPart(string path)
         {
-            if (path.IsNullOrEmpty())
+            return PathUtilities.GetParentPathPart(path);
+        }
+
+        public void ClearCache()
+        {
+            Cache = new Dictionary<TCacheKey, CacheEntry<TCacheKey, TCacheValue>>();
+        }
+
+        protected async Task<CacheEntry<TCacheKey, TCacheValue>> GetOrCreateCacheEntryAsync(TCacheKey cacheKey, Func<Task<CacheEntry<TCacheKey, TCacheValue>>> factory)
+        {
+            var cacheEntry = GetCacheEntry(cacheKey);
+
+            if (cacheEntry == null)
             {
-                path = "/";
+                cacheEntry = await factory();
+
+                TryAddCacheEntry(cacheEntry);
             }
 
-            var pathParts = GetPathParts(path);
+            return cacheEntry;
+        }
 
-            return string.Join("/", pathParts.Take(pathParts.Length - 1));
+        protected void TryAddCacheEntry(CacheEntry<TCacheKey, TCacheValue> cacheEntry)
+        {
+            if (!Cache.ContainsKey(cacheEntry.Key))
+            {
+                Cache.Add(cacheEntry.Key, cacheEntry);
+            }
+        }
+
+        protected void TryRemoveCacheEntry(TCacheKey cacheKey)
+        {
+            Cache.Remove(cacheKey);
+        }
+
+        private CacheEntry<TCacheKey, TCacheValue>? GetCacheEntry(TCacheKey cacheKey)
+        {
+            return Cache.TryGetValue(cacheKey, out var cacheEntry) ? cacheEntry : null;
         }
     }
 }

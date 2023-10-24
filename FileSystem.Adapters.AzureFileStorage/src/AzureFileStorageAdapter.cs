@@ -12,11 +12,11 @@ using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundExcept
 
 namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
 {
-    public class AzureFileStorageAdapter : Adapter
+    public class AzureFileStorageAdapter : Adapter<AzureFileStorageAdapterConfiguration, string, string>
     {
         private readonly ShareClient client;
 
-        public AzureFileStorageAdapter(string prefix, string rootPath, ShareClient client) : base(prefix, rootPath)
+        public AzureFileStorageAdapter(string prefix, string rootPath, ShareClient client, Action<AzureFileStorageAdapterConfiguration>? configuration = null) : base(prefix, rootPath, configuration)
         {
             this.client = client;
         }

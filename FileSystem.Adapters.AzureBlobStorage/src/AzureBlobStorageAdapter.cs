@@ -14,11 +14,12 @@ using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundExcept
 
 namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
 {
-    public class AzureBlobStorageAdapter : Adapter
+    public class AzureBlobStorageAdapter : Adapter<AzureBlobStorageAdapterConfiguration, string, string>
     {
         private readonly BlobContainerClient client;
 
-        public AzureBlobStorageAdapter(string prefix, string rootPath, BlobContainerClient client) : base(prefix, rootPath)
+        public AzureBlobStorageAdapter(string prefix, string rootPath, BlobContainerClient client, Action<AzureBlobStorageAdapterConfiguration>? configuration = null)
+            : base(prefix, rootPath, configuration)
         {
             this.client = client;
         }

@@ -16,7 +16,7 @@ using Xunit;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
 
-namespace Tests.FileSystem.Adapters.AmazonS3
+namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.AmazonS3
 {
     public class AmazonS3AdapterTest : IAdapterTests
     {

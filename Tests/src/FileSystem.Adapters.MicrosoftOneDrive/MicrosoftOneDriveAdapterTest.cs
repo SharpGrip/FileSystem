@@ -5,7 +5,7 @@ using NSubstitute;
 using SharpGrip.FileSystem.Adapters.MicrosoftOneDrive;
 using Xunit;
 
-namespace Tests.FileSystem.Adapters.MicrosoftOneDrive
+namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.MicrosoftOneDrive
 {
     public class MicrosoftOneDriveAdapterTest
     {

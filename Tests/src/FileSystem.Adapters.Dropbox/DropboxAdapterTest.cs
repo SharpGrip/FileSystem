@@ -1,4 +1,4 @@
-﻿namespace Tests.FileSystem.Adapters.Dropbox
+﻿namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.Dropbox
 {
     public class DropboxAdapterTest
     {

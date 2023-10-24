@@ -13,11 +13,11 @@ using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundExcept
 
 namespace SharpGrip.FileSystem.Adapters.Dropbox
 {
-    public class DropboxAdapter : Adapter
+    public class DropboxAdapter : Adapter<DropboxAdapterConfiguration, string, string>
     {
         private readonly DropboxClient client;
 
-        public DropboxAdapter(string prefix, string rootPath, DropboxClient client) : base(prefix, rootPath)
+        public DropboxAdapter(string prefix, string rootPath, DropboxClient client, Action<DropboxAdapterConfiguration>? configuration = null) : base(prefix, rootPath, configuration)
         {
             this.client = client;
         }

@@ -14,12 +14,12 @@ using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundExcept
 
 namespace SharpGrip.FileSystem.Adapters.AmazonS3
 {
-    public class AmazonS3Adapter : Adapter
+    public class AmazonS3Adapter : Adapter<AmazonS3AdapterConfiguration, string, string>
     {
         private readonly IAmazonS3 client;
         private readonly string bucketName;
 
-        public AmazonS3Adapter(string prefix, string rootPath, IAmazonS3 client, string bucketName) : base(prefix, rootPath)
+        public AmazonS3Adapter(string prefix, string rootPath, IAmazonS3 client, string bucketName, Action<AmazonS3AdapterConfiguration>? configuration = null) : base(prefix, rootPath, configuration)
         {
             this.client = client;
             this.bucketName = bucketName;
@@ -61,12 +61,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
         public override async Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            var path = GetPath(virtualPath);
-
-            if (!path.EndsWith("/"))
-            {
-                path += "/";
-            }
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
 
             try
             {
@@ -109,12 +104,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         public override async Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath);
-
-            if (!path.EndsWith("/"))
-            {
-                path += "/";
-            }
+            var path = GetPath(virtualPath).EnsureTrailingForwardSlash();
 
             if (path == "/")
             {
@@ -134,7 +124,6 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
                     foreach (var item in response.S3Objects)
                     {
-                        // var itemName = item.Key.Substring(0, item.Key.Length - path.Length);
                         var itemName = item.Key.Substring(path.Length).RemoveLeadingForwardSlash();
 
                         if (!item.Key.EndsWith("/") && !itemName.Contains('/'))
@@ -157,12 +146,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath);
-
-            if (!path.EndsWith("/"))
-            {
-                path += "/";
-            }
+            var path = GetPath(virtualPath).EnsureTrailingForwardSlash();
 
             if (path == "/")
             {
@@ -208,8 +192,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 throw new DirectoryExistsException(GetPath(virtualPath), Prefix);
             }
 
-            var path = GetPath(virtualPath);
-            path = path.EndsWith("/") ? path : path + "/";
+            var path = GetPath(virtualPath).EnsureTrailingForwardSlash();
 
             try
             {
@@ -226,8 +209,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
 
-            var path = GetPath(virtualPath);
-            path = path.EndsWith("/") ? path : path + "/";
+            var path = GetPath(virtualPath).EnsureTrailingForwardSlash();
 
             try
             {
