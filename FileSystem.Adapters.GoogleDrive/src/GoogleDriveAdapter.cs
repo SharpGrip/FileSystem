@@ -64,8 +64,7 @@ namespace SharpGrip.FileSystem.Adapters.GoogleDrive
 
         public override async Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            var path = GetPath(virtualPath);
-            path = path.EnsureTrailingForwardSlash();
+            var path = GetPath(virtualPath).EnsureTrailingForwardSlash();
 
             try
             {
