@@ -19,4 +19,8 @@
         <RepositoryUrl>https://github.com/SharpGrip/FileSystem</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
+
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
 </Project>
