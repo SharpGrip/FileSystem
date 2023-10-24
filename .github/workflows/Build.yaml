@@ -59,7 +59,7 @@ jobs:
       - name: Test solution
         run: dotnet test --no-build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --verbosity normal
 
-      - name: Cleanup solution
+      - name: Clean solution
         run: dotnet clean
 
       - name: Analyze solution
