@@ -5,7 +5,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 {
     public static class ModelFactory
     {
-        public static IFile CreateFile(SftpFile file, string virtualPath)
+        public static IFile CreateFile(ISftpFile file, string virtualPath)
         {
             return new FileModel
             {
@@ -17,7 +17,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             };
         }
 
-        public static DirectoryModel CreateDirectory(SftpFile directory, string virtualPath)
+        public static DirectoryModel CreateDirectory(ISftpFile directory, string virtualPath)
         {
             return new DirectoryModel
             {

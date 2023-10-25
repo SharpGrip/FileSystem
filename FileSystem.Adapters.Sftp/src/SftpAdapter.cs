@@ -18,16 +18,16 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 {
     public class SftpAdapter : Adapter<SftpAdapterConfiguration, string, string>
     {
-        private readonly SftpClient client;
+        private readonly ISftpClient client;
 
-        public SftpAdapter(string prefix, string rootPath, SftpClient client, Action<SftpAdapterConfiguration>? configuration = null) : base(prefix, rootPath, configuration)
+        public SftpAdapter(string prefix, string rootPath, ISftpClient client, Action<SftpAdapterConfiguration>? configuration = null) : base(prefix, rootPath, configuration)
         {
             this.client = client;
         }
 
         public override void Dispose()
         {
-            client.Dispose();
+            ((IBaseClient) client).Dispose();
         }
 
         public override void Connect()
