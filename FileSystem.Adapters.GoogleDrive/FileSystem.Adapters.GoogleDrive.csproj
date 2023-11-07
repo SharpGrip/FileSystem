@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Google.Apis.Drive.v3" Version="1.62.0.3155" />
+        <PackageReference Include="Google.Apis.Drive.v3" Version="1.63.0.3155" />
     </ItemGroup>
 
     <ItemGroup>
