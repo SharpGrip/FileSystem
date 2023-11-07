@@ -237,9 +237,8 @@ namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.AmazonS3
             Assert.True(await fileSystem.FileExistsAsync("prefix-1://test1.txt"));
             Assert.False(await fileSystem.FileExistsAsync("prefix-1://test2.txt"));
 
-            await Assert.ThrowsAsync<FileNotFoundException>(() => fileSystem.GetFileAsync("prefix-1://test2.txt"));
-            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.GetFileAsync("prefix-1://test3.txt"));
-            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.GetFileAsync("prefix-1://test4.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.FileExistsAsync("prefix-1://test3.txt"));
+            await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.FileExistsAsync("prefix-1://test4.txt"));
         }
 
         [Fact]
