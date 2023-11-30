@@ -22,7 +22,7 @@ namespace SharpGrip.FileSystem.Adapters
         protected Adapter(string prefix, string rootPath)
         {
             Prefix = prefix;
-            RootPath = rootPath;
+            RootPath = PathUtilities.NormalizeRootPath(rootPath);
         }
 
         public IFile GetFile(string virtualPath)

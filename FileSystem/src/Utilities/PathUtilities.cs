@@ -8,6 +8,7 @@ namespace SharpGrip.FileSystem.Utilities
     {
         private const string AdapterPrefixSeparator = "://";
         private const string PathSeparator = "/";
+        private const string InvalidPathSeparator = "\\";
 
         /// <summary>
         /// Returns the prefix from a prefixed path.
@@ -17,6 +18,21 @@ namespace SharpGrip.FileSystem.Utilities
         public static string GetPrefix(string virtualPath)
         {
             return ResolvePrefixAndPath(virtualPath)[0];
+        }
+
+        /// <summary>
+        /// Normalizes the adapter's root path.
+        /// </summary>
+        /// <param name="rootPath">The adapter's root path.</param>
+        /// <returns>The path.</returns>
+        public static string NormalizeRootPath(string rootPath)
+        {
+            if (string.IsNullOrWhiteSpace(rootPath) || rootPath == PathSeparator)
+            {
+                return PathSeparator;
+            }
+
+            return rootPath.Replace(InvalidPathSeparator, PathSeparator).RemoveTrailingForwardSlash();
         }
 
         /// <summary>
