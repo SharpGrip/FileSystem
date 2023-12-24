@@ -82,7 +82,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             try
             {
                 var currentDirectory = client.GetDirectoryClient(path);
-                var currentDirectoryEnumerator = currentDirectory.GetFilesAndDirectoriesAsync().GetAsyncEnumerator(cancellationToken);
+                await using var currentDirectoryEnumerator = currentDirectory.GetFilesAndDirectoriesAsync(cancellationToken: cancellationToken).GetAsyncEnumerator(cancellationToken);
 
                 var files = new List<IFile>();
 
@@ -112,7 +112,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
             try
             {
                 var currentDirectory = client.GetDirectoryClient(path);
-                var currentDirectoryEnumerator = currentDirectory.GetFilesAndDirectoriesAsync().GetAsyncEnumerator(cancellationToken);
+                await using var currentDirectoryEnumerator = currentDirectory.GetFilesAndDirectoriesAsync(cancellationToken: cancellationToken).GetAsyncEnumerator(cancellationToken);
 
                 var directories = new List<IDirectory>();
 
