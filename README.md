@@ -1,6 +1,7 @@
 # SharpGrip FileSystem [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)
 
 ## Builds
+
 [![FileSystem [Build]](https://github.com/SharpGrip/FileSystem/actions/workflows/Build.yaml/badge.svg)](https://github.com/SharpGrip/FileSystem/actions/workflows/Build.yaml)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=SharpGrip_FileSystem&metric=alert_status)](https://sonarcloud.io/summary/overall?id=SharpGrip_FileSystem) \
@@ -10,14 +11,17 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=SharpGrip_FileSystem&metric=coverage)](https://sonarcloud.io/summary/overall?id=SharpGrip_FileSystem)
 
 ## Introduction
+
 SharpGrip FileSystem is a file system abstraction supporting multiple adapters.
 
 ## Installation
+
 Reference NuGet package `SharpGrip.FileSystem` (https://www.nuget.org/packages/SharpGrip.FileSystem).
 
 For adapters other than the local file system (included in the `SharpGrip.FileSystem` package) please see the [Supported adapters](#supported-adapters) section.
 
 ## Supported adapters
+
 | Adapter                                         | Package                                           | NuGet                                                                                                                                                                      |
 |:------------------------------------------------|:--------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [Local adapter](#local-adapter)                 | `SharpGrip.FileSystem`                            | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem)](https://www.nuget.org/packages/SharpGrip.FileSystem)                                                       |
@@ -25,15 +29,18 @@ For adapters other than the local file system (included in the `SharpGrip.FileSy
 | [AzureBlobStorage](#azureblobstorage-adapter)   | `SharpGrip.FileSystem.Adapters.AzureBlobStorage`  | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureBlobStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureBlobStorage)   |
 | [AzureFileStorage](#azurefilestorage-adapter)   | `SharpGrip.FileSystem.Adapters.AzureFileStorage`  | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureFileStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureFileStorage)   |
 | [Dropbox](#dropbox-adapter)                     | `SharpGrip.FileSystem.Adapters.Dropbox`           | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Dropbox)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Dropbox)                     |
+| [GoogleDrive](#googledrive-adapter)             | `SharpGrip.FileSystem.Adapters.GoogleDrive`       | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.GoogleDrive)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.GoogleDrive)             |
 | [MicrosoftOneDrive](#microsoftonedrive-adapter) | `SharpGrip.FileSystem.Adapters.MicrosoftOneDrive` | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.MicrosoftOneDrive)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.MicrosoftOneDrive) |
 | [SFTP](#sftp-adapter)                           | `SharpGrip.FileSystem.Adapters.Sftp`              | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Sftp)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Sftp)                           |
 
 ## Supported operations
+
 For a full list of the supported operations please see the [IFileSystem](../master/FileSystem/src/IFileSystem.cs) interface.
 
 ## Usage
 
 ### Instantiation
+
 ```
 var adapters = new List<IAdapter>
 {
@@ -49,6 +56,7 @@ fileSystem.Adapters = adapters;
 ```
 
 ### Local adapter
+
 ```
 var adapters = new List<IAdapter>
 {
@@ -60,6 +68,7 @@ var fileSystem = new FileSystem(adapters);
 ```
 
 ### AmazonS3 adapter
+
 ```
 // Amazon connection.
 var amazonClient = new AmazonS3Client("awsAccessKeyId", "awsSecretAccessKey", RegionEndpoint.USEast2);
@@ -74,6 +83,7 @@ var fileSystem = new FileSystem(adapters);
 ```
 
 ### AzureBlobStorage adapter
+
 ```
 // Azure connection.
 var blobServiceClient = new BlobServiceClient("connectionString");
@@ -89,6 +99,7 @@ var fileSystem = new FileSystem(adapters);
 ```
 
 ### AzureFileStorage adapter
+
 ```
 // Azure connection.
 var azureClient = new ShareClient("connectionString", "shareName");
@@ -103,6 +114,7 @@ var fileSystem = new FileSystem(adapters);
 ```
 
 ### Dropbox adapter
+
 ```
 // Dropbox connection.
 var dropboxClient = new DropboxClient("oAuth2AccessToken");
@@ -116,7 +128,36 @@ var adapters = new List<IAdapter>
 var fileSystem = new FileSystem(adapters);
 ```
 
+### GoogleDrive adapter
+
+```
+// Google connection.
+await using var stream = new FileStream("path/to/credentials.json", FileMode.Open, FileAccess.Read);
+const string tokenPath = "path/to/token/directory";
+var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
+    (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets,
+    new[] {DriveService.Scope.Drive},
+    "user",
+    CancellationToken.None,
+    new FileDataStore(tokenPath, true));
+
+var googleDriveClient = new DriveService(new BaseClientService.Initializer
+{
+    HttpClientInitializer = credential,
+    ApplicationName = "Test"
+});
+
+var adapters = new List<IAdapter>
+{
+    new LocalAdapter("local", "/var/files"),
+    new GoogleDriveAdapter("google-drive", "/Files", googleDriveClient)
+};
+
+var fileSystem = new FileSystem(adapters);
+```
+
 ### MicrosoftOneDrive adapter
+
 ```
 // Microsoft connection.
 var scopes = new[] {"https://graph.microsoft.com/.default"};
@@ -143,6 +184,7 @@ var fileSystem = new FileSystem(adapters);
 ```
 
 ### SFTP adapter
+
 ```
 // SFTP connection.
 var privateKeyFile = new PrivateKeyFile("/home/userName/.ssh/id_rsa");
@@ -160,6 +202,7 @@ var fileSystem = new FileSystem(adapters);
 ```
 
 ### Example operations
+
 ```
 // Azure connection.
 var azureClient = new ShareClient("connectionString", "shareName");
