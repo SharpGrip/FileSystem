@@ -5,9 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SharpGrip.FileSystem.Cache;
 using SharpGrip.FileSystem.Configuration;
-using SharpGrip.FileSystem.Constants;
 using SharpGrip.FileSystem.Models;
 using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
@@ -21,8 +22,10 @@ namespace SharpGrip.FileSystem.Adapters
     {
         public string Prefix { get; }
         public string RootPath { get; }
+        public string Name => GetType().FullName!;
         public TAdapterConfiguration Configuration { get; }
         public IAdapterConfiguration AdapterConfiguration => Configuration;
+        public ILogger Logger { get; set; } = NullLogger<Adapter<TAdapterConfiguration, TCacheKey, TCacheValue>>.Instance;
 
         private IDictionary<TCacheKey, CacheEntry<TCacheKey, TCacheValue>> Cache { get; set; } = new Dictionary<TCacheKey, CacheEntry<TCacheKey, TCacheValue>>();
 
@@ -35,6 +38,15 @@ namespace SharpGrip.FileSystem.Adapters
             configuration?.Invoke(adapterConfiguration);
 
             Configuration = adapterConfiguration;
+
+            if (Configuration.EnableLogging)
+            {
+                Logger = Configuration.Logger ?? LoggerFactory.Create(builder =>
+                {
+                    builder.AddConsole();
+                    builder.SetMinimumLevel(LogLevel.Trace);
+                }).CreateLogger(GetType().FullName ?? GetType().Name);
+            }
         }
 
         public IFile GetFile(string virtualPath)
@@ -122,9 +134,7 @@ namespace SharpGrip.FileSystem.Adapters
             try
             {
                 var stream = await ReadFileStreamAsync(virtualPath, cancellationToken);
-                using var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(stream, cancellationToken);
-
-                await stream.CopyToAsync(memoryStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+                using var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(stream, true, cancellationToken);
 
                 return memoryStream.ToArray();
             }
@@ -180,7 +190,7 @@ namespace SharpGrip.FileSystem.Adapters
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
-            var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(contents, cancellationToken);
+            var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(contents, true, cancellationToken);
 
             var existingContents = await ReadFileAsync(virtualPath, cancellationToken);
             var fileContents = existingContents.Concat(memoryStream.ToArray()).ToArray();
@@ -276,7 +286,7 @@ namespace SharpGrip.FileSystem.Adapters
 
         protected void TryAddCacheEntry(CacheEntry<TCacheKey, TCacheValue> cacheEntry)
         {
-            if (!Cache.ContainsKey(cacheEntry.Key))
+            if (Configuration.EnableCache && !Cache.ContainsKey(cacheEntry.Key))
             {
                 Cache.Add(cacheEntry.Key, cacheEntry);
             }
@@ -284,12 +294,20 @@ namespace SharpGrip.FileSystem.Adapters
 
         protected void TryRemoveCacheEntry(TCacheKey cacheKey)
         {
-            Cache.Remove(cacheKey);
+            if (Configuration.EnableCache)
+            {
+                Cache.Remove(cacheKey);
+            }
         }
 
         private CacheEntry<TCacheKey, TCacheValue>? GetCacheEntry(TCacheKey cacheKey)
         {
-            return Cache.TryGetValue(cacheKey, out var cacheEntry) ? cacheEntry : null;
+            if (Configuration.EnableCache)
+            {
+                return Cache.TryGetValue(cacheKey, out var cacheEntry) ? cacheEntry : null;
+            }
+
+            return null;
         }
     }
 }

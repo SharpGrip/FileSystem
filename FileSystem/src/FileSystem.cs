@@ -4,8 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SharpGrip.FileSystem.Adapters;
+using SharpGrip.FileSystem.Configuration;
 using SharpGrip.FileSystem.Exceptions;
+using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
 using SharpGrip.FileSystem.Utilities;
 
@@ -19,6 +23,16 @@ namespace SharpGrip.FileSystem
         public IList<IAdapter> Adapters { get; set; } = new List<IAdapter>();
 
         /// <summary>
+        /// Configuration.
+        /// </summary>
+        public FileSystemConfiguration Configuration { get; } = new FileSystemConfiguration();
+
+        /// <summary>
+        /// The file system logger.
+        /// </summary>
+        private ILogger Logger { get; set; } = NullLogger<FileSystem>.Instance;
+
+        /// <summary>
         /// FileSystem constructor.
         /// </summary>
         public FileSystem()
@@ -29,9 +43,24 @@ namespace SharpGrip.FileSystem
         /// FileSystem constructor.
         /// </summary>
         /// <param name="adapters">The adapters.</param>
-        public FileSystem(IList<IAdapter> adapters)
+        /// <param name="configuration">The configuration delegate used to configure the file system.</param>
+        public FileSystem(IList<IAdapter> adapters, Action<FileSystemConfiguration>? configuration = null)
         {
             Adapters = adapters;
+
+            var fileSystemConfiguration = new FileSystemConfiguration();
+            configuration?.Invoke(fileSystemConfiguration);
+
+            Configuration = fileSystemConfiguration;
+
+            if (Configuration.EnableLogging)
+            {
+                Logger = Configuration.Logger ?? LoggerFactory.Create(builder =>
+                {
+                    builder.AddConsole();
+                    builder.SetMinimumLevel(LogLevel.Trace);
+                }).CreateLogger(GetType().FullName ?? GetType().Name);
+            }
         }
 
         /// <summary>
@@ -39,10 +68,18 @@ namespace SharpGrip.FileSystem
         /// </summary>
         public void Dispose()
         {
+            Logger.LogStartDisposingAdapters(Adapters.Count);
+
             foreach (var adapter in Adapters)
             {
+                Logger.LogStartDisposingAdapter(adapter);
+
                 adapter.Dispose();
+
+                Logger.LogFinishedDisposingAdapter(adapter);
             }
+
+            Logger.LogFinishedDisposingAdapters(Adapters.Count);
         }
 
         /// <summary>
@@ -56,6 +93,8 @@ namespace SharpGrip.FileSystem
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         public IAdapter GetAdapter(string prefix)
         {
+            Logger.LogStartRetrievingAdapter(prefix);
+
             if (Adapters.Count == 0)
             {
                 throw new NoAdaptersRegisteredException();
@@ -73,7 +112,11 @@ namespace SharpGrip.FileSystem
                 throw new AdapterNotFoundException(prefix, Adapters);
             }
 
-            return Adapters.First(adapter => adapter.Prefix == prefix);
+            var adapter = Adapters.First(adapter => adapter.Prefix == prefix);
+
+            Logger.LogFinishedRetrievingAdapter(adapter);
+
+            return adapter;
         }
 
         /// <summary>
@@ -111,9 +154,11 @@ namespace SharpGrip.FileSystem
             var prefix = PathUtilities.GetPrefix(virtualPath);
             var adapter = GetAdapter(prefix);
 
+            Logger.LogStartConnectingAdapter(adapter);
             adapter.Connect();
+            Logger.LogFinishedConnectingAdapter(adapter);
 
-            if (adapter.AdapterConfiguration.EnableCache)
+            if (!adapter.AdapterConfiguration.EnableCache)
             {
                 adapter.ClearCache();
             }
@@ -645,8 +690,8 @@ namespace SharpGrip.FileSystem
                 destinationAdapter.ClearCache();
             }
 
-            var contents = await sourceAdapter.ReadFileAsync(virtualSourcePath, cancellationToken);
-            await destinationAdapter.WriteFileAsync(virtualDestinationPath, contents, overwrite, cancellationToken);
+            using var fileStream = await sourceAdapter.ReadFileStreamAsync(virtualSourcePath, cancellationToken);
+            await destinationAdapter.WriteFileAsync(virtualDestinationPath, fileStream, overwrite, cancellationToken);
         }
 
         /// <summary>
@@ -705,8 +750,11 @@ namespace SharpGrip.FileSystem
                 destinationAdapter.ClearCache();
             }
 
-            var contents = await sourceAdapter.ReadFileAsync(virtualSourcePath, cancellationToken);
-            await destinationAdapter.WriteFileAsync(virtualDestinationPath, contents, overwrite, cancellationToken);
+            using var fileStream = await sourceAdapter.ReadFileStreamAsync(virtualSourcePath, cancellationToken);
+            await destinationAdapter.WriteFileAsync(virtualDestinationPath, fileStream, overwrite, cancellationToken);
+
+            fileStream.Dispose();
+
             await sourceAdapter.DeleteFileAsync(virtualSourcePath, cancellationToken);
         }
 

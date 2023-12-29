@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Files.Shares;
 using SharpGrip.FileSystem.Exceptions;
+using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
+using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
 
@@ -157,6 +159,20 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
 
             try
             {
+                var files = await GetFilesAsync(virtualPath, cancellationToken);
+
+                foreach (var file in files)
+                {
+                    await DeleteFileAsync(file.VirtualPath, cancellationToken);
+                }
+
+                var subDirectories = await GetDirectoriesAsync(virtualPath, cancellationToken);
+
+                foreach (var subDirectory in subDirectories)
+                {
+                    await DeleteDirectoryAsync(subDirectory.VirtualPath, cancellationToken);
+                }
+
                 await client.DeleteDirectoryAsync(GetPath(virtualPath), cancellationToken);
             }
             catch (Exception exception)
@@ -194,10 +210,16 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
 
             try
             {
-                var directory = client.GetDirectoryClient(directoryPath);
-                var download = await directory.GetFileClient(filePath).DownloadAsync(cancellationToken: cancellationToken);
+                // Performance issue:
+                // The stream returned from the service does not support seeking and therefore cannot determine the content length (required when creating files from this stream).
+                // Copy the response stream to a new memory stream and return that one instead.
 
-                return download.Value.Content;
+                var directory = client.GetDirectoryClient(directoryPath);
+                var response = await directory.GetFileClient(filePath).DownloadAsync(cancellationToken: cancellationToken);
+
+                var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(response.Value.Content, true, cancellationToken);
+
+                return memoryStream;
             }
             catch (Exception exception)
             {
@@ -214,12 +236,17 @@ namespace SharpGrip.FileSystem.Adapters.AzureFileStorage
 
             var path = GetPath(virtualPath);
             var filePath = GetLastPathPart(path);
-            var directoryPath = GetParentPathPart(path);
+            var directoryPath = GetParentPathPart(path).EnsureTrailingForwardSlash();
 
             try
             {
                 var directory = client.GetDirectoryClient(directoryPath);
-                await directory.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+
+                if (directoryPath != "/")
+                {
+                    await directory.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+                }
+
                 var file = directory.GetFileClient(filePath);
 
                 contents.Seek(0, SeekOrigin.Begin);

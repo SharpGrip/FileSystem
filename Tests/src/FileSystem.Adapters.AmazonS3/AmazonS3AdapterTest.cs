@@ -503,41 +503,10 @@ namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.AmazonS3
             var amazonS3Adapter = new AmazonS3Adapter("prefix-1", "root-path-1", amazonS3Client, "bucket-1");
             var fileSystem = new SharpGrip.FileSystem.FileSystem(new List<IAdapter> {amazonS3Adapter});
 
-            var getObjectResponse1 = Substitute.For<GetObjectResponse>();
-            var getObjectResponse2 = Substitute.For<GetObjectResponse>();
-            var getObjectResponse3 = Substitute.For<GetObjectResponse>();
-            var getObjectResponse4 = Substitute.For<GetObjectResponse>();
-            var getObjectResponse5 = Substitute.For<GetObjectResponse>();
-
-            getObjectResponse1.Key = "test1.txt";
-            getObjectResponse1.ContentLength = 1;
-            getObjectResponse1.LastModified = new DateTime(1970, 1, 1);
-            getObjectResponse3.ResponseStream = new MemoryStream("test1"u8.ToArray());
-
-            getObjectResponse2.Key = "test1.txt";
-            getObjectResponse2.ContentLength = 1;
-            getObjectResponse2.LastModified = new DateTime(1970, 1, 1);
-            getObjectResponse3.ResponseStream = new MemoryStream("test1"u8.ToArray());
-
-            getObjectResponse3.Key = "test1.txt";
-            getObjectResponse3.ContentLength = 1;
-            getObjectResponse3.LastModified = new DateTime(1970, 1, 1);
-            getObjectResponse3.ResponseStream = new MemoryStream("test1"u8.ToArray());
-
-            getObjectResponse4.Key = "test1.txt";
-            getObjectResponse4.ContentLength = 1;
-            getObjectResponse4.LastModified = new DateTime(1970, 1, 1);
-            getObjectResponse4.ResponseStream = new MemoryStream("test1"u8.ToArray());
-
-            getObjectResponse5.Key = "test1.txt";
-            getObjectResponse5.ContentLength = 1;
-            getObjectResponse5.LastModified = new DateTime(1970, 1, 1);
-            getObjectResponse5.ResponseStream = new MemoryStream("test1"u8.ToArray());
-
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3, getObjectResponse4, getObjectResponse5);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test1.txt").Returns(GetObjectResponse("test1.txt"), GetObjectResponse("test1.txt"), GetObjectResponse("test1.txt"), GetObjectResponse("test1.txt"));
             amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test2.txt").ThrowsAsync(noSuchKeyException);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3, getObjectResponse4, getObjectResponse5);
-            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").Returns(getObjectResponse1, getObjectResponse2, getObjectResponse3, getObjectResponse4, getObjectResponse5);
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test3.txt").Returns(GetObjectResponse("test3.txt"), GetObjectResponse("test3.txt"), GetObjectResponse("test3.txt"), GetObjectResponse("test3.txt"));
+            amazonS3Client.GetObjectAsync("bucket-1", "root-path-1/test4.txt").Returns(GetObjectResponse("test3.txt"), GetObjectResponse("test3.txt"), GetObjectResponse("test3.txt"), GetObjectResponse("test3.txt"));
             amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test2.txt")).ThrowsAsync(invalidAccessKeyIdException);
             amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test3.txt")).ThrowsAsync(invalidSecurityException);
             amazonS3Client.PutObjectAsync(Arg.Is<PutObjectRequest>(x => x.BucketName == "bucket-1" && x.Key == "root-path-1/test4.txt")).ThrowsAsync(invalidSecurityException);
@@ -546,6 +515,18 @@ namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.AmazonS3
             await Assert.ThrowsAsync<FileNotFoundException>(() => fileSystem.AppendFileAsync("prefix-1://test2.txt", new MemoryStream()));
             await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.AppendFileAsync("prefix-1://test3.txt", new MemoryStream()));
             await Assert.ThrowsAsync<ConnectionException>(() => fileSystem.AppendFileAsync("prefix-1://test4.txt", new MemoryStream()));
+        }
+
+        private static GetObjectResponse GetObjectResponse(string name)
+        {
+            var getObjectResponse = Substitute.For<GetObjectResponse>();
+
+            getObjectResponse.Key = name;
+            getObjectResponse.ContentLength = 1;
+            getObjectResponse.LastModified = new DateTime(1970, 1, 1);
+            getObjectResponse.ResponseStream = new MemoryStream(Encoding.UTF8.GetBytes(name));
+
+            return getObjectResponse;
         }
     }
 }

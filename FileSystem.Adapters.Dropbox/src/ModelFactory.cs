@@ -19,10 +19,15 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
 
         public static DirectoryModel CreateDirectory(Metadata directory, string virtualPath)
         {
+            return CreateDirectory(directory.Name, directory.PathDisplay, virtualPath);
+        }
+
+        public static DirectoryModel CreateDirectory(string name, string path, string virtualPath)
+        {
             return new DirectoryModel
             {
-                Name = directory.Name,
-                Path = directory.PathDisplay,
+                Name = name,
+                Path = path,
                 VirtualPath = virtualPath
             };
         }

@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Dropbox.Api;
 using Dropbox.Api.Files;
 using SharpGrip.FileSystem.Exceptions;
+using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
+using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
 
@@ -33,7 +35,7 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
 
         public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            var path = GetPath(virtualPath);
+            var path = GetPath(virtualPath).EnsureLeadingForwardSlash().RemoveTrailingForwardSlash();
 
             try
             {
@@ -63,10 +65,15 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
 
         public override async Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            var path = GetPath(virtualPath);
+            var path = GetPath(virtualPath).EnsureLeadingForwardSlash().RemoveTrailingForwardSlash();
 
             try
             {
+                if (path == "")
+                {
+                    return ModelFactory.CreateDirectory("", path, virtualPath);
+                }
+
                 var directory = await client.Files.GetMetadataAsync(path);
 
                 if (directory.IsFile)
@@ -94,10 +101,16 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
         public override async Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath);
+
+            var path = GetPath(virtualPath).EnsureLeadingForwardSlash().RemoveTrailingForwardSlash();
 
             try
             {
+                if (path == "/")
+                {
+                    path = "";
+                }
+
                 var result = await client.Files.ListFolderAsync(path);
 
                 return result.Entries.Where(item => !item.IsFolder).Select(file => ModelFactory.CreateFile(file, GetVirtualPath(file.PathDisplay))).ToList();
@@ -111,10 +124,16 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
         public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath);
+
+            var path = GetPath(virtualPath).EnsureLeadingForwardSlash().RemoveTrailingForwardSlash();
 
             try
             {
+                if (path == "/")
+                {
+                    path = "";
+                }
+
                 var result = await client.Files.ListFolderAsync(path);
 
                 return result.Entries.Where(item => item.IsFolder).Select(directory => ModelFactory.CreateDirectory(directory, GetVirtualPath(directory.PathDisplay))).ToList();
@@ -132,9 +151,11 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
                 throw new DirectoryExistsException(GetPath(virtualPath), Prefix);
             }
 
+            var path = GetPath(virtualPath).EnsureLeadingForwardSlash().RemoveTrailingForwardSlash();
+
             try
             {
-                await client.Files.CreateFolderV2Async(GetPath(virtualPath));
+                await client.Files.CreateFolderV2Async(path);
             }
             catch (Exception exception)
             {
@@ -146,9 +167,11 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
+            var path = GetPath(virtualPath).EnsureLeadingForwardSlash().RemoveTrailingForwardSlash();
+
             try
             {
-                await client.Files.DeleteV2Async(GetPath(virtualPath));
+                await client.Files.DeleteV2Async(path);
             }
             catch (Exception exception)
             {
@@ -160,9 +183,11 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
 
+            var path = GetPath(virtualPath).EnsureLeadingForwardSlash().RemoveTrailingForwardSlash();
+
             try
             {
-                client.Files.DeleteV2Async(GetPath(virtualPath)).Wait(cancellationToken);
+                await client.Files.DeleteV2Async(path);
             }
             catch (Exception exception)
             {
@@ -174,11 +199,18 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
+            var path = GetPath(virtualPath).EnsureLeadingForwardSlash().RemoveTrailingForwardSlash();
+
             try
             {
-                using var response = await client.Files.DownloadAsync(GetPath(virtualPath));
+                // Performance issue:
+                // The stream returned from the service does not support seeking and therefore cannot determine the content length (required when creating files from this stream).
+                // Copy the response stream to a new memory stream and return that one instead.
 
-                return await response.GetContentAsStreamAsync();
+                var response = await client.Files.DownloadAsync(path);
+                var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(await response.GetContentAsStreamAsync(), true, cancellationToken);
+
+                return memoryStream;
             }
             catch (Exception exception)
             {
@@ -193,11 +225,11 @@ namespace SharpGrip.FileSystem.Adapters.Dropbox
                 throw new FileExistsException(GetPath(virtualPath), Prefix);
             }
 
+            var path = GetPath(virtualPath).EnsureLeadingForwardSlash().RemoveTrailingForwardSlash();
+
             try
             {
-                contents.Seek(0, SeekOrigin.Begin);
-
-                await client.Files.UploadAsync(GetPath(virtualPath), WriteMode.Overwrite.Instance, body: contents);
+                await client.Files.UploadAsync(path, WriteMode.Overwrite.Instance, body: contents);
             }
             catch (Exception exception)
             {

@@ -9,6 +9,7 @@ using Amazon.S3.Model;
 using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
+using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
 
@@ -36,7 +37,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
         public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            var path = GetPath(virtualPath);
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash();
 
             try
             {
@@ -104,7 +105,8 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         public override async Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath).EnsureTrailingForwardSlash();
+
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
 
             if (path == "/")
             {
@@ -146,7 +148,8 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath).EnsureTrailingForwardSlash();
+
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
 
             if (path == "/")
             {
@@ -192,7 +195,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 throw new DirectoryExistsException(GetPath(virtualPath), Prefix);
             }
 
-            var path = GetPath(virtualPath).EnsureTrailingForwardSlash();
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
 
             try
             {
@@ -209,7 +212,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
 
-            var path = GetPath(virtualPath).EnsureTrailingForwardSlash();
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
 
             try
             {
@@ -242,7 +245,8 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath);
+
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash();
 
             try
             {
@@ -257,13 +261,20 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         public override async Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
-            var path = GetPath(virtualPath);
+
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash();
 
             try
             {
-                var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
+                // Performance issue:
+                // The stream returned from the service does not support seeking and therefore cannot determine the content length (required when creating files from this stream).
+                // Copy the response stream to a new memory stream and return that one instead.
 
-                return response.ResponseStream;
+                using var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
+
+                var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(response.ResponseStream, true, cancellationToken);
+
+                return memoryStream;
             }
             catch (Exception exception)
             {
@@ -278,7 +289,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 throw new FileExistsException(GetPath(virtualPath), Prefix);
             }
 
-            var path = GetPath(virtualPath);
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash();
 
             try
             {

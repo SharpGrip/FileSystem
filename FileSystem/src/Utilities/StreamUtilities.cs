@@ -7,10 +7,15 @@ namespace SharpGrip.FileSystem.Utilities
 {
     public static class StreamUtilities
     {
-        public static async Task<MemoryStream> CopyContentsToMemoryStreamAsync(Stream contents, CancellationToken cancellationToken = default)
+        public static async Task<MemoryStream> CopyContentsToMemoryStreamAsync(Stream sourceStream, bool setPositionToStart, CancellationToken cancellationToken = default)
         {
             var memoryStream = new MemoryStream();
-            await contents.CopyToAsync(memoryStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+            await sourceStream.CopyToAsync(memoryStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+
+            if (setPositionToStart)
+            {
+                memoryStream.Seek(0, SeekOrigin.Begin);
+            }
 
             return memoryStream;
         }

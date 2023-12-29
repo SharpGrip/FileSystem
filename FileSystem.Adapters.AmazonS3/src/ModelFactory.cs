@@ -49,7 +49,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             return new DirectoryModel
             {
-                Name = name,
+                Name = name.RemoveTrailingForwardSlash(),
                 Path = directory.Key.RemoveTrailingForwardSlash(),
                 VirtualPath = virtualPath,
                 LastModifiedDateTime = directory.LastModified

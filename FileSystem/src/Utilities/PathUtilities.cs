@@ -56,7 +56,7 @@ namespace SharpGrip.FileSystem.Utilities
                 return string.Join(PathSeparator, rootPath);
             }
 
-            return string.Join(PathSeparator, rootPath, prefixAndPath[1]);
+            return string.Join(PathSeparator, rootPath, prefixAndPath[1].RemoveLeadingForwardSlash());
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace SharpGrip.FileSystem.Utilities
 
             if (!rootPath.IsNullOrEmpty() && rootPath != "/")
             {
-                path = path.Replace(rootPath, "");
+                path = path.ReplaceFirst(rootPath, "");
             }
 
             path = path.RemoveLeadingForwardSlash();
@@ -109,7 +109,7 @@ namespace SharpGrip.FileSystem.Utilities
         /// <returns>The last path part.</returns>
         public static string GetLastPathPart(string path)
         {
-            if (path.IsNullOrEmpty())
+            if (path.IsNullOrEmpty() || path == PathSeparator)
             {
                 return "";
             }

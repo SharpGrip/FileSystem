@@ -18,8 +18,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Graph" Version="4.54.0" />
-        <PackageReference Include="Microsoft.Identity.Client" Version="4.57.0" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.58.1" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

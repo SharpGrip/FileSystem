@@ -1,4 +1,6 @@
-﻿namespace SharpGrip.FileSystem.Extensions
+﻿using System;
+
+namespace SharpGrip.FileSystem.Extensions
 {
     public static class StringExtensions
     {
@@ -9,22 +11,12 @@
 
         public static string RemoveLeadingForwardSlash(this string value)
         {
-            if (value.StartsWith("/"))
-            {
-                value = value.Substring(1);
-            }
-
-            return value;
+            return value.TrimStart('/');
         }
 
         public static string RemoveTrailingForwardSlash(this string value)
         {
-            if (value.EndsWith("/"))
-            {
-                value = value.Remove(value.Length - 1);
-            }
-
-            return value;
+            return value.TrimEnd('/');
         }
 
         public static string EnsureTrailingForwardSlash(this string value)
@@ -35,6 +27,28 @@
             }
 
             return value;
+        }
+
+        public static string EnsureLeadingForwardSlash(this string value)
+        {
+            if (!value.StartsWith("/"))
+            {
+                value = "/" + value;
+            }
+
+            return value;
+        }
+
+        public static string ReplaceFirst(this string value, string search, string replace)
+        {
+            var index = value.IndexOf(search, StringComparison.Ordinal);
+
+            if (index < 0)
+            {
+                return value;
+            }
+
+            return value.Substring(0, index) + replace + value.Substring(index + search.Length);
         }
     }
 }

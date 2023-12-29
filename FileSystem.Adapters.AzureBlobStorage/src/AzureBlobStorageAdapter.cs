@@ -41,7 +41,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
 
             try
             {
-                await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, directoryPath))
+                await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, directoryPath, cancellationToken))
                 {
                     if (item.Name == path)
                     {
@@ -63,11 +63,16 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
             var directoryPath = GetLastPathPart(path);
             var parentDirectoryPath = GetParentPathPart(path);
 
-            path = path.RemoveLeadingForwardSlash();
+            path = path.RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
 
             try
             {
-                await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, parentDirectoryPath))
+                if (path == "/")
+                {
+                    return ModelFactory.CreateDirectory("", path, virtualPath);
+                }
+
+                await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, parentDirectoryPath, cancellationToken))
                 {
                     if (item.Name.StartsWith(path))
                     {
@@ -95,11 +100,11 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
             {
                 var files = new List<IFile>();
 
-                await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, path))
+                await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, path, cancellationToken))
                 {
                     var directoryPath = GetParentPathPart(item.Name);
 
-                    if (directoryPath == path && item.Name != directoryPath + "/")
+                    if (directoryPath == path && item.Name != directoryPath + "/" && !item.Name.Contains(Configuration.DirectoryPlaceholder))
                     {
                         files.Add(ModelFactory.CreateFile(item, GetVirtualPath(item.Name)));
                     }
@@ -130,7 +135,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
                     path = "";
                 }
 
-                await foreach (var item in client.GetBlobsByHierarchyAsync(BlobTraits.None, BlobStates.None, "/", path))
+                await foreach (var item in client.GetBlobsByHierarchyAsync(BlobTraits.None, BlobStates.None, "/", path, cancellationToken))
                 {
                     if (item.IsPrefix)
                     {
@@ -153,13 +158,11 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
                 throw new DirectoryExistsException(GetPath(virtualPath), Prefix);
             }
 
-            var path = GetPath(virtualPath);
-
-            path = path.EnsureTrailingForwardSlash();
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
 
             try
             {
-                await client.UploadBlobAsync(path, Stream.Null, cancellationToken);
+                await client.UploadBlobAsync(path + Configuration.DirectoryPlaceholder, Stream.Null, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -173,11 +176,11 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
 
             var path = GetPath(virtualPath);
 
-            path = path.EnsureTrailingForwardSlash();
+            path = path.RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
 
             try
             {
-                await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, path))
+                await foreach (var item in client.GetBlobsAsync(BlobTraits.None, BlobStates.None, path, cancellationToken))
                 {
                     await client.DeleteBlobAsync(item.Name, DeleteSnapshotsOption.IncludeSnapshots, cancellationToken: cancellationToken);
                 }

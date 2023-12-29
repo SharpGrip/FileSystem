@@ -2,9 +2,8 @@
 
 namespace SharpGrip.FileSystem.Configuration
 {
-    public abstract class AdapterConfiguration : IAdapterConfiguration
+    public class FileSystemConfiguration : IConfiguration
     {
-        public bool EnableCache { get; set; }
         public bool EnableLogging { get; set; }
         public ILogger? Logger { get; set; }
     }

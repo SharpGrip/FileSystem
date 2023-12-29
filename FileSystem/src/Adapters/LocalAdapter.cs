@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SharpGrip.FileSystem.Constants;
 using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Models;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
@@ -40,13 +41,9 @@ namespace SharpGrip.FileSystem.Adapters
 
                 return ModelFactory.CreateFile(file, virtualPath);
             }
-            catch (FileSystemException)
-            {
-                throw;
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -65,20 +62,16 @@ namespace SharpGrip.FileSystem.Adapters
 
                 return ModelFactory.CreateDirectory(directory, virtualPath);
             }
-            catch (FileSystemException)
-            {
-                throw;
-            }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
         public override async Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             var path = GetPath(virtualPath);
-            var directory = await Task.Run(() => new DirectoryInfo(path), cancellationToken);
+            var directory = new DirectoryInfo(path);
 
             if (!directory.Exists)
             {
@@ -91,27 +84,28 @@ namespace SharpGrip.FileSystem.Adapters
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
         public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             var path = GetPath(virtualPath);
-            var directory = await Task.Run(() => new DirectoryInfo(path), cancellationToken);
-
-            if (!directory.Exists)
-            {
-                throw new DirectoryNotFoundException(path, Prefix);
-            }
 
             try
             {
+                var directory = new DirectoryInfo(path);
+
+                if (!directory.Exists)
+                {
+                    throw new DirectoryNotFoundException(path, Prefix);
+                }
+
                 return await Task.Run(() => directory.GetDirectories().Select(item => GetDirectory(GetVirtualPath(item.FullName))).ToList(), cancellationToken);
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
@@ -128,27 +122,50 @@ namespace SharpGrip.FileSystem.Adapters
             }
             catch (Exception exception)
             {
-                throw new AdapterRuntimeException(exception);
+                throw Exception(exception);
             }
         }
 
         public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
-            await Task.Run(() => File.Delete(GetPath(virtualPath)), cancellationToken);
+
+            try
+            {
+                await Task.Run(() => File.Delete(GetPath(virtualPath)), cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         public override async Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetDirectoryAsync(virtualPath, cancellationToken);
-            await Task.Run(() => Directory.Delete(GetPath(virtualPath), true), cancellationToken);
+
+            try
+            {
+                await Task.Run(() => Directory.Delete(GetPath(virtualPath), true), cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         public override async Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
-            return new FileStream(GetPath(virtualPath), FileMode.Open);
+            try
+            {
+                return new FileStream(GetPath(virtualPath), FileMode.Open);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         public override async Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default)
@@ -158,25 +175,44 @@ namespace SharpGrip.FileSystem.Adapters
                 throw new FileExistsException(GetPath(virtualPath), Prefix);
             }
 
-            using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Create);
-            contents.Seek(0, SeekOrigin.Begin);
+            try
+            {
+                using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Create);
+                contents.Seek(0, SeekOrigin.Begin);
 
-            await contents.CopyToAsync(fileStream);
+                await contents.CopyToAsync(fileStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
-        public new async Task AppendFileAsync(string virtualPath, Stream contents, CancellationToken cancellationToken = default)
+        public override async Task AppendFileAsync(string virtualPath, Stream contents, CancellationToken cancellationToken = default)
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
-            using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Append);
-            contents.Seek(0, SeekOrigin.Begin);
+            try
+            {
+                using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Append);
+                contents.Seek(0, SeekOrigin.Begin);
 
-            await contents.CopyToAsync(fileStream);
+                await contents.CopyToAsync(fileStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         protected override Exception Exception(Exception exception)
         {
-            throw new NotImplementedException();
+            if (exception is FileSystemException)
+            {
+                return exception;
+            }
+
+            return new AdapterRuntimeException(exception);
         }
     }
 }

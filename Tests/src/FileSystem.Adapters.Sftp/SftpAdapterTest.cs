@@ -453,7 +453,7 @@ namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.Sftp
             var sftpAdapter = new SftpAdapter("prefix-1", "root-path-1", sftpClient);
             var fileSystem = new SharpGrip.FileSystem.FileSystem(new List<IAdapter> {sftpAdapter});
 
-            await Assert.ThrowsAsync<AdapterRuntimeException>(() => fileSystem.AppendFileAsync("prefix-1://test1.txt", new MemoryStream()));
+            await fileSystem.AppendFileAsync("prefix-1://test1.txt", new MemoryStream());
         }
     }
 }
