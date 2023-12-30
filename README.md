@@ -12,7 +12,7 @@
 
 ## Introduction
 
-SharpGrip FileSystem is a file system abstraction supporting multiple adapters.
+SharpGrip FileSystem is a .NET file system abstraction supporting multiple adapters.
 
 ## Installation
 
