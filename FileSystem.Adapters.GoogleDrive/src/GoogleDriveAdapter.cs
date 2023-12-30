@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Google;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
-using Microsoft.Extensions.Logging;
 using SharpGrip.FileSystem.Cache;
 using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Extensions;
@@ -43,6 +42,8 @@ namespace SharpGrip.FileSystem.Adapters.GoogleDrive
 
         public override void Connect()
         {
+            Logger.LogStartConnectingAdapter(this);
+            Logger.LogFinishedConnectingAdapter(this);
         }
 
         public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
@@ -356,13 +357,8 @@ namespace SharpGrip.FileSystem.Adapters.GoogleDrive
 
         private async Task<string> GetAbsolutePath(File file, CancellationToken cancellationToken = default)
         {
-            Logger.LogDebug("Start resolving path for object '{Name}' with ID '{Id}'", file.Name, file.Id);
-
             if (file.Parents == null || !file.Parents.Any())
             {
-                Logger.LogTrace("No parents found for object '{Name}' with ID '{Id}'; returning absolute path '{Name}'", file.Name, file.Id, file.Name);
-                Logger.LogDebug("Finished resolving path for object '{Name}' with ID '{Id}'; {Path}", file.Name, file.Id, string.Join("/", file.Name));
-
                 return file.Name;
             }
 
@@ -371,28 +367,17 @@ namespace SharpGrip.FileSystem.Adapters.GoogleDrive
             while (file.Parents != null && file.Parents.Any())
             {
                 var parentId = file.Parents[0];
-
-                Logger.LogDebug("Retrieving parent object with ID '{ParentId}' for object '{Name}' with ID '{Id}'", parentId, file.Name, file.Id);
-
                 var cacheEntry = await GetOrCreateCacheEntryAsync(parentId, async () => new CacheEntry<string, File>(parentId, await RequestObjectById(parentId, cancellationToken)));
                 var parent = cacheEntry.Value;
 
-                Logger.LogDebug("Finished retrieving parent object with ID '{ParentId}' for object '{Name}' with ID '{Id}'", parentId, file.Name, file.Id);
-
                 if (parent.Parents == null || !parent.Parents.Any())
                 {
-                    Logger.LogTrace("No parents found for object '{Name}' with ID '{Id}'; aborting path resolving", parent.Name, parent.Id);
-
                     break;
                 }
 
                 pathParts.Insert(0, parent.Name);
                 file = parent;
-
-                Logger.LogDebug("Resolving path for object '{Name}' with ID '{Id}'; {Path}", file.Name, file.Id, string.Join("/", pathParts));
             }
-
-            Logger.LogDebug("Finished resolving path for object '{Name}' with ID '{Id}'; {Path}", file.Name, file.Id, string.Join("/", pathParts));
 
             return string.Join("/", pathParts);
         }
@@ -478,21 +463,10 @@ namespace SharpGrip.FileSystem.Adapters.GoogleDrive
             {
                 directoryList = await request.ExecuteAsync(cancellationToken);
 
-                Logger.LogWarning("Retrieving directories for path '{Path}' and last path part '{LastPathPart}'", path, GetLastPathPart(path));
-
-                foreach (var directory in directoryList.Files)
-                {
-                    Logger.LogInformation("Found directory '{DirectoryId}' with path '{DirectoryPath}'; trashed: {Trashed}", directory.Id, directory.Name, directory.Trashed);
-                }
-
-                Logger.LogWarning("Finished retrieving {DirectoryCount} directories for path '{Path}' and last path part '{LastPathPart}'", directoryList.Files.Count, path, GetLastPathPart(path));
-
                 foreach (var directory in directoryList.Files)
                 {
                     try
                     {
-                        Logger.LogWarning("Start resolving absolute path for directory '{DirectoryId}' with path '{DirectoryPath}'", directory.Id, directory.Name);
-
                         var directoryPath = (await GetAbsolutePath(directory, cancellationToken)).EnsureTrailingForwardSlash();
 
                         TryAddCacheEntry(new CacheEntry<string, File>(directory.Id, directory));

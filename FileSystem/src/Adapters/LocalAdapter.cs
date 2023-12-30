@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SharpGrip.FileSystem.Constants;
 using SharpGrip.FileSystem.Exceptions;
+using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
@@ -24,6 +24,8 @@ namespace SharpGrip.FileSystem.Adapters
 
         public override void Connect()
         {
+            Logger.LogStartConnectingAdapter(this);
+            Logger.LogFinishedConnectingAdapter(this);
         }
 
         public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
@@ -80,7 +82,14 @@ namespace SharpGrip.FileSystem.Adapters
 
             try
             {
-                return await Task.Run(() => directory.GetFiles().Select(item => GetFile(GetVirtualPath(item.FullName))).ToList(), cancellationToken);
+                var files = new List<IFile>();
+
+                foreach (var file in directory.GetFiles())
+                {
+                    files.Add(await GetFileAsync(GetVirtualPath(file.FullName), cancellationToken));
+                }
+
+                return files;
             }
             catch (Exception exception)
             {
@@ -101,7 +110,14 @@ namespace SharpGrip.FileSystem.Adapters
                     throw new DirectoryNotFoundException(path, Prefix);
                 }
 
-                return await Task.Run(() => directory.GetDirectories().Select(item => GetDirectory(GetVirtualPath(item.FullName))).ToList(), cancellationToken);
+                var directories = new List<IDirectory>();
+
+                foreach (var subDirectory in directory.GetDirectories())
+                {
+                    directories.Add(await GetDirectoryAsync(GetVirtualPath(subDirectory.FullName), cancellationToken));
+                }
+
+                return directories;
             }
             catch (Exception exception)
             {

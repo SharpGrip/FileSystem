@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using SharpGrip.FileSystem.Cache;
 using SharpGrip.FileSystem.Configuration;
+using SharpGrip.FileSystem.Constants;
+using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
 using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
@@ -16,24 +16,19 @@ using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundExcept
 
 namespace SharpGrip.FileSystem.Adapters
 {
-    public abstract class Adapter<TAdapterConfiguration, TCacheKey, TCacheValue> : IAdapter
-        where TAdapterConfiguration : IAdapterConfiguration, new()
-        where TCacheKey : class
+    public abstract class Adapter<TAdapterConfiguration, TCacheKey, TCacheValue> : IAdapter where TAdapterConfiguration : IAdapterConfiguration, new() where TCacheKey : class
     {
         public string Prefix { get; }
         public string RootPath { get; }
         public string Name => GetType().FullName!;
-        public TAdapterConfiguration Configuration { get; }
         public IAdapterConfiguration AdapterConfiguration => Configuration;
-        public ILogger Logger { get; set; } = NullLogger<Adapter<TAdapterConfiguration, TCacheKey, TCacheValue>>.Instance;
+        protected TAdapterConfiguration Configuration { get; }
+        protected ILogger Logger { get; } = NullLogger<Adapter<TAdapterConfiguration, TCacheKey, TCacheValue>>.Instance;
 
         private IDictionary<TCacheKey, CacheEntry<TCacheKey, TCacheValue>> Cache { get; set; } = new Dictionary<TCacheKey, CacheEntry<TCacheKey, TCacheValue>>();
 
         protected Adapter(string prefix, string rootPath, Action<TAdapterConfiguration>? configuration)
         {
-            Prefix = prefix;
-            RootPath = PathUtilities.NormalizeRootPath(rootPath);
-
             var adapterConfiguration = new TAdapterConfiguration();
             configuration?.Invoke(adapterConfiguration);
 
@@ -41,190 +36,83 @@ namespace SharpGrip.FileSystem.Adapters
 
             if (Configuration.EnableLogging)
             {
-                Logger = Configuration.Logger ?? LoggerFactory.Create(builder =>
-                {
-                    builder.AddConsole();
-                    builder.SetMinimumLevel(LogLevel.Trace);
-                }).CreateLogger(GetType().FullName ?? GetType().Name);
+                Logger = Configuration.Logger ?? LoggerUtilities.CreateDefaultConsoleLogger(Name);
             }
-        }
 
-        public IFile GetFile(string virtualPath)
-        {
-            return GetFileAsync(virtualPath).Result;
-        }
+            Logger.LogStartNormalizingRootPath(rootPath);
 
-        public IDirectory GetDirectory(string virtualPath)
-        {
-            return GetDirectoryAsync(virtualPath).Result;
-        }
+            Prefix = prefix;
+            RootPath = PathUtilities.NormalizeRootPath(rootPath);
 
-        public IEnumerable<IFile> GetFiles(string virtualPath = "")
-        {
-            return GetFilesAsync(virtualPath).Result;
-        }
-
-        public IEnumerable<IDirectory> GetDirectories(string virtualPath = "")
-        {
-            return GetDirectoriesAsync(virtualPath).Result;
-        }
-
-        public bool FileExists(string virtualPath)
-        {
-            return FileExistsAsync(virtualPath).Result;
+            Logger.LogFinishedNormalizingRootPath(rootPath, RootPath);
         }
 
         public async Task<bool> FileExistsAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             try
             {
+                Logger.LogStartExecutingMethod(nameof(FileExistsAsync));
                 await GetFileAsync(virtualPath, cancellationToken);
             }
             catch (FileNotFoundException)
             {
                 return false;
             }
+            finally
+            {
+                Logger.LogFinishedExecutingMethod(nameof(FileExistsAsync));
+            }
 
             return true;
-        }
-
-        public bool DirectoryExists(string virtualPath)
-        {
-            return DirectoryExistsAsync(virtualPath).Result;
         }
 
         public async Task<bool> DirectoryExistsAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             try
             {
+                Logger.LogStartExecutingMethod(nameof(DirectoryExistsAsync));
                 await GetDirectoryAsync(virtualPath, cancellationToken);
             }
             catch (DirectoryNotFoundException)
             {
                 return false;
             }
+            finally
+            {
+                Logger.LogFinishedExecutingMethod(nameof(DirectoryExistsAsync));
+            }
 
             return true;
         }
 
-        public void CreateDirectory(string virtualPath)
-        {
-            CreateDirectoryAsync(virtualPath).Wait();
-        }
-
-        public void DeleteDirectory(string virtualPath)
-        {
-            DeleteDirectoryAsync(virtualPath).Wait();
-        }
-
-        public void DeleteFile(string virtualPath)
-        {
-            DeleteFileAsync(virtualPath).Wait();
-        }
-
-        public byte[] ReadFile(string virtualPath)
-        {
-            return ReadFileAsync(virtualPath).Result;
-        }
-
-        public async Task<byte[]> ReadFileAsync(string virtualPath, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-
-            try
-            {
-                var stream = await ReadFileStreamAsync(virtualPath, cancellationToken);
-                using var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(stream, true, cancellationToken);
-
-                return memoryStream.ToArray();
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        public async Task<string> ReadTextFileAsync(string virtualPath, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-
-            try
-            {
-                using var stream = await ReadFileStreamAsync(virtualPath, cancellationToken);
-                using var streamReader = new StreamReader(stream);
-
-                return await streamReader.ReadToEndAsync();
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        public string ReadTextFile(string virtualPath)
-        {
-            return ReadTextFileAsync(virtualPath).Result;
-        }
-
-        public void WriteFile(string virtualPath, byte[] contents, bool overwrite = false)
-        {
-            WriteFileAsync(virtualPath, contents, overwrite).Wait();
-        }
-
-        public async Task WriteFileAsync(string virtualPath, byte[] contents, bool overwrite = false, CancellationToken cancellationToken = default)
-        {
-            await WriteFileAsync(virtualPath, new MemoryStream(contents), overwrite, cancellationToken);
-        }
-
-        public void WriteFile(string virtualPath, string contents, bool overwrite = false)
-        {
-            WriteFileAsync(virtualPath, contents, overwrite).Wait();
-        }
-
-        public async Task WriteFileAsync(string virtualPath, string contents, bool overwrite = false, CancellationToken cancellationToken = default)
-        {
-            await WriteFileAsync(virtualPath, Encoding.UTF8.GetBytes(contents), overwrite, cancellationToken);
-        }
-
         public virtual async Task AppendFileAsync(string virtualPath, Stream contents, CancellationToken cancellationToken = default)
         {
+            Logger.LogStartExecutingMethod(nameof(AppendFileAsync));
+
             await GetFileAsync(virtualPath, cancellationToken);
 
-            var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(contents, true, cancellationToken);
+            using var fileContents = await ReadFileStreamAsync(virtualPath, cancellationToken);
+            fileContents.Seek(0, SeekOrigin.Begin);
 
-            var existingContents = await ReadFileAsync(virtualPath, cancellationToken);
-            var fileContents = existingContents.Concat(memoryStream.ToArray()).ToArray();
+            using var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(fileContents, false, cancellationToken);
+
+            await contents.CopyToAsync(memoryStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+            memoryStream.Seek(0, SeekOrigin.Begin);
 
             await DeleteFileAsync(virtualPath, cancellationToken);
 
             try
             {
-                await WriteFileAsync(virtualPath, fileContents, true, cancellationToken);
+                await WriteFileAsync(virtualPath, memoryStream, true, cancellationToken);
             }
             catch (Exception exception)
             {
                 throw Exception(exception);
             }
-        }
-
-        public void AppendFile(string virtualPath, byte[] contents)
-        {
-            AppendFileAsync(virtualPath, contents).Wait();
-        }
-
-        public async Task AppendFileAsync(string virtualPath, byte[] contents, CancellationToken cancellationToken = default)
-        {
-            await AppendFileAsync(virtualPath, new MemoryStream(contents), cancellationToken);
-        }
-
-        public void AppendFile(string virtualPath, string contents)
-        {
-            AppendFileAsync(virtualPath, contents).Wait();
-        }
-
-        public async Task AppendFileAsync(string virtualPath, string contents, CancellationToken cancellationToken = default)
-        {
-            await AppendFileAsync(virtualPath, Encoding.UTF8.GetBytes(contents), cancellationToken);
+            finally
+            {
+                Logger.LogFinishedExecutingMethod(nameof(AppendFileAsync));
+            }
         }
 
         public abstract void Dispose();
@@ -250,11 +138,6 @@ namespace SharpGrip.FileSystem.Adapters
             return PathUtilities.GetVirtualPath(path, Prefix, RootPath);
         }
 
-        protected string[] GetPathParts(string path)
-        {
-            return PathUtilities.GetPathParts(path);
-        }
-
         protected string GetLastPathPart(string path)
         {
             return PathUtilities.GetLastPathPart(path);
@@ -267,7 +150,9 @@ namespace SharpGrip.FileSystem.Adapters
 
         public void ClearCache()
         {
+            Logger.LogStartClearingAdapterCache(this);
             Cache = new Dictionary<TCacheKey, CacheEntry<TCacheKey, TCacheValue>>();
+            Logger.LogFinishedClearingAdapterCache(this);
         }
 
         protected async Task<CacheEntry<TCacheKey, TCacheValue>> GetOrCreateCacheEntryAsync(TCacheKey cacheKey, Func<Task<CacheEntry<TCacheKey, TCacheValue>>> factory)
@@ -288,7 +173,9 @@ namespace SharpGrip.FileSystem.Adapters
         {
             if (Configuration.EnableCache && !Cache.ContainsKey(cacheEntry.Key))
             {
+                Logger.LogStartAddingEntryToAdapterCache(this, cacheEntry.Key);
                 Cache.Add(cacheEntry.Key, cacheEntry);
+                Logger.LogFinishedAddingEntryToAdapterCache(this, cacheEntry.Key);
             }
         }
 
@@ -296,7 +183,9 @@ namespace SharpGrip.FileSystem.Adapters
         {
             if (Configuration.EnableCache)
             {
+                Logger.LogStartRemovingEntryFromAdapterCache(this, cacheKey);
                 Cache.Remove(cacheKey);
+                Logger.LogFinishedRemovingEntryFromAdapterCache(this, cacheKey);
             }
         }
 
@@ -304,7 +193,15 @@ namespace SharpGrip.FileSystem.Adapters
         {
             if (Configuration.EnableCache)
             {
-                return Cache.TryGetValue(cacheKey, out var cacheEntry) ? cacheEntry : null;
+                try
+                {
+                    Logger.LogStartRetrievingEntryFromAdapterCache(this, cacheKey);
+                    return Cache.TryGetValue(cacheKey, out var cacheEntry) ? cacheEntry : null;
+                }
+                finally
+                {
+                    Logger.LogFinishedRetrievingEntryFromAdapterCache(this, cacheKey);
+                }
             }
 
             return null;

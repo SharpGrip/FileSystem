@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Graph;
 using SharpGrip.FileSystem.Exceptions;
+using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
@@ -30,6 +31,8 @@ namespace SharpGrip.FileSystem.Adapters.MicrosoftOneDrive
 
         public override void Connect()
         {
+            Logger.LogStartConnectingAdapter(this);
+            Logger.LogFinishedConnectingAdapter(this);
         }
 
         public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)

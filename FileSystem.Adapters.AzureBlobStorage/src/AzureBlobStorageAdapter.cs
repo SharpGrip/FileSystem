@@ -30,6 +30,8 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
 
         public override void Connect()
         {
+            Logger.LogStartConnectingAdapter(this);
+            Logger.LogFinishedConnectingAdapter(this);
         }
 
         public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)

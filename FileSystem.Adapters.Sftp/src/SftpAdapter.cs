@@ -10,6 +10,7 @@ using Renci.SshNet;
 using Renci.SshNet.Common;
 using SharpGrip.FileSystem.Constants;
 using SharpGrip.FileSystem.Exceptions;
+using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
 using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
@@ -43,7 +44,9 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
             try
             {
+                Logger.LogStartConnectingAdapter(this);
                 client.Connect();
+                Logger.LogFinishedConnectingAdapter(this);
             }
             catch (Exception exception)
             {
