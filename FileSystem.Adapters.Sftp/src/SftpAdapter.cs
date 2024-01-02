@@ -32,7 +32,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
         public override void Dispose()
         {
-            ((IBaseClient) client).Dispose();
+            client.Dispose();
         }
 
         public override async Task ConnectAsync(CancellationToken cancellationToken = default)
