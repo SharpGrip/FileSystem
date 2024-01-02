@@ -1,32 +1,53 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP;
+using FluentFTP.Exceptions;
 using SharpGrip.FileSystem.Constants;
 using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
+using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
 
-namespace SharpGrip.FileSystem.Adapters
+namespace SharpGrip.FileSystem.Adapters.Ftp
 {
-    public class LocalAdapter : Adapter<LocalAdapterConfiguration, string, string>
+    public class FtpAdapter : Adapter<FtpAdapterConfiguration, string, string>
     {
-        public LocalAdapter(string prefix, string rootPath, Action<LocalAdapterConfiguration>? configuration = null) : base(prefix, rootPath, configuration)
+        private readonly IAsyncFtpClient client;
+
+        public FtpAdapter(string prefix, string rootPath, IAsyncFtpClient client, Action<FtpAdapterConfiguration>? configuration = null) : base(prefix, rootPath, configuration)
         {
+            this.client = client;
         }
 
         public override void Dispose()
         {
+            client.Dispose();
         }
 
         public override async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
-            Logger.LogStartConnectingAdapter(this);
-            await Task.CompletedTask;
-            Logger.LogFinishedConnectingAdapter(this);
+            if (client.IsConnected)
+            {
+                return;
+            }
+
+            try
+            {
+                Logger.LogStartConnectingAdapter(this);
+                await client.Connect(cancellationToken);
+                Logger.LogFinishedConnectingAdapter(this);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
@@ -35,9 +56,9 @@ namespace SharpGrip.FileSystem.Adapters
 
             try
             {
-                var file = await Task.Run(() => new FileInfo(path), cancellationToken);
+                var file = await client.GetObjectInfo(path, token: cancellationToken);
 
-                if (!file.Exists)
+                if (file == null || file.Type != FtpObjectType.File)
                 {
                     throw new FileNotFoundException(path, Prefix);
                 }
@@ -56,9 +77,9 @@ namespace SharpGrip.FileSystem.Adapters
 
             try
             {
-                var directory = await Task.Run(() => new DirectoryInfo(path), cancellationToken);
+                var directory = await client.GetObjectInfo(path, token: cancellationToken);
 
-                if (!directory.Exists)
+                if (directory == null || directory.Type != FtpObjectType.Directory)
                 {
                     throw new DirectoryNotFoundException(path, Prefix);
                 }
@@ -73,24 +94,14 @@ namespace SharpGrip.FileSystem.Adapters
 
         public override async Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
+            await GetDirectoryAsync(virtualPath, cancellationToken);
             var path = GetPath(virtualPath);
-            var directory = new DirectoryInfo(path);
-
-            if (!directory.Exists)
-            {
-                throw new DirectoryNotFoundException(path, Prefix);
-            }
 
             try
             {
-                var files = new List<IFile>();
+                var ftpListItems = await client.GetListing(path, cancellationToken);
 
-                foreach (var file in directory.GetFiles())
-                {
-                    files.Add(await GetFileAsync(GetVirtualPath(file.FullName), cancellationToken));
-                }
-
-                return files;
+                return ftpListItems.Where(file => file.Type == FtpObjectType.File).Select(file => ModelFactory.CreateFile(file, GetVirtualPath(file.FullName)));
             }
             catch (Exception exception)
             {
@@ -100,25 +111,14 @@ namespace SharpGrip.FileSystem.Adapters
 
         public override async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
+            await GetDirectoryAsync(virtualPath, cancellationToken);
             var path = GetPath(virtualPath);
 
             try
             {
-                var directory = new DirectoryInfo(path);
+                var ftpListItems = await client.GetListing(path, cancellationToken);
 
-                if (!directory.Exists)
-                {
-                    throw new DirectoryNotFoundException(path, Prefix);
-                }
-
-                var directories = new List<IDirectory>();
-
-                foreach (var subDirectory in directory.GetDirectories())
-                {
-                    directories.Add(await GetDirectoryAsync(GetVirtualPath(subDirectory.FullName), cancellationToken));
-                }
-
-                return directories;
+                return ftpListItems.Where(file => file.Type == FtpObjectType.Directory).Select(file => ModelFactory.CreateDirectory(file, GetVirtualPath(file.FullName)));
             }
             catch (Exception exception)
             {
@@ -135,21 +135,7 @@ namespace SharpGrip.FileSystem.Adapters
 
             try
             {
-                await Task.Run(() => Directory.CreateDirectory(GetPath(virtualPath)), cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                throw Exception(exception);
-            }
-        }
-
-        public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
-        {
-            await GetFileAsync(virtualPath, cancellationToken);
-
-            try
-            {
-                await Task.Run(() => File.Delete(GetPath(virtualPath)), cancellationToken);
+                await client.CreateDirectory(GetPath(virtualPath), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -163,7 +149,21 @@ namespace SharpGrip.FileSystem.Adapters
 
             try
             {
-                await Task.Run(() => Directory.Delete(GetPath(virtualPath), true), cancellationToken);
+                await client.DeleteDirectory(GetPath(virtualPath), cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
+        }
+
+        public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        {
+            await GetFileAsync(virtualPath, cancellationToken);
+
+            try
+            {
+                await client.DeleteFile(GetPath(virtualPath), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -177,7 +177,9 @@ namespace SharpGrip.FileSystem.Adapters
 
             try
             {
-                return new FileStream(GetPath(virtualPath), FileMode.Open);
+                var fileStream = await client.OpenRead(GetPath(virtualPath), token: cancellationToken);
+
+                return await StreamUtilities.CopyContentsToMemoryStreamAsync(fileStream, true, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -194,10 +196,12 @@ namespace SharpGrip.FileSystem.Adapters
 
             try
             {
-                using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Create);
                 contents.Seek(0, SeekOrigin.Begin);
 
-                await contents.CopyToAsync(fileStream, FileSystemConstants.Streaming.DefaultMemoryStreamBufferSize, cancellationToken);
+                using var writeStream = await client.OpenWrite(GetPath(virtualPath), token: cancellationToken);
+
+                await contents.CopyToAsync(writeStream, FileSystemConstants.Streaming.DefaultMemoryStreamBufferSize, cancellationToken);
+                await writeStream.FlushAsync(cancellationToken);
             }
             catch (Exception exception)
             {
@@ -211,14 +215,13 @@ namespace SharpGrip.FileSystem.Adapters
 
             try
             {
-                using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Append);
-                contents.Seek(0, SeekOrigin.Begin);
+                using var fileStream = await client.OpenAppend(GetPath(virtualPath), token: cancellationToken);
 
-                await contents.CopyToAsync(fileStream, FileSystemConstants.Streaming.DefaultMemoryStreamBufferSize, cancellationToken);
+                await contents.CopyToAsync(fileStream);
             }
             catch (Exception exception)
             {
-                throw Exception(exception);
+                throw new AdapterRuntimeException(exception);
             }
         }
 
@@ -227,6 +230,21 @@ namespace SharpGrip.FileSystem.Adapters
             if (exception is FileSystemException)
             {
                 return exception;
+            }
+
+            if (exception is SocketException socketException)
+            {
+                return new ConnectionException(socketException);
+            }
+
+            if (exception is FtpAuthenticationException ftpAuthenticationException)
+            {
+                return new ConnectionException(ftpAuthenticationException);
+            }
+
+            if (exception is FtpSecurityNotAvailableException ftpSecurityNotAvailableException)
+            {
+                return new ConnectionException(ftpSecurityNotAvailableException);
             }
 
             return new AdapterRuntimeException(exception);

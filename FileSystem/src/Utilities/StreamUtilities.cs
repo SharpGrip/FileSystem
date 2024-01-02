@@ -10,7 +10,7 @@ namespace SharpGrip.FileSystem.Utilities
         public static async Task<MemoryStream> CopyContentsToMemoryStreamAsync(Stream sourceStream, bool setPositionToStart, CancellationToken cancellationToken = default)
         {
             var memoryStream = new MemoryStream();
-            await sourceStream.CopyToAsync(memoryStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+            await sourceStream.CopyToAsync(memoryStream, FileSystemConstants.Streaming.DefaultMemoryStreamBufferSize, cancellationToken);
 
             if (setPositionToStart)
             {

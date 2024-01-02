@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>SharpGrip.FileSystem.Adapters.Sftp</RootNamespace>
+        <RootNamespace>SharpGrip.FileSystem.Adapters.Ftp</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
-        <AssemblyName>SharpGrip.FileSystem.Adapters.Sftp</AssemblyName>
-        <PackageId>SharpGrip.FileSystem.Adapters.Sftp</PackageId>
-        <Title>SharpGrip FileSystem SFTP adapter</Title>
-        <Description>The SharpGrip FileSystem SFTP adapter.</Description>
-        <PackageTags>sharpgrip;file-system;sftp</PackageTags>
+        <AssemblyName>SharpGrip.FileSystem.Adapters.Ftp</AssemblyName>
+        <PackageId>SharpGrip.FileSystem.Adapters.Ftp</PackageId>
+        <Title>SharpGrip FileSystem FTP adapter</Title>
+        <Description>The SharpGrip FileSystem FTP adapter.</Description>
+        <PackageTags>sharpgrip;file-system;ftp</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,11 +17,11 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentFTP" Version="49.0.1" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="SSH.NET" Version="2023.0.1" />
     </ItemGroup>
 
     <ItemGroup>

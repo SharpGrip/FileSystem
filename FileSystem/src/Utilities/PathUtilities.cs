@@ -37,6 +37,28 @@ namespace SharpGrip.FileSystem.Utilities
         }
 
         /// <summary>
+        /// Normalizes a virtual path.
+        /// </summary>
+        /// <param name="virtualPath">The virtual path.</param>
+        /// <returns>The normalized virtual path.</returns>
+        public static string NormalizeVirtualPath(string virtualPath)
+        {
+            if (!virtualPath.Contains(AdapterPrefixSeparator))
+            {
+                throw new InvalidVirtualPathException(virtualPath);
+            }
+
+            var prefixAndPath = ResolvePrefixAndPath(virtualPath);
+
+            if (prefixAndPath.Length == 1)
+            {
+                return virtualPath;
+            }
+
+            return prefixAndPath[0] + AdapterPrefixSeparator + prefixAndPath[1].RemoveLeadingForwardSlash();
+        }
+
+        /// <summary>
         /// Returns the path from a prefixed path.
         /// </summary>
         /// <param name="virtualPath">The prefixed path.</param>
