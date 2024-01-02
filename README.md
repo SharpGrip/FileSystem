@@ -29,6 +29,7 @@ For adapters other than the local file system (included in the `SharpGrip.FileSy
 | [AzureBlobStorage](#azureblobstorage-adapter)   | `SharpGrip.FileSystem.Adapters.AzureBlobStorage`  | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureBlobStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureBlobStorage)   |
 | [AzureFileStorage](#azurefilestorage-adapter)   | `SharpGrip.FileSystem.Adapters.AzureFileStorage`  | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.AzureFileStorage)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.AzureFileStorage)   |
 | [Dropbox](#dropbox-adapter)                     | `SharpGrip.FileSystem.Adapters.Dropbox`           | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Dropbox)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Dropbox)                     |
+| [FTP](#ftp-adapter)                             | `SharpGrip.FileSystem.Adapters.Ftp`               | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Ftp)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Ftp)                             |
 | [GoogleDrive](#googledrive-adapter)             | `SharpGrip.FileSystem.Adapters.GoogleDrive`       | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.GoogleDrive)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.GoogleDrive)             |
 | [MicrosoftOneDrive](#microsoftonedrive-adapter) | `SharpGrip.FileSystem.Adapters.MicrosoftOneDrive` | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.MicrosoftOneDrive)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.MicrosoftOneDrive) |
 | [SFTP](#sftp-adapter)                           | `SharpGrip.FileSystem.Adapters.Sftp`              | [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FileSystem.Adapters.Sftp)](https://www.nuget.org/packages/SharpGrip.FileSystem.Adapters.Sftp)                           |
@@ -123,6 +124,21 @@ var adapters = new List<IAdapter>
 {
     new LocalAdapter("local", "/var/files"),
     new DropboxAdapter("dropbox", "/Files", dropboxClient)
+};
+
+var fileSystem = new FileSystem(adapters);
+```
+
+### FTP adapter
+
+```
+// FTP connection.
+var ftpClient = new AsyncFtpClient("hostname", "username", "password");
+
+var adapters = new List<IAdapter>
+{
+    new LocalAdapter("local", "/var/files"),
+    new FtpAdapter("ftp", "/var/files", ftpClient)
 };
 
 var fileSystem = new FileSystem(adapters);

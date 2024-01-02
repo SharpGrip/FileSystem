@@ -28,9 +28,10 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
         {
         }
 
-        public override void Connect()
+        public override async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
             Logger.LogStartConnectingAdapter(this);
+            await Task.CompletedTask;
             Logger.LogFinishedConnectingAdapter(this);
         }
 

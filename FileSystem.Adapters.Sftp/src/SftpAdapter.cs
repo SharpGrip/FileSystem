@@ -35,7 +35,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             ((IBaseClient) client).Dispose();
         }
 
-        public override void Connect()
+        public override async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
             if (client.IsConnected)
             {
@@ -45,7 +45,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
             try
             {
                 Logger.LogStartConnectingAdapter(this);
-                client.Connect();
+                await client.ConnectAsync(cancellationToken);
                 Logger.LogFinishedConnectingAdapter(this);
             }
             catch (Exception exception)
@@ -224,7 +224,7 @@ namespace SharpGrip.FileSystem.Adapters.Sftp
 
                 using var writeStream = client.OpenWrite(GetPath(virtualPath));
 
-                await contents.CopyToAsync(writeStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+                await contents.CopyToAsync(writeStream, FileSystemConstants.Streaming.DefaultMemoryStreamBufferSize, cancellationToken);
                 await writeStream.FlushAsync(cancellationToken);
             }
             catch (Exception exception)

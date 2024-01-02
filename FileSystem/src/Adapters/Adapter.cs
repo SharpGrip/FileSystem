@@ -20,7 +20,7 @@ namespace SharpGrip.FileSystem.Adapters
     {
         public string Prefix { get; }
         public string RootPath { get; }
-        public string Name => GetType().FullName!;
+        public string Name { get; }
         public IAdapterConfiguration AdapterConfiguration => Configuration;
         protected TAdapterConfiguration Configuration { get; }
         protected ILogger Logger { get; } = NullLogger<Adapter<TAdapterConfiguration, TCacheKey, TCacheValue>>.Instance;
@@ -32,6 +32,7 @@ namespace SharpGrip.FileSystem.Adapters
             var adapterConfiguration = new TAdapterConfiguration();
             configuration?.Invoke(adapterConfiguration);
 
+            Name = GetType().FullName!;
             Configuration = adapterConfiguration;
 
             if (Configuration.EnableLogging)
@@ -96,7 +97,7 @@ namespace SharpGrip.FileSystem.Adapters
 
             using var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(fileContents, false, cancellationToken);
 
-            await contents.CopyToAsync(memoryStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+            await contents.CopyToAsync(memoryStream, FileSystemConstants.Streaming.DefaultMemoryStreamBufferSize, cancellationToken);
             memoryStream.Seek(0, SeekOrigin.Begin);
 
             await DeleteFileAsync(virtualPath, cancellationToken);
@@ -116,7 +117,7 @@ namespace SharpGrip.FileSystem.Adapters
         }
 
         public abstract void Dispose();
-        public abstract void Connect();
+        public abstract Task ConnectAsync(CancellationToken cancellationToken = default);
         public abstract Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default);
         public abstract Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default);
         public abstract Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default);

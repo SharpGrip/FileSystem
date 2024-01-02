@@ -31,14 +31,12 @@ namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.Sftp
         }
 
         [Fact]
-        public Task Test_Connect()
+        public async Task Test_Connect()
         {
             var sftpClient = Substitute.For<ISftpClient>();
             var sftpAdapter = new SftpAdapter("prefix", "/root-path", sftpClient);
 
-            sftpAdapter.Connect();
-
-            return Task.CompletedTask;
+            await sftpAdapter.ConnectAsync();
         }
 
         [Fact]

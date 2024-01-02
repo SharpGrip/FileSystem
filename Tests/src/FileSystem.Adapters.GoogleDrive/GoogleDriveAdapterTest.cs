@@ -19,14 +19,12 @@ namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.GoogleDrive
         }
 
         [Fact]
-        public Task Test_Connect()
+        public async Task Test_Connect()
         {
             var googleDriveClient = Substitute.For<DriveService>();
             var googleDriveAdapter = new GoogleDriveAdapter("prefix", "/root-path", googleDriveClient);
 
-            googleDriveAdapter.Connect();
-
-            return Task.CompletedTask;
+            await googleDriveAdapter.ConnectAsync();
         }
 
         [Fact]

@@ -36,14 +36,12 @@ namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.AmazonS3
         }
 
         [Fact]
-        public Task Test_Connect()
+        public async Task Test_Connect()
         {
             var amazonS3Client = Substitute.For<IAmazonS3>();
             var amazonS3Adapter = new AmazonS3Adapter("prefix", "/root-path", amazonS3Client, "bucket");
 
-            amazonS3Adapter.Connect();
-
-            return Task.CompletedTask;
+            await amazonS3Adapter.ConnectAsync();
         }
 
         [Fact]
