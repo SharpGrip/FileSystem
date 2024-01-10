@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>SharpGrip.FileSystem.Adapters.GoogleCloudStorage</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AssemblyName>SharpGrip.FileSystem.Adapters.GoogleCloudStorage</AssemblyName>
+        <PackageId>SharpGrip.FileSystem.Adapters.GoogleCloudStorage</PackageId>
+        <Title>SharpGrip FileSystem Google Cloud Storage adapter</Title>
+        <Description>The SharpGrip FileSystem Google Cloud Storage adapter.</Description>
+        <PackageTags>sharpgrip;file-system;google-cloud-storage</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Google.Cloud.Storage.V1" Version="4.7.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\FileSystem\FileSystem.csproj"/>
+    </ItemGroup>
+
+</Project>
