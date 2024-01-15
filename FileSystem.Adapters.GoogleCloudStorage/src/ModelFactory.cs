@@ -1,5 +1,6 @@
 using Google.Apis.Storage.v1.Data;
 using SharpGrip.FileSystem.Models;
+using SharpGrip.FileSystem.Utilities;
 
 namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
 {
@@ -9,7 +10,7 @@ namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
         {
             return new FileModel
             {
-                Name = file.Name,
+                Name = PathUtilities.GetLastPathPart(file.Name),
                 Path = path,
                 VirtualPath = virtualPath,
                 Length = (long?) file.Size,

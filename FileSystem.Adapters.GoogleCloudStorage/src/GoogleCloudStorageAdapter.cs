@@ -1,14 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Google;
 using Google.Cloud.Storage.V1;
 using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
+using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
+using Object = Google.Apis.Storage.v1.Data.Object;
 
 namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
 {
@@ -51,6 +56,10 @@ namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
 
                 return ModelFactory.CreateFile(file, path, virtualPath);
             }
+            catch (GoogleApiException googleApiException) when (googleApiException.HttpStatusCode == HttpStatusCode.NotFound)
+            {
+                throw new FileNotFoundException(path, Prefix);
+            }
             catch (Exception exception)
             {
                 throw Exception(exception);
@@ -59,11 +68,16 @@ namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
 
         public override async Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            var path = GetPath(virtualPath).EnsureLeadingForwardSlash().EnsureTrailingForwardSlash();
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
             var parentPath = GetParentPathPart(path).EnsureTrailingForwardSlash();
 
             try
             {
+                if (path.IsNullOrEmpty() || path == "/")
+                {
+                    return ModelFactory.CreateDirectory("/", path, virtualPath);
+                }
+
                 var request = client.Service.Objects.List(bucketName);
 
                 request.Prefix = parentPath == "/" ? null : parentPath;
@@ -73,19 +87,26 @@ namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
                 {
                     var objects = await request.ExecuteAsync(cancellationToken: cancellationToken);
 
-                    foreach (var directoryName in objects.Prefixes)
+                    if (objects.Prefixes != null)
                     {
-                        var directoryPath = parentPath + directoryName;
-
-                        if (directoryPath == path)
+                        foreach (var directoryPath in objects.Prefixes)
                         {
-                            return ModelFactory.CreateDirectory(directoryName.RemoveTrailingForwardSlash(), directoryPath, GetVirtualPath(directoryPath));
+                            if (directoryPath == path)
+                            {
+                                var directoryName = GetLastPathPart(directoryPath);
+
+                                return ModelFactory.CreateDirectory(directoryName.RemoveTrailingForwardSlash(), directoryPath.EnsureTrailingForwardSlash(), GetVirtualPath(directoryPath));
+                            }
                         }
                     }
 
                     request.PageToken = objects.NextPageToken;
                 } while (request.PageToken != null);
 
+                throw new DirectoryNotFoundException(path, Prefix);
+            }
+            catch (GoogleApiException googleApiException) when (googleApiException.HttpStatusCode == HttpStatusCode.NotFound)
+            {
                 throw new DirectoryNotFoundException(path, Prefix);
             }
             catch (Exception exception)
@@ -113,11 +134,12 @@ namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
                 {
                     var objects = await request.ExecuteAsync(cancellationToken: cancellationToken);
 
-                    foreach (var file in objects.Items)
+                    if (objects.Items != null)
                     {
-                        var filePath = path + file.Name;
-
-                        files.Add(ModelFactory.CreateFile(file, filePath.RemoveTrailingForwardSlash(), GetVirtualPath(filePath)));
+                        foreach (var file in objects.Items.Where(item => item.ContentType != null))
+                        {
+                            files.Add(ModelFactory.CreateFile(file, file.Name.RemoveTrailingForwardSlash(), GetVirtualPath(file.Name)));
+                        }
                     }
 
                     request.PageToken = objects.NextPageToken;
@@ -150,11 +172,14 @@ namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
                 {
                     var objects = await request.ExecuteAsync(cancellationToken: cancellationToken);
 
-                    foreach (var directoryName in objects.Prefixes)
+                    if (objects.Prefixes != null)
                     {
-                        var directoryPath = path + directoryName;
+                        foreach (var directoryPath in objects.Prefixes)
+                        {
+                            var directoryName = GetLastPathPart(directoryPath);
 
-                        directories.Add(ModelFactory.CreateDirectory(directoryName.RemoveTrailingForwardSlash(), directoryPath.EnsureTrailingForwardSlash(), GetVirtualPath(directoryPath)));
+                            directories.Add(ModelFactory.CreateDirectory(directoryName.RemoveTrailingForwardSlash(), directoryPath.EnsureTrailingForwardSlash(), GetVirtualPath(directoryPath)));
+                        }
                     }
 
                     request.PageToken = objects.NextPageToken;
@@ -179,9 +204,7 @@ namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
 
             try
             {
-                // client.Service.
-                
-                await client.UploadObjectAsync(bucketName, GetLastPathPart(path).EnsureTrailingForwardSlash(), null, Stream.Null, cancellationToken: cancellationToken);
+                await client.UploadObjectAsync(bucketName, path.EnsureTrailingForwardSlash(), null, Stream.Null, cancellationToken: cancellationToken);
             }
             catch (Exception exception)
             {
@@ -191,22 +214,98 @@ namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
 
         public override async Task DeleteDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await GetDirectoryAsync(virtualPath, cancellationToken);
+
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
+
+            try
+            {
+                var files = await GetFilesAsync(virtualPath, cancellationToken);
+
+                foreach (var file in files)
+                {
+                    await DeleteFileAsync(file.VirtualPath, cancellationToken);
+                }
+
+                var subDirectories = await GetDirectoriesAsync(virtualPath, cancellationToken);
+
+                foreach (var subDirectory in subDirectories)
+                {
+                    await DeleteDirectoryAsync(subDirectory.VirtualPath, cancellationToken);
+                }
+
+                await client.DeleteObjectAsync(bucketName, path, cancellationToken: cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         public override async Task DeleteFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await GetFileAsync(virtualPath, cancellationToken);
+
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().RemoveTrailingForwardSlash();
+
+            try
+            {
+                await client.DeleteObjectAsync(bucketName, path, cancellationToken: cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         public override async Task<Stream> ReadFileStreamAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await GetFileAsync(virtualPath, cancellationToken);
+
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().RemoveTrailingForwardSlash();
+
+            try
+            {
+                var file = await client.GetObjectAsync(bucketName, path, new GetObjectOptions(), cancellationToken);
+
+                var memoryStream = new MemoryStream();
+
+                await client.DownloadObjectAsync(file, memoryStream, new DownloadObjectOptions(), cancellationToken);
+
+                memoryStream.Position = 0;
+
+                return memoryStream;
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         public override async Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            if (!overwrite && await FileExistsAsync(virtualPath, cancellationToken))
+            {
+                throw new FileExistsException(GetPath(virtualPath), Prefix);
+            }
+
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().RemoveTrailingForwardSlash();
+
+            try
+            {
+                var file = new Object
+                {
+                    Bucket = bucketName,
+                    Name = path,
+                    ContentType = ContentTypeProvider.GetContentType(path)
+                };
+
+                await client.UploadObjectAsync(file, contents, new UploadObjectOptions(), cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw Exception(exception);
+            }
         }
 
         protected override Exception Exception(Exception exception)
