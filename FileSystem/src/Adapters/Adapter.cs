@@ -129,9 +129,9 @@ namespace SharpGrip.FileSystem.Adapters
         public abstract Task WriteFileAsync(string virtualPath, Stream contents, bool overwrite = false, CancellationToken cancellationToken = default);
         protected abstract Exception Exception(Exception exception);
 
-        protected string GetPath(string path)
+        protected string GetPath(string virtualPath)
         {
-            return PathUtilities.GetPath(path, RootPath);
+            return PathUtilities.GetPath(virtualPath, RootPath);
         }
 
         protected string GetVirtualPath(string path)

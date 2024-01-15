@@ -9,7 +9,7 @@
         <PackageId>SharpGrip.FileSystem</PackageId>
         <Title>SharpGrip FileSystem</Title>
         <Description>SharpGrip FileSystem is a file system abstraction supporting multiple adapters.</Description>
-        <PackageTags>sharpgrip;file-system;amazon-s3;azure-blob-storage;azure-file-storage;dropbox;ftp;google-drive;microsoft-onedrive;sftp</PackageTags>
+        <PackageTags>sharpgrip;file-system;amazon-s3;azure-blob-storage;azure-file-storage;dropbox;ftp;google-cloud-storage;google-drive;microsoft-onedrive;sftp</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
