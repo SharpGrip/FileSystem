@@ -954,7 +954,7 @@ namespace SharpGrip.FileSystem
                     destinationAdapter.ClearCache();
                 }
 
-                using var fileStream = await sourceAdapter.ReadFileStreamAsync(virtualSourcePath, cancellationToken);
+                var fileStream = await sourceAdapter.ReadFileStreamAsync(virtualSourcePath, cancellationToken);
                 await destinationAdapter.WriteFileAsync(virtualDestinationPath, fileStream, overwrite, cancellationToken);
 
                 fileStream.Dispose();
