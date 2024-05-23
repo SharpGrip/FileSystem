@@ -10,6 +10,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.AzureFi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.Dropbox", "FileSystem.Adapters.Dropbox\FileSystem.Adapters.Dropbox.csproj", "{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.Ftp", "FileSystem.Adapters.Ftp\FileSystem.Adapters.Ftp.csproj", "{ED38402A-3667-4701-A974-4D7710E1544A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.GoogleCloudStorage", "FileSystem.Adapters.GoogleCloudStorage\FileSystem.Adapters.GoogleCloudStorage.csproj", "{0E6E0F36-55C4-49FF-9298-99D5B3309381}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.GoogleDrive", "FileSystem.Adapters.GoogleDrive\FileSystem.Adapters.GoogleDrive.csproj", "{CB1F411C-3FB5-4441-9541-423951C17BAF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Adapters.MicrosoftOneDrive", "FileSystem.Adapters.MicrosoftOneDrive\FileSystem.Adapters.MicrosoftOneDrive.csproj", "{9955422E-4A50-43CD-BC2B-91E6820F206C}"
@@ -44,6 +48,14 @@ Global
 		{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA70DD02-3D25-44C6-ACC8-D61BA55F6C6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED38402A-3667-4701-A974-4D7710E1544A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED38402A-3667-4701-A974-4D7710E1544A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED38402A-3667-4701-A974-4D7710E1544A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED38402A-3667-4701-A974-4D7710E1544A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E6E0F36-55C4-49FF-9298-99D5B3309381}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E6E0F36-55C4-49FF-9298-99D5B3309381}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E6E0F36-55C4-49FF-9298-99D5B3309381}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E6E0F36-55C4-49FF-9298-99D5B3309381}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CB1F411C-3FB5-4441-9541-423951C17BAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CB1F411C-3FB5-4441-9541-423951C17BAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB1F411C-3FB5-4441-9541-423951C17BAF}.Release|Any CPU.ActiveCfg = Release|Any CPU

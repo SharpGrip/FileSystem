@@ -154,23 +154,25 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="Exceptions.FileNotFoundException">Thrown if the file does not exists at the given path.</exception>
-        public Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
+        public async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             try
             {
                 Logger.LogStartExecutingMethod(nameof(GetFileAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
                     adapter.ClearCache();
                 }
 
-                return adapter.GetFileAsync(virtualPath, cancellationToken);
+                return await adapter.GetFileAsync(virtualPath, cancellationToken);
             }
             catch (FileSystemException fileSystemException)
             {
@@ -213,23 +215,25 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
-        public Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
+        public async Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             try
             {
                 Logger.LogStartExecutingMethod(nameof(GetDirectoryAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
                     adapter.ClearCache();
                 }
 
-                return adapter.GetDirectoryAsync(virtualPath, cancellationToken);
+                return await adapter.GetDirectoryAsync(virtualPath, cancellationToken);
             }
             catch (FileSystemException fileSystemException)
             {
@@ -272,23 +276,25 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
-        public Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<IFile>> GetFilesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             try
             {
                 Logger.LogStartExecutingMethod(nameof(GetFilesAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
                     adapter.ClearCache();
                 }
 
-                return adapter.GetFilesAsync(virtualPath, cancellationToken);
+                return await adapter.GetFilesAsync(virtualPath, cancellationToken);
             }
             catch (FileSystemException fileSystemException)
             {
@@ -331,23 +337,25 @@ namespace SharpGrip.FileSystem
         /// <exception cref="AdapterNotFoundException">Thrown when an adapter could not be found via the provided prefix.</exception>
         /// <exception cref="PrefixNotFoundInPathException">Thrown when a prefix in the provided path could not be found.</exception>
         /// <exception cref="Exceptions.DirectoryNotFoundException">Thrown if the directory does not exists at the given path.</exception>
-        public Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<IDirectory>> GetDirectoriesAsync(string virtualPath = "", CancellationToken cancellationToken = default)
         {
             try
             {
                 Logger.LogStartExecutingMethod(nameof(GetDirectoriesAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
                     adapter.ClearCache();
                 }
 
-                return adapter.GetDirectoriesAsync(virtualPath, cancellationToken);
+                return await adapter.GetDirectoriesAsync(virtualPath, cancellationToken);
             }
             catch (FileSystemException fileSystemException)
             {
@@ -394,10 +402,12 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(FileExistsAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
@@ -451,10 +461,12 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(DirectoryExistsAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
@@ -508,10 +520,12 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(CreateDirectoryAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
@@ -565,10 +579,12 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(DeleteFileAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
@@ -622,10 +638,12 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(DeleteDirectoryAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
@@ -663,10 +681,12 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(ReadFileStreamAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
@@ -722,6 +742,8 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(ReadFileAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var stream = await ReadFileStreamAsync(virtualPath, cancellationToken);
                 using var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(stream, true, cancellationToken);
 
@@ -773,6 +795,8 @@ namespace SharpGrip.FileSystem
             try
             {
                 Logger.LogStartExecutingMethod(nameof(ReadTextFileAsync));
+
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
 
                 using var stream = await ReadFileStreamAsync(virtualPath, cancellationToken);
                 using var streamReader = new StreamReader(stream);
@@ -830,20 +854,23 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(CopyFileAsync));
 
+                virtualSourcePath = PathUtilities.NormalizeVirtualPath(virtualSourcePath);
+                virtualDestinationPath = PathUtilities.NormalizeVirtualPath(virtualDestinationPath);
+
                 var sourcePrefix = PathUtilities.GetPrefix(virtualSourcePath);
                 var sourceAdapter = GetAdapter(sourcePrefix);
 
                 var destinationPrefix = PathUtilities.GetPrefix(virtualDestinationPath);
                 var destinationAdapter = GetAdapter(destinationPrefix);
 
-                sourceAdapter.Connect();
+                await sourceAdapter.ConnectAsync(cancellationToken);
 
                 if (!sourceAdapter.AdapterConfiguration.EnableCache)
                 {
                     sourceAdapter.ClearCache();
                 }
 
-                destinationAdapter.Connect();
+                await destinationAdapter.ConnectAsync(cancellationToken);
 
                 if (!destinationAdapter.AdapterConfiguration.EnableCache)
                 {
@@ -904,27 +931,30 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(MoveFileAsync));
 
+                virtualSourcePath = PathUtilities.NormalizeVirtualPath(virtualSourcePath);
+                virtualDestinationPath = PathUtilities.NormalizeVirtualPath(virtualDestinationPath);
+
                 var sourcePrefix = PathUtilities.GetPrefix(virtualSourcePath);
                 var sourceAdapter = GetAdapter(sourcePrefix);
 
                 var destinationPrefix = PathUtilities.GetPrefix(virtualDestinationPath);
                 var destinationAdapter = GetAdapter(destinationPrefix);
 
-                sourceAdapter.Connect();
+                await sourceAdapter.ConnectAsync(cancellationToken);
 
                 if (!sourceAdapter.AdapterConfiguration.EnableCache)
                 {
                     sourceAdapter.ClearCache();
                 }
 
-                destinationAdapter.Connect();
+                await destinationAdapter.ConnectAsync(cancellationToken);
 
                 if (!destinationAdapter.AdapterConfiguration.EnableCache)
                 {
                     destinationAdapter.ClearCache();
                 }
 
-                using var fileStream = await sourceAdapter.ReadFileStreamAsync(virtualSourcePath, cancellationToken);
+                var fileStream = await sourceAdapter.ReadFileStreamAsync(virtualSourcePath, cancellationToken);
                 await destinationAdapter.WriteFileAsync(virtualDestinationPath, fileStream, overwrite, cancellationToken);
 
                 fileStream.Dispose();
@@ -961,10 +991,12 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(WriteFileAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {
@@ -1078,10 +1110,12 @@ namespace SharpGrip.FileSystem
             {
                 Logger.LogStartExecutingMethod(nameof(AppendFileAsync));
 
+                virtualPath = PathUtilities.NormalizeVirtualPath(virtualPath);
+
                 var prefix = PathUtilities.GetPrefix(virtualPath);
                 var adapter = GetAdapter(prefix);
 
-                adapter.Connect();
+                await adapter.ConnectAsync(cancellationToken);
 
                 if (!adapter.AdapterConfiguration.EnableCache)
                 {

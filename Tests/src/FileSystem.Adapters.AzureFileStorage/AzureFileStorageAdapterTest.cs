@@ -19,14 +19,12 @@ namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.AzureFileStorage
         }
 
         [Fact]
-        public Task Test_Connect()
+        public async Task Test_Connect()
         {
             var shareClient = Substitute.For<ShareClient>();
             var azureFileStorageAdapter = new AzureFileStorageAdapter("prefix", "/root-path", shareClient);
 
-            azureFileStorageAdapter.Connect();
-
-            return Task.CompletedTask;
+            await azureFileStorageAdapter.ConnectAsync();
         }
 
         [Fact]

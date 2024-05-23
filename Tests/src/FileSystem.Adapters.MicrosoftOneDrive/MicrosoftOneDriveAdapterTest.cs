@@ -21,15 +21,13 @@ namespace SharpGrip.FileSystem.Tests.FileSystem.Adapters.MicrosoftOneDrive
         }
 
         [Fact]
-        public Task Test_Connect()
+        public async Task Test_Connect()
         {
             var delegateAuthenticationProvider = new DelegateAuthenticationProvider(message => Task.FromResult(message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "12345")));
             var graphServiceClient = Substitute.For<GraphServiceClient>(delegateAuthenticationProvider, null);
             var microsoftOneDriveAdapter = new MicrosoftOneDriveAdapter("prefix", "/root-path", graphServiceClient, "driveId");
 
-            microsoftOneDriveAdapter.Connect();
-
-            return Task.CompletedTask;
+            await microsoftOneDriveAdapter.ConnectAsync();
         }
 
         [Fact]

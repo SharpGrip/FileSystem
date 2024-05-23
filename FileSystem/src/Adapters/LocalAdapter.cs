@@ -22,9 +22,10 @@ namespace SharpGrip.FileSystem.Adapters
         {
         }
 
-        public override void Connect()
+        public override async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
             Logger.LogStartConnectingAdapter(this);
+            await Task.CompletedTask;
             Logger.LogFinishedConnectingAdapter(this);
         }
 
@@ -196,7 +197,7 @@ namespace SharpGrip.FileSystem.Adapters
                 using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Create);
                 contents.Seek(0, SeekOrigin.Begin);
 
-                await contents.CopyToAsync(fileStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+                await contents.CopyToAsync(fileStream, FileSystemConstants.Streaming.DefaultMemoryStreamBufferSize, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -213,7 +214,7 @@ namespace SharpGrip.FileSystem.Adapters
                 using var fileStream = new FileStream(GetPath(virtualPath), FileMode.Append);
                 contents.Seek(0, SeekOrigin.Begin);
 
-                await contents.CopyToAsync(fileStream, AdapterConstants.DefaultMemoryStreamBufferSize, cancellationToken);
+                await contents.CopyToAsync(fileStream, FileSystemConstants.Streaming.DefaultMemoryStreamBufferSize, cancellationToken);
             }
             catch (Exception exception)
             {

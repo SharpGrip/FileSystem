@@ -13,11 +13,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\" />
+        <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Google.Apis.Drive.v3" Version="1.64.0.3256" />
+        <PackageReference Include="Google.Apis.Drive.v3" Version="1.68.0.3416" />
     </ItemGroup>
 
     <ItemGroup>

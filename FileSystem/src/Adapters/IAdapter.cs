@@ -14,7 +14,7 @@ namespace SharpGrip.FileSystem.Adapters
         public string RootPath { get; }
         public string Name { get; }
         public IAdapterConfiguration AdapterConfiguration { get; }
-        public void Connect();
+        public Task ConnectAsync(CancellationToken cancellationToken = default);
         public void ClearCache();
         public Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default);
         public Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default);

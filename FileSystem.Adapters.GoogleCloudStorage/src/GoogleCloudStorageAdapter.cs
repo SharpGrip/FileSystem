@@ -2,25 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Amazon.S3;
-using Amazon.S3.Model;
+using Google;
+using Google.Cloud.Storage.V1;
 using SharpGrip.FileSystem.Exceptions;
 using SharpGrip.FileSystem.Extensions;
 using SharpGrip.FileSystem.Models;
 using SharpGrip.FileSystem.Utilities;
 using DirectoryNotFoundException = SharpGrip.FileSystem.Exceptions.DirectoryNotFoundException;
 using FileNotFoundException = SharpGrip.FileSystem.Exceptions.FileNotFoundException;
+using Object = Google.Apis.Storage.v1.Data.Object;
 
-namespace SharpGrip.FileSystem.Adapters.AmazonS3
+namespace SharpGrip.FileSystem.Adapters.GoogleCloudStorage
 {
-    public class AmazonS3Adapter : Adapter<AmazonS3AdapterConfiguration, string, string>
+    public class GoogleCloudStorageAdapter : Adapter<GoogleCloudStorageAdapterConfiguration, string, string>
     {
-        private readonly IAmazonS3 client;
+        private readonly StorageClient client;
         private readonly string bucketName;
 
-        public AmazonS3Adapter(string prefix, string rootPath, IAmazonS3 client, string bucketName, Action<AmazonS3AdapterConfiguration>? configuration = null) : base(prefix, rootPath, configuration)
+        public GoogleCloudStorageAdapter(string prefix, string rootPath, StorageClient client, string bucketName, Action<GoogleCloudStorageAdapterConfiguration>? configuration = null)
+            : base(prefix, rootPath, configuration)
         {
             this.client = client;
             this.bucketName = bucketName;
@@ -40,22 +43,22 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
         public override async Task<IFile> GetFileAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
-            var path = GetPath(virtualPath).RemoveLeadingForwardSlash();
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().RemoveTrailingForwardSlash();
 
             try
             {
-                using var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
+                var file = await client.GetObjectAsync(bucketName, path, new GetObjectOptions(), cancellationToken);
 
-                return ModelFactory.CreateFile(response, path, virtualPath);
-            }
-            catch (AmazonS3Exception exception)
-            {
-                if (exception.ErrorCode == "NoSuchKey")
+                if (file == null)
                 {
                     throw new FileNotFoundException(path, Prefix);
                 }
 
-                throw Exception(exception);
+                return ModelFactory.CreateFile(file, path, virtualPath);
+            }
+            catch (GoogleApiException googleApiException) when (googleApiException.HttpStatusCode == HttpStatusCode.NotFound)
+            {
+                throw new FileNotFoundException(path, Prefix);
             }
             catch (Exception exception)
             {
@@ -66,37 +69,44 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         public override async Task<IDirectory> GetDirectoryAsync(string virtualPath, CancellationToken cancellationToken = default)
         {
             var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
+            var parentPath = GetParentPathPart(path).EnsureTrailingForwardSlash();
 
             try
             {
-                if (path == "/")
+                if (path.IsNullOrEmpty() || path == "/")
                 {
-                    return ModelFactory.CreateDirectory(new S3Object {Key = "/"}, virtualPath);
+                    return ModelFactory.CreateDirectory("/", path, virtualPath);
                 }
 
-                var request = new ListObjectsV2Request {BucketName = bucketName, Prefix = path};
-                ListObjectsV2Response response;
+                var request = client.Service.Objects.List(bucketName);
+
+                request.Prefix = parentPath == "/" ? null : parentPath;
+                request.Delimiter = "/";
 
                 do
                 {
-                    response = await client.ListObjectsV2Async(request, cancellationToken);
+                    var objects = await request.ExecuteAsync(cancellationToken: cancellationToken);
 
-                    if (response.KeyCount == 0)
+                    if (objects.Prefixes != null)
                     {
-                        throw new DirectoryNotFoundException(path, Prefix);
-                    }
-
-                    foreach (var item in response.S3Objects)
-                    {
-                        if (item.Key == path)
+                        foreach (var directoryPath in objects.Prefixes)
                         {
-                            return ModelFactory.CreateDirectory(item, virtualPath);
+                            if (directoryPath == path)
+                            {
+                                var directoryName = GetLastPathPart(directoryPath);
+
+                                return ModelFactory.CreateDirectory(directoryName.RemoveTrailingForwardSlash(), directoryPath.EnsureTrailingForwardSlash(), GetVirtualPath(directoryPath));
+                            }
                         }
                     }
 
-                    request.ContinuationToken = response.NextContinuationToken;
-                } while (response.IsTruncated);
+                    request.PageToken = objects.NextPageToken;
+                } while (request.PageToken != null);
 
+                throw new DirectoryNotFoundException(path, Prefix);
+            }
+            catch (GoogleApiException googleApiException) when (googleApiException.HttpStatusCode == HttpStatusCode.NotFound)
+            {
                 throw new DirectoryNotFoundException(path, Prefix);
             }
             catch (Exception exception)
@@ -111,34 +121,29 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
 
-            if (path == "/")
-            {
-                path = "";
-            }
-
             try
             {
-                var request = new ListObjectsV2Request {BucketName = bucketName, Prefix = path};
-                ListObjectsV2Response response;
-
                 var files = new List<IFile>();
+
+                var request = client.Service.Objects.List(bucketName);
+
+                request.Prefix = path == "/" ? null : path;
+                request.Delimiter = "/";
 
                 do
                 {
-                    response = await client.ListObjectsV2Async(request, cancellationToken);
+                    var objects = await request.ExecuteAsync(cancellationToken: cancellationToken);
 
-                    foreach (var item in response.S3Objects)
+                    if (objects.Items != null)
                     {
-                        var itemName = item.Key.Substring(path.Length).RemoveLeadingForwardSlash();
-
-                        if (!item.Key.EndsWith("/") && !itemName.Contains('/'))
+                        foreach (var file in objects.Items.Where(item => item.ContentType != null))
                         {
-                            files.Add(ModelFactory.CreateFile(item, GetVirtualPath(item.Key)));
+                            files.Add(ModelFactory.CreateFile(file, file.Name.RemoveTrailingForwardSlash(), GetVirtualPath(file.Name)));
                         }
                     }
 
-                    request.ContinuationToken = response.NextContinuationToken;
-                } while (response.IsTruncated);
+                    request.PageToken = objects.NextPageToken;
+                } while (request.PageToken != null);
 
                 return files;
             }
@@ -154,34 +159,31 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             var path = GetPath(virtualPath).RemoveLeadingForwardSlash().EnsureTrailingForwardSlash();
 
-            if (path == "/")
-            {
-                path = "";
-            }
-
             try
             {
-                var request = new ListObjectsV2Request {BucketName = bucketName, Prefix = path};
-                ListObjectsV2Response response;
-
                 var directories = new List<IDirectory>();
+
+                var request = client.Service.Objects.List(bucketName);
+
+                request.Prefix = path == "/" ? null : path;
+                request.Delimiter = "/";
 
                 do
                 {
-                    response = await client.ListObjectsV2Async(request, cancellationToken);
+                    var objects = await request.ExecuteAsync(cancellationToken: cancellationToken);
 
-                    foreach (var item in response.S3Objects)
+                    if (objects.Prefixes != null)
                     {
-                        var itemName = item.Key.Substring(path.Length).RemoveLeadingForwardSlash();
-
-                        if (item.Key.EndsWith("/") && itemName.Count(c => c.Equals('/')) == 1)
+                        foreach (var directoryPath in objects.Prefixes)
                         {
-                            directories.Add(ModelFactory.CreateDirectory(item, GetVirtualPath(item.Key)));
+                            var directoryName = GetLastPathPart(directoryPath);
+
+                            directories.Add(ModelFactory.CreateDirectory(directoryName.RemoveTrailingForwardSlash(), directoryPath.EnsureTrailingForwardSlash(), GetVirtualPath(directoryPath)));
                         }
                     }
 
-                    request.ContinuationToken = response.NextContinuationToken;
-                } while (response.IsTruncated);
+                    request.PageToken = objects.NextPageToken;
+                } while (request.PageToken != null);
 
                 return directories;
             }
@@ -202,8 +204,7 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             try
             {
-                var request = new PutObjectRequest {BucketName = bucketName, Key = path, InputStream = new MemoryStream()};
-                await client.PutObjectAsync(request, cancellationToken);
+                await client.UploadObjectAsync(bucketName, path.EnsureTrailingForwardSlash(), null, Stream.Null, cancellationToken: cancellationToken);
             }
             catch (Exception exception)
             {
@@ -219,25 +220,21 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
 
             try
             {
-                var deleteObjectsRequest = new DeleteObjectsRequest {BucketName = bucketName};
-                var listObjectsRequest = new ListObjectsV2Request {BucketName = bucketName, Prefix = path};
+                var files = await GetFilesAsync(virtualPath, cancellationToken);
 
-                ListObjectsV2Response response;
-
-                do
+                foreach (var file in files)
                 {
-                    response = await client.ListObjectsV2Async(listObjectsRequest, cancellationToken);
+                    await DeleteFileAsync(file.VirtualPath, cancellationToken);
+                }
 
-                    foreach (S3Object entry in response.S3Objects)
-                    {
-                        deleteObjectsRequest.AddKey(entry.Key);
-                    }
+                var subDirectories = await GetDirectoriesAsync(virtualPath, cancellationToken);
 
-                    listObjectsRequest.ContinuationToken = response.NextContinuationToken;
-                } while (response.IsTruncated);
+                foreach (var subDirectory in subDirectories)
+                {
+                    await DeleteDirectoryAsync(subDirectory.VirtualPath, cancellationToken);
+                }
 
-
-                await client.DeleteObjectsAsync(deleteObjectsRequest, cancellationToken);
+                await client.DeleteObjectAsync(bucketName, path, cancellationToken: cancellationToken);
             }
             catch (Exception exception)
             {
@@ -249,11 +246,11 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
-            var path = GetPath(virtualPath).RemoveLeadingForwardSlash();
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().RemoveTrailingForwardSlash();
 
             try
             {
-                await client.DeleteObjectAsync(bucketName, path, cancellationToken);
+                await client.DeleteObjectAsync(bucketName, path, cancellationToken: cancellationToken);
             }
             catch (Exception exception)
             {
@@ -265,17 +262,17 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
         {
             await GetFileAsync(virtualPath, cancellationToken);
 
-            var path = GetPath(virtualPath).RemoveLeadingForwardSlash();
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().RemoveTrailingForwardSlash();
 
             try
             {
-                // Performance issue:
-                // The stream returned from the service does not support seeking and therefore cannot determine the content length (required when creating files from this stream).
-                // Copy the response stream to a new memory stream and return that one instead.
+                var file = await client.GetObjectAsync(bucketName, path, new GetObjectOptions(), cancellationToken);
 
-                using var response = await client.GetObjectAsync(bucketName, path, cancellationToken);
+                var memoryStream = new MemoryStream();
 
-                var memoryStream = await StreamUtilities.CopyContentsToMemoryStreamAsync(response.ResponseStream, true, cancellationToken);
+                await client.DownloadObjectAsync(file, memoryStream, new DownloadObjectOptions(), cancellationToken);
+
+                memoryStream.Position = 0;
 
                 return memoryStream;
             }
@@ -292,18 +289,18 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
                 throw new FileExistsException(GetPath(virtualPath), Prefix);
             }
 
-            var path = GetPath(virtualPath).RemoveLeadingForwardSlash();
+            var path = GetPath(virtualPath).RemoveLeadingForwardSlash().RemoveTrailingForwardSlash();
 
             try
             {
-                var request = new PutObjectRequest
+                var file = new Object
                 {
-                    InputStream = contents,
-                    BucketName = bucketName,
-                    Key = path
+                    Bucket = bucketName,
+                    Name = path,
+                    ContentType = ContentTypeProvider.GetContentType(path)
                 };
 
-                await client.PutObjectAsync(request, cancellationToken);
+                await client.UploadObjectAsync(file, contents, new UploadObjectOptions(), cancellationToken);
             }
             catch (Exception exception)
             {
@@ -316,14 +313,6 @@ namespace SharpGrip.FileSystem.Adapters.AmazonS3
             if (exception is FileSystemException)
             {
                 return exception;
-            }
-
-            if (exception is AmazonS3Exception amazonS3Exception)
-            {
-                if (amazonS3Exception.ErrorCode == "InvalidAccessKeyId" || amazonS3Exception.ErrorCode == "InvalidSecurity")
-                {
-                    return new ConnectionException(exception);
-                }
             }
 
             return new AdapterRuntimeException(exception);
