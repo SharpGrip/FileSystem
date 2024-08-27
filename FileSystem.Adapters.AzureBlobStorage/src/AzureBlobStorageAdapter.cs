@@ -237,7 +237,7 @@ namespace SharpGrip.FileSystem.Adapters.AzureBlobStorage
             {
                 contents.Seek(0, SeekOrigin.Begin);
 
-                await client.UploadBlobAsync(path, contents, cancellationToken);
+                await client.GetBlobClient(path).UploadAsync(contents, true, cancellationToken);
             }
             catch (Exception exception)
             {
